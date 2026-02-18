@@ -19,7 +19,8 @@ Working (Confirmed):
 - Audio (Input & Output)
 - System tray icon and menu
 - Background follows theme
-- Top bar buttons
+- Top bar buttons <br>
+<sub> Tested audio and screenshare between both my main pc (gentoo) and laptop (cachyos) and it worked perfectly </sub>
 
 TODO:
 - Drag n drop files
