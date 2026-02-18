@@ -18,6 +18,8 @@ Working:
 - Screenshare
 - Audio (I think)
 - System tray icon and menu
+- Background follows theme
+- Top bar buttons
 
 TODO:
 - Drag n drop files
