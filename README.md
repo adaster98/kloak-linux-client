@@ -10,13 +10,13 @@ Free and open source, so you can trust it.
 
 ## Progress:
 
-Working:
+Working (Confirmed):
 - Login
 - Chat
 - File upload
-- Permissions prompt (sounds, video etc)
+- Permissions prompt (sound, screenshare)
 - Screenshare
-- Audio (I think)
+- Audio (Input & Output)
 - System tray icon and menu
 - Background follows theme
 - Top bar buttons
