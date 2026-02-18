@@ -17,6 +17,7 @@ Working:
 - Permissions prompt (sounds, video etc)
 - Screenshare
 - Audio (I think)
+- System tray icon and menu
 
 TODO:
 - Drag n drop files
