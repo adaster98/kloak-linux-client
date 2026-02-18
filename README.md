@@ -1,4 +1,4 @@
-# Unofficial Kloak Chat for Linux
+# Unofficial Kloak Client for Linux
 This project is designed to tide linux users over until the release of the official app.
 Free and open source, so you can trust it.
 
