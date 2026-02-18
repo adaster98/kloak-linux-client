@@ -1,0 +1,37 @@
+{
+  "name": "kloak-client",
+  "version": "1.0.0",
+  "description": "Desktop client for Kloak",
+  "main": "main.js",
+  "homepage": "https://kloak.app",
+  "author": "Aster <your.email@example.com>",
+  "scripts": {
+    "start": "electron . --enable-features=WebRTCPipeWireCapturer",
+    "build": "electron-builder --linux"
+  },
+  "build": {
+    "appId": "com.kloak.client",
+    "productName": "Kloak",
+    "directories": {
+      "output": "dist"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "icon": "icons/icon.png",
+      "category": "Network",
+      "maintainer": "Aster <your.email@example.com>"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "icons/icon.ico"
+    }
+  },
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1",
+    "rpmbuild": "^0.0.23"
+  }
+}

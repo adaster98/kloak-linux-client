@@ -1,0 +1,205 @@
+const { app, BrowserWindow, Tray, Menu, session, ipcMain, dialog, desktopCapturer, shell } = require('electron');
+const path = require('path');
+
+let screenSources = [];
+let screenShareCallback = null;
+let mainWindow;
+let tray;
+
+// IPC Window control events
+ipcMain.on('window-min', () => mainWindow.minimize());
+ipcMain.on('window-max', () => {
+    if (mainWindow.isMaximized()) {
+        mainWindow.unmaximize();
+    } else {
+        mainWindow.maximize();
+    }
+});
+ipcMain.on('window-close', () => mainWindow.hide()); // Hide instead of close to keep tray active
+
+function createWindow() {
+    mainWindow = new BrowserWindow({
+        width: 1600,
+        height: 900,
+        frame: false,
+        transparent: true,
+        backgroundColor: '#00000000',
+        icon: path.join(__dirname, 'icons/icon.png'),
+                                   webPreferences: {
+                                       preload: path.join(__dirname, 'preload.js'),
+                                   contextIsolation: true,
+                                   nodeIntegration: false,
+                                   partition: 'persist:kloak'
+                                   }
+    });
+
+    // Get correct session
+    const appSession = session.fromPartition('persist:kloak');
+
+    const appUserAgent = mainWindow.webContents.getUserAgent() + ' KloakClient Electron Tauri';
+    mainWindow.webContents.setUserAgent(appUserAgent);
+
+    mainWindow.loadURL('https://kloak.app/app');
+
+    // Prevent navigation on file drop
+    mainWindow.webContents.on('will-navigate', (event, url) => {
+        if (url.startsWith('file://')) event.preventDefault();
+    });
+        mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+            if (url.startsWith('file://')) return { action: 'deny' };
+                return { action: 'allow' };
+        });
+
+        // CSS Injection
+        mainWindow.webContents.on('did-finish-load', () => {
+            mainWindow.webContents.insertCSS(`
+            html, body {
+                border-radius: 20px;
+                overflow: hidden;
+                background: transparent !important;
+            }
+            #app, #root, body > div:first-child {
+            background-color: #0f0f0f !important;
+            transition: background-color 0.2s ease;
+            height: 100vh;
+            width: 100vw;
+            }
+            .h-9.w-full.border-b {
+                -webkit-app-region: drag !important;
+                user-select: none;
+            }
+            .h-9.w-full.border-b button {
+                -webkit-app-region: no-drag !important;
+                cursor: pointer !important;
+            }
+            `);
+        });
+
+        // Attach permissions handler to 'appSession'
+        appSession.setPermissionRequestHandler((webContents, permission, callback) => {
+            const permissionsToPrompt = ['media', 'geolocation', 'notifications', 'midiSysex'];
+            if (permissionsToPrompt.includes(permission)) {
+                dialog.showMessageBox(mainWindow, {
+                    type: 'question',
+                    buttons: ['Allow', 'Deny'],
+                    title: 'Permission Request',
+                    message: `Kloak requests permission for: ${permission}`,
+                    defaultId: 0,
+                        cancelId: 1
+                }).then(result => {
+                    callback(result.response === 0);
+                });
+            } else {
+                callback(true);
+            }
+        });
+
+        // Handle standard "Hide on Close" behavior
+        mainWindow.on('close', (event) => {
+            if (!app.isQuiting) {
+                event.preventDefault();
+                mainWindow.hide();
+            }
+            return false;
+        });
+
+        // Attach screenshare handler to 'appSession'
+        appSession.setDisplayMediaRequestHandler((request, callback) => {
+            desktopCapturer.getSources({ types: ['screen', 'window'], thumbnailSize: {width: 300, height: 300} })
+            .then((sources) => {
+                screenSources = sources;
+                screenShareCallback = callback;
+                const cleanSources = sources.map(source => ({
+                    id: source.id,
+                    name: source.name,
+                    thumbnail: source.thumbnail.toDataURL()
+                }));
+                mainWindow.webContents.send('show-screen-picker', cleanSources);
+            })
+            .catch((err) => {
+                console.error("Error getting screen sources:", err);
+                callback(null);
+            });
+        });
+
+        // IPC Handler for Selection stays the same (it's attached to ipcMain, which is global)
+        ipcMain.on('screen-share-selected', (event, sourceId) => {
+            if (screenShareCallback) {
+                if (sourceId) {
+                    const chosenSource = screenSources.find(s => s.id === sourceId);
+                    if (chosenSource) {
+                        screenShareCallback({ video: chosenSource });
+                    } else {
+                        screenShareCallback(null);
+                    }
+                } else {
+                    screenShareCallback(null);
+                }
+                screenShareCallback = null;
+                screenSources = [];
+            }
+        });
+
+        // Handle external links
+        mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+            // Security check: Only open valid URLs (http/https)
+            if (url.startsWith('http:') || url.startsWith('https:')) {
+                shell.openExternal(url);
+            }
+            return { action: 'deny' }; // Stop Electron from opening its own window
+        });
+}
+
+function createTray() {
+    const iconPath = path.join(__dirname, 'icons/icon.png');
+    tray = new Tray(iconPath);
+    tray.setToolTip('Kloak Client');
+
+    // Left click, Toggle Window
+    tray.on('click', () => {
+        if (mainWindow.isVisible()) {
+            if (mainWindow.isFocused()) {
+                mainWindow.hide();
+            } else {
+                mainWindow.show();
+                mainWindow.focus();
+            }
+        } else {
+            mainWindow.show();
+            mainWindow.focus();
+        }
+    });
+
+    // Right click, Context Menu
+    const contextMenu = Menu.buildFromTemplate([
+        {
+            label: 'Open',
+            click: () => {
+                mainWindow.show();
+                mainWindow.focus();
+            }
+        },
+        {
+            label: 'Restart',
+            click: () => {
+                app.relaunch(); // Spawns a new instance of the app
+                app.exit(0);    // Kills the current instance immediately
+            }
+        },
+        { type: 'separator' },
+        {
+            label: 'Quit',
+            click: () => {
+                app.isQuiting = true;
+                app.quit();
+            }
+        }
+    ]);
+
+    tray.setContextMenu(contextMenu);
+}
+
+app.whenReady().then(() => {
+    createWindow();
+    createTray();
+});
