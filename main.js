@@ -290,13 +290,16 @@ function createTray() {
         {
             label: 'Restart',
             click: () => {
-                const restartOptions = {};
+                // Keep any command line arguments the user passed originally
+                const restartOptions = {
+                    args: process.argv.slice(1)
+                };
 
-                // If the app is running as a Linux AppImage, force Electron to
-                // relaunch the actual .AppImage file, not the temporary mount path.
+                // Appimage fix
                 if (process.env.APPIMAGE) {
                     restartOptions.execPath = process.env.APPIMAGE;
-                    restartOptions.args = process.argv.slice(1);
+                    // Prepend flag to bypass FUSE lock
+                    restartOptions.args.unshift('--appimage-extract-and-run');
                 }
 
                 app.relaunch(restartOptions); // Spawns a new instance properly
