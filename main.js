@@ -1,10 +1,24 @@
-const { app, BrowserWindow, Tray, Menu, session, ipcMain, dialog, desktopCapturer, shell } = require('electron');
+const { app, BrowserWindow, Tray, Menu, session, ipcMain, dialog, desktopCapturer, shell, nativeImage } = require('electron');
 const path = require('path');
+const fs = require('fs');
 
 let screenSources = [];
 let screenShareCallback = null;
 let mainWindow;
 let tray;
+let pendingPermissions = {};
+
+// Store settings
+const settingsPath = path.join(app.getPath('userData'), 'kloak-settings.json');
+
+function loadSettings() {
+    try { return JSON.parse(fs.readFileSync(settingsPath, 'utf8')); }
+    catch (e) { return { skipLinkWarning: false }; }
+}
+function saveSettings(settings) {
+    fs.writeFileSync(settingsPath, JSON.stringify(settings));
+}
+let appSettings = loadSettings();
 
 // IPC Window control events
 ipcMain.on('window-min', () => mainWindow.minimize());
@@ -75,22 +89,32 @@ function createWindow() {
             `);
         });
 
-        // Attach permissions handler to 'appSession'
-        appSession.setPermissionRequestHandler((webContents, permission, callback) => {
-            const permissionsToPrompt = ['media', 'geolocation', 'notifications', 'midiSysex'];
+        // Permission Handlers
+
+        // Catch the request
+        appSession.setPermissionRequestHandler((webContents, permission, callback, details) => {
+            const permissionsToPrompt = ['media', 'geolocation', 'notifications'];
+
             if (permissionsToPrompt.includes(permission)) {
-                dialog.showMessageBox(mainWindow, {
-                    type: 'question',
-                    buttons: ['Allow', 'Deny'],
-                    title: 'Permission Request',
-                    message: `Kloak requests permission for: ${permission}`,
-                    defaultId: 0,
-                        cancelId: 1
-                }).then(result => {
-                    callback(result.response === 0);
+                const reqId = Date.now().toString();
+                pendingPermissions[reqId] = callback;
+
+                // Spawn box
+                mainWindow.webContents.send('show-custom-permission', {
+                    id: reqId,
+                    permission: permission
                 });
             } else {
                 callback(true);
+            }
+        });
+
+        // Permission IPC Listener
+        ipcMain.on('permission-response', (event, { id, allowed }) => {
+            if (pendingPermissions[id]) {
+                // Execute the saved callback with the user's choice (true/false)
+                pendingPermissions[id](allowed);
+                delete pendingPermissions[id]; // Cleanup
             }
         });
 
@@ -142,11 +166,27 @@ function createWindow() {
 
         // Handle external links
         mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-            // Security check: Only open valid URLs (http/https)
             if (url.startsWith('http:') || url.startsWith('https:')) {
+                if (appSettings.skipLinkWarning) {
+                    // User checked the box previously, open immediately
+                    shell.openExternal(url);
+                } else {
+                    // Send to the frontend to show the warning UI
+                    mainWindow.webContents.send('show-link-warning', url);
+                }
+            }
+            return { action: 'deny' }; // Always stop Electron's default window
+        });
+
+        // Listen for link warning response
+        ipcMain.on('link-warning-response', (event, { url, allowed, remember }) => {
+            if (remember) {
+                appSettings.skipLinkWarning = true;
+                saveSettings(appSettings);
+            }
+            if (allowed) {
                 shell.openExternal(url);
             }
-            return { action: 'deny' }; // Stop Electron from opening its own window
         });
 }
 
