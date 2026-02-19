@@ -86,6 +86,12 @@ function createWindow() {
                 -webkit-app-region: no-drag !important;
                 cursor: pointer !important;
             }
+
+            /* Fix for the memory leak thats been bugging me for a day */
+            /* This flattens the chat into a single texture and saves VRAM */
+            * {
+                backdrop-filter: none !important;
+            }
             `);
         });
 

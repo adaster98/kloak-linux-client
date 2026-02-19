@@ -11,47 +11,32 @@ contextBridge.exposeInMainWorld('electronAPI', {
 window.addEventListener('DOMContentLoaded', () => {
     console.log("Kloak Client: Preload script loaded.");
 
-    // MutationObserver to watch for changes in the page
-    const observer = new MutationObserver((mutations) => {
-        // Target the top bar
+    // Button finder
+    setInterval(() => {
         const topBar = document.querySelector('.h-9.w-full');
+        if (!topBar) return;
 
-        if (topBar) {
-            // Find the buttons using Kloaks Accessibility Labels
-            const minBtn = topBar.querySelector('button[aria-label="Minimize"]');
-            const maxBtn = topBar.querySelector('button[aria-label="Maximize"]');
-            const closeBtn = topBar.querySelector('button[aria-label="Close"]');
+        const minBtn = topBar.querySelector('button[aria-label="Minimize"]');
+        const maxBtn = topBar.querySelector('button[aria-label="Maximize"]');
+        const closeBtn = topBar.querySelector('button[aria-label="Close"]');
 
-            // Helper function to wire up a button safely
-            const wireButton = (btn, actionName) => {
-                // Only attach if we haven't already (check for our custom flag)
-                if (btn && !btn.hasAttribute('data-electron-wired')) {
-                    console.log(`Kloak Client: Found ${actionName} button. Wiring it up...`);
+        const wireButton = (btn, actionName) => {
+            if (btn && !btn.hasAttribute('data-electron-wired')) {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    ipcRenderer.send(actionName);
+                });
+                btn.setAttribute('data-electron-wired', 'true');
+                btn.style.webkitAppRegion = "no-drag";
+                btn.style.cursor = "pointer";
+            }
+        };
 
-                    btn.addEventListener('click', (e) => {
-                        // Stop the website from doing whatever it usually does
-                        e.preventDefault();
-                        e.stopPropagation();
-                        console.log(`Kloak Client: Clicked ${actionName}`);
-                        ipcRenderer.send(actionName);
-                    });
-
-                    btn.setAttribute('data-electron-wired', 'true');
-
-                    // Force the button to be clickable (override CSS)
-                    btn.style.webkitAppRegion = "no-drag";
-                    btn.style.cursor = "pointer";
-                }
-            };
-
-            wireButton(minBtn, 'window-min');
-            wireButton(maxBtn, 'window-max');
-            wireButton(closeBtn, 'window-close');
-        }
-    });
-
-    // Start watching the body for changes (childList = added/removed elements)
-    observer.observe(document.body, { childList: true, subtree: true });
+        wireButton(minBtn, 'window-min');
+        wireButton(maxBtn, 'window-max');
+        wireButton(closeBtn, 'window-close');
+    }, 1000);
 
     document.addEventListener('dragover', (event) => {
         event.preventDefault(); // Allows 'drop' to fire
@@ -66,129 +51,177 @@ window.addEventListener('DOMContentLoaded', () => {
     });
 
     // Theme syncing
+    let lastThemeColor = '';
+
     const syncThemeColor = () => {
-        // Find the top bar (Source of Truth)
         const topBar = document.querySelector('.h-9.w-full');
-        // Find the main app container (Destination)
         const appRoot = document.getElementById('root') || document.querySelector('#app');
 
         if (topBar && appRoot) {
-            // Get the computed color
             const themeColor = window.getComputedStyle(topBar).backgroundColor;
 
-            // Apply it to the background with !important to override main.js
-            appRoot.style.setProperty('background-color', themeColor, 'important');
-
-            // console.log(`Theme synced: ${themeColor}`);
+            // ONLY update the DOM if the color actually changed!
+            if (themeColor !== lastThemeColor) {
+                appRoot.style.setProperty('background-color', themeColor, 'important');
+                lastThemeColor = themeColor;
+            }
         }
     };
 
-    // Run it immediately on load
     setTimeout(syncThemeColor, 500);
 
-    // Watch for Theme Changes
     const themeObserver = new MutationObserver(() => {
         syncThemeColor();
     });
 
-    // Observe the <html> tag for attribute changes (class, data-theme, etc.)
+    // DO NOT watch 'style' here, it fires continuously during scrolling!
     themeObserver.observe(document.documentElement, {
         attributes: true,
-        attributeFilter: ['class', 'data-theme', 'style']
+        attributeFilter: ['class', 'data-theme']
     });
 
     // Screenshare picker UI
-
-    // Create the Modal HTML
     const screenModal = document.createElement('div');
     screenModal.id = 'kloak-screen-picker';
+
+    // We use a dedicated class now to avoid the orange permission borders
     screenModal.innerHTML = `
     <div class="kloak-screen-box">
-    <h3>Share your screen</h3>
-    <p>Choose a screen or window to share:</p>
-    <div id="kloak-screen-grid"></div> <button id="kloak-screen-cancel">Cancel</button>
+
+    <div class="kloak-screen-header">
+    <div class="kloak-screen-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#E0E0E0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <rect width="20" height="14" x="2" y="3" rx="2"/>
+    <line x1="8" x2="16" y1="21" y2="21"/>
+    <line x1="12" x2="12" y1="17" y2="21"/>
+    </svg>
+    </div>
+    <div class="kloak-screen-titles">
+    <h3 style="color: #E0E0E0; margin-bottom: 4px;">Share your screen</h3>
+    <span style="color: #949494;">Choose a screen or window to share</span>
+    </div>
+    </div>
+
+    <div id="kloak-screen-grid"></div>
+
+    <div style="display: flex; justify-content: flex-end; margin-top: 16px;">
+    <button id="kloak-screen-cancel">Cancel</button>
+    </div>
+
     </div>
     `;
     document.body.appendChild(screenModal);
 
-    // Inject CSS for the Grid
+    // Inject CSS for the Grid and Background
     const screenStyle = document.createElement('style');
     screenStyle.innerHTML = `
     #kloak-screen-picker {
     display: none;
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(5px);
-    z-index: 9999999; /* Higher than everything */
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 9999999;
     justify-content: center;
     align-items: center;
-    font-family: sans-serif;
+    font-family: inherit;
     }
+
     .kloak-screen-box {
-        background: #1e1e1e;
-        color: white;
-        padding: 20px;
+        background: linear-gradient(180deg, #1e1e1e 0%, #161616 100%);
+        border: 1px solid #2a2a2a;
         border-radius: 12px;
-        width: 600px;
-        max-height: 80vh;
+        padding: 24px;
+        width: 700px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
         display: flex;
         flex-direction: column;
-        border: 1px solid #333;
-        box-shadow: 0 20px 50px rgba(0,0,0,0.5);
     }
-    .kloak-screen-box h3 { margin: 0 0 10px 0; }
-    .kloak-screen-box p { color: #aaa; margin-bottom: 15px; }
+
+    .kloak-screen-header {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 16px;
+    }
+
+    .kloak-screen-icon {
+        background: #262626;
+        padding: 10px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .kloak-screen-titles h3 { margin: 0; font-size: 16px; font-weight: 600; }
+    .kloak-screen-titles span { font-size: 13px; }
 
     #kloak-screen-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 15px;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 16px;
     overflow-y: auto;
-    padding-right: 5px;
-    margin-bottom: 15px;
+    max-height: 50vh;
+    padding: 4px;
+    margin-top: 16px;
     }
 
-    /* Each Source Item */
+    #kloak-screen-grid::-webkit-scrollbar { width: 8px; }
+    #kloak-screen-grid::-webkit-scrollbar-thumb {
+    background: #333333;
+    border-radius: 4px;
+    }
+
     .screen-item {
         cursor: pointer;
         text-align: center;
-        background: #2a2a2a;
-        padding: 10px;
+        background: #262626;
+        padding: 12px;
         border-radius: 8px;
-        transition: background 0.2s;
+        transition: all 0.2s ease;
         border: 2px solid transparent;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
     }
+
     .screen-item:hover {
-        background: #333;
-        border-color: #3b82f6; /* Blue highlight */
+        background: #333333;
+        border-color: #ffffff;
+        transform: translateY(-2px);
     }
+
     .screen-item img {
         width: 100%;
         height: auto;
         border-radius: 4px;
-        margin-bottom: 8px;
+        margin-bottom: 12px;
         display: block;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
     }
+
     .screen-item span {
-        font-size: 12px;
-        color: #ddd;
+        font-size: 13px;
+        color: #949494;
         display: block;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        font-weight: 500;
     }
 
     #kloak-screen-cancel {
-    padding: 10px;
-    background: #444;
-    color: white;
-    border: none;
-    border-radius: 6px;
+    background-color: #262626;
+    color: #E0E0E0;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    padding: 10px 24px;
+    font-size: 14px;
+    font-weight: 500;
     cursor: pointer;
-    align-self: flex-end;
+    transition: all 0.2s;
     }
-    #kloak-screen-cancel:hover { background: #555; }
+    #kloak-screen-cancel:hover { background-color: #333333; }
     `;
     document.head.appendChild(screenStyle);
 
@@ -260,8 +293,7 @@ window.addEventListener('DOMContentLoaded', () => {
     display: none;
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(4px);
+    background: rgba(0, 0, 0, 0.85);
     z-index: 9999999;
     justify-content: center;
     align-items: center;
@@ -313,12 +345,12 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 
     .kloak-perm-titles span {
-        color: #9ca3af;
+        color: #949494f;
         font-size: 13px;
     }
 
     #kloak-perm-desc {
-    color: #d1d5db;
+    color: #949494;
     font-size: 14px;
     line-height: 1.5;
     margin-bottom: 24px;
@@ -337,7 +369,7 @@ window.addEventListener('DOMContentLoaded', () => {
         justify-content: center;
         gap: 8px;
         background-color: #262626;
-        color: #f3f4f6;
+        color: #EDEDED;
         border: 1px solid transparent;
         border-radius: 8px;
         padding: 12px;
@@ -428,31 +460,40 @@ window.addEventListener('DOMContentLoaded', () => {
     linkOverlay.id = 'kloak-link-overlay';
     // Reuse CSS classes from permissions box
     linkOverlay.innerHTML = `
-    <div class="kloak-perm-box" style="border-color: #f59e0b;"> <div class="kloak-perm-header">
-    <div class="kloak-perm-icon" style="color: #f59e0b; background: rgba(239, 68, 68, 0.15);">
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+    <div class="kloak-perm-box">
+
+    <div class="kloak-perm-header">
+    <div class="kloak-perm-icon" style="color: #f59e0b; background: rgba(245, 158, 11, 0.15);">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+    </svg>
     </div>
+
     <div class="kloak-perm-titles">
-    <h3 style="color: #f59e0b;">External Link Warning</h3>
-    <span>You are leaving Kloak</span>
+    <h3 style="color: #949494;">External Link Warning</h3>
+    <span style="color: #949494;">You are leaving Kloak</span>
     </div>
     </div>
 
-    <p style="color: #d1d5db; font-size: 14px; line-height: 1.5; margin-bottom: 12px;">
+    <p style="color: #949494; font-size: 14px; line-height: 1.5; margin-bottom: 12px;">
     External links may be dangerous. Are you sure you want to continue to:
     <br><br>
-    <strong id="kloak-link-target" style="color: #f59e0b; word-break: break-all; background: rgba(0,0,0,0.3); padding: 4px 8px; border-radius: 4px; display: inline-block;"></strong>
+    <strong id="kloak-link-target" style="color: #E0E0E0; word-break: break-all; background: rgba(0,0,0,0.3); padding: 4px 8px; border-radius: 4px; display: inline-block;"></strong>
     </p>
 
     <div style="margin-bottom: 24px; display: flex; align-items: center; gap: 8px;">
     <input type="checkbox" id="kloak-link-remember" style="accent-color: #f59e0b; width: 16px; height: 16px; cursor: pointer;">
-    <label for="kloak-link-remember" style="color: #9ca3af; font-size: 13px; cursor: pointer;">Do not show this again</label>
+    <label for="kloak-link-remember" style="color: #949494; font-size: 13px; cursor: pointer;">
+    Do not show this again
+    </label>
     </div>
 
     <div class="kloak-perm-buttons">
-    <button id="kloak-link-cancel">Cancel</button>
-    <button id="kloak-link-continue" style="color: ##f59e0b;">Continue</button>
+    <button id="kloak-link-cancel" style="color: #EDEDED;">Cancel</button>
+    <button id="kloak-link-continue" style="color: #EDEDED;">Continue</button>
     </div>
+
     </div>
     `;
     document.body.appendChild(linkOverlay);
@@ -462,8 +503,7 @@ window.addEventListener('DOMContentLoaded', () => {
     display: none;
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(4px);
+    background: rgba(0, 0, 0, 0.85);
     z-index: 9999999;
     justify-content: center;
     align-items: center;
