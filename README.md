@@ -20,11 +20,12 @@ Working (Confirmed):
 - System tray icon and menu
 - Background follows theme
 - Top bar buttons <br>
+- Custom permissions/external-link UI
 <sub> Tested audio and screenshare between both my main pc (gentoo) and laptop (cachyos) and it worked perfectly </sub>
 
-TODO:
-- Drag n drop files
-- Bug fixes
+TODO/Bugs:
+- Drag n drop files not working
+- Graphics memory leak causing glitchyness
 
 
 ## Compiling yourself:
