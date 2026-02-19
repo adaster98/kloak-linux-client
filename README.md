@@ -3,6 +3,7 @@ This project is designed to tide users over until the release of the official ap
 Free and open source.
 
 <img width="1637" height="937" alt="image" src="https://github.com/user-attachments/assets/424e7f75-7b70-452e-935a-1b1d527d15fc" />
+More dev photos: https://albums.ente.io/?t=ANSUYEBSD4#6E1i6E1vGUQbh3CRsFBwkd2gzW5tuzUSFESFYv7BaJAw
 
 ## Installation:
 
