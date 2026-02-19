@@ -1,5 +1,5 @@
-# Unofficial Kloak Client for Linux
-This project is designed to tide linux users over until the release of the official app.
+# Unofficial Kloak Client
+This project is designed to tide users over until the release of the official app.
 Free and open source, so you can trust it.
 
 <img width="1637" height="937" alt="image" src="https://github.com/user-attachments/assets/424e7f75-7b70-452e-935a-1b1d527d15fc" />
@@ -7,8 +7,10 @@ Free and open source, so you can trust it.
 #### I recommend using the AppImage on all linux platforms. Just make sure to right click it and check the box to allow execution.
 <img width="300" height="46" alt="image" src="https://github.com/user-attachments/assets/802cc835-c58b-4eb6-b9c7-3cb4c2da2dfa" />
 
+I haven't tested the Windows version yet.
 
-## Progress:
+
+## Progress (Linux):
 
 Working (Confirmed):
 - Login
@@ -28,7 +30,7 @@ TODO/Bugs:
 - Graphics memory leak causing glitchyness
 
 
-## Compiling yourself:
+## Compiling yourself (linux):
 
 Create build enviroment and clone repo:
 ```shell
