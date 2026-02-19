@@ -7,7 +7,6 @@ let screenShareCallback = null;
 let mainWindow;
 let tray;
 let pendingPermissions = {};
-let sessionGrantedPermissions = new Set();
 
 // Store settings
 const settingsPath = path.join(app.getPath('userData'), 'kloak-settings.json');
@@ -84,6 +83,50 @@ function createWindow() {
             }
             mainWindow.show();
             mainWindow.focus();
+
+            // First Launch Sequential Prompts (perms)
+            if (!appSettings.firstLaunchDone) {
+                const permsToAsk = ['media', 'notifications'];
+                let currentIdx = 0;
+
+                function promptNext() {
+                    if (currentIdx >= permsToAsk.length) {
+                        // All done! Save the flag so this never runs again.
+                        appSettings.firstLaunchDone = true;
+                        saveSettings(appSettings);
+                        return;
+                    }
+
+                    const perm = permsToAsk[currentIdx];
+                    currentIdx++;
+
+                    // Skip if they somehow already allowed it
+                    if (appSettings.savedPermissions && appSettings.savedPermissions[perm] === true) {
+                        promptNext();
+                        return;
+                    }
+
+                    const reqId = `first-launch-${perm}-${Date.now()}`;
+
+                    // Feed it a fake callback that just triggers the next prompt in the sequence!
+                    pendingPermissions[reqId] = {
+                        permission: perm,
+                   callback: (allowed) => {
+                       // Wait 400ms before showing the next prompt so the UI animation looks smooth
+                       setTimeout(promptNext, 400);
+                   }
+                    };
+
+                    mainWindow.webContents.send('show-custom-permission', {
+                        id: reqId,
+                        permission: perm
+                    });
+                }
+
+                // Start the sequence 2 seconds after the app opens
+                setTimeout(promptNext, 2000);
+            }
+
         }, 500);
     });
 
@@ -134,30 +177,24 @@ function createWindow() {
             const permissionsToPrompt = ['media', 'geolocation', 'notifications'];
 
             if (permissionsToPrompt.includes(permission)) {
-                // Check temporary session memory first! (all platforms)
-                if (sessionGrantedPermissions.has(permission)) {
+
+                // os security guard (Windows/macOS only)
+                // If the user revoked camera/mic in their OS settings, respect it.
+                if (permission === 'media' && (process.platform === 'win32' || process.platform === 'darwin')) {
+                    const micStatus = systemPreferences.getMediaAccessStatus('microphone');
+                    if (micStatus === 'denied') return callback(false);
+                }
+
+                // Check settings file for permissions stored (linux workaround)
+                // Only auto-allow if explicitly TRUE. If false or undefined, prompt them again
+                if (appSettings.savedPermissions && appSettings.savedPermissions[permission] === true) {
                     return callback(true);
                 }
 
-                // Silently probe the OS (Windows and macOS only)
-                // Linux does not support the getMediaAccessStatus API, so user is prompted unless stored in memory.
-                if (permission === 'media' && (process.platform === 'win32' || process.platform === 'darwin')) {
-                    const micStatus = systemPreferences.getMediaAccessStatus('microphone');
-
-                    if (micStatus === 'granted') {
-                        sessionGrantedPermissions.add(permission);
-                        return callback(true);
-                    } else if (micStatus === 'denied') {
-                        return callback(false);
-                    }
-                }
-
-                // Prompt the user
+                // Prompt user if unknown
                 const reqId = Date.now().toString();
-                // Store BOTH the callback and the permission name in an object
                 pendingPermissions[reqId] = { callback, permission };
 
-                // Spawn the UI box
                 mainWindow.webContents.send('show-custom-permission', {
                     id: reqId,
                     permission: permission
@@ -170,18 +207,16 @@ function createWindow() {
         // Permission IPC Listener
         ipcMain.on('permission-response', (event, { id, allowed }) => {
             if (pendingPermissions[id]) {
-                // We must destructure the object here to get the raw callback function back!
                 const { callback, permission } = pendingPermissions[id];
 
-                // If allowed, save it to the temporary session memory
-                if (allowed) {
-                    sessionGrantedPermissions.add(permission);
+                // Permanently save the user's choice to the JSON file
+                if (!appSettings.savedPermissions) {
+                    appSettings.savedPermissions = {};
                 }
+                appSettings.savedPermissions[permission] = allowed;
+                saveSettings(appSettings);
 
-                // Execute the raw callback
                 callback(allowed);
-
-                // Cleanup
                 delete pendingPermissions[id];
             }
         });
