@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Tray, Menu, session, ipcMain, dialog, desktopCapturer, shell, nativeImage } = require('electron');
+const { app, BrowserWindow, Tray, Menu, session, ipcMain, dialog, desktopCapturer, shell, nativeImage, systemPreferences } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
@@ -7,6 +7,7 @@ let screenShareCallback = null;
 let mainWindow;
 let tray;
 let pendingPermissions = {};
+let sessionGrantedPermissions = new Set();
 
 // Store settings
 const settingsPath = path.join(app.getPath('userData'), 'kloak-settings.json');
@@ -33,7 +34,7 @@ ipcMain.on('window-close', () => mainWindow.hide()); // Hide instead of close to
 
 
 function createWindow() {
-    // --- 1. Create the Splash Screen Window ---
+    // Splash Screen Window
     let splashWindow = new BrowserWindow({
         width: 350,
         height: 450,
@@ -44,17 +45,17 @@ function createWindow() {
         icon: path.join(__dirname, 'icons/icon.png')
     });
 
-    // Load the HTML file we just created
+    // Load the HTML file
     splashWindow.loadFile(path.join(__dirname, 'splash.html'));
 
-    // --- 2. Create the Main Window (But keep it hidden) ---
+    // Create the Main Window but hidden
     mainWindow = new BrowserWindow({
         width: 1600,
         height: 900,
         frame: false,
         transparent: true,
         backgroundColor: '#00000000',
-        show: false, // <-- CRUCIAL: Keeps it invisible while Kloak loads
+        show: false, // Hide while loading
         icon: path.join(__dirname, 'icons/icon.png'),
                                    webPreferences: {
                                        preload: path.join(__dirname, 'preload.js'),
@@ -73,10 +74,10 @@ function createWindow() {
     // Start loading the heavy website in the background
     mainWindow.loadURL('https://kloak.app/app');
 
-    // --- 3. The Window Swap ---
+    // Window Swap
     // Wait until the website is completely downloaded and parsed
     mainWindow.webContents.once('did-finish-load', () => {
-        // Add a tiny 500ms delay to ensure their CSS paints properly before revealing
+        // 500ms delay to ensure Kloak's CSS paints properly before revealing
         setTimeout(() => {
             if (splashWindow && !splashWindow.isDestroyed()) {
                 splashWindow.close();
@@ -133,25 +134,55 @@ function createWindow() {
             const permissionsToPrompt = ['media', 'geolocation', 'notifications'];
 
             if (permissionsToPrompt.includes(permission)) {
-                const reqId = Date.now().toString();
-                pendingPermissions[reqId] = callback;
+                // Check temporary session memory first! (all platforms)
+                if (sessionGrantedPermissions.has(permission)) {
+                    return callback(true);
+                }
 
-                // Spawn box
+                // Silently probe the OS (Windows and macOS only)
+                // Linux does not support the getMediaAccessStatus API, so user is prompted unless stored in memory.
+                if (permission === 'media' && (process.platform === 'win32' || process.platform === 'darwin')) {
+                    const micStatus = systemPreferences.getMediaAccessStatus('microphone');
+
+                    if (micStatus === 'granted') {
+                        sessionGrantedPermissions.add(permission);
+                        return callback(true);
+                    } else if (micStatus === 'denied') {
+                        return callback(false);
+                    }
+                }
+
+                // Prompt the user
+                const reqId = Date.now().toString();
+                // Store BOTH the callback and the permission name in an object
+                pendingPermissions[reqId] = { callback, permission };
+
+                // Spawn the UI box
                 mainWindow.webContents.send('show-custom-permission', {
                     id: reqId,
                     permission: permission
                 });
             } else {
-                callback(true);
+                callback(true); // Auto-allow safe background permissions
             }
         });
 
         // Permission IPC Listener
         ipcMain.on('permission-response', (event, { id, allowed }) => {
             if (pendingPermissions[id]) {
-                // Execute the saved callback with the user's choice (true/false)
-                pendingPermissions[id](allowed);
-                delete pendingPermissions[id]; // Cleanup
+                // We must destructure the object here to get the raw callback function back!
+                const { callback, permission } = pendingPermissions[id];
+
+                // If allowed, save it to the temporary session memory
+                if (allowed) {
+                    sessionGrantedPermissions.add(permission);
+                }
+
+                // Execute the raw callback
+                callback(allowed);
+
+                // Cleanup
+                delete pendingPermissions[id];
             }
         });
 
@@ -259,8 +290,17 @@ function createTray() {
         {
             label: 'Restart',
             click: () => {
-                app.relaunch(); // Spawns a new instance of the app
-                app.exit(0);    // Kills the current instance immediately
+                const restartOptions = {};
+
+                // If the app is running as a Linux AppImage, force Electron to
+                // relaunch the actual .AppImage file, not the temporary mount path.
+                if (process.env.APPIMAGE) {
+                    restartOptions.execPath = process.env.APPIMAGE;
+                    restartOptions.args = process.argv.slice(1);
+                }
+
+                app.relaunch(restartOptions); // Spawns a new instance properly
+                app.exit(0);                  // Kills the current instance immediately
             }
         },
         { type: 'separator' },
