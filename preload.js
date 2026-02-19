@@ -560,7 +560,6 @@ window.addEventListener('DOMContentLoaded', () => {
     /* The Green Success State */
     .kloak-update-success {
         border-color: #10b981;
-        /* Overrides the dark gray with a subtle green-tinted gradient */
         background: linear-gradient(180deg, rgba(16, 185, 129, 0.12) 0%, #161616 100%);
         animation: gentleShake 0.4s ease-out forwards;
     }
@@ -698,6 +697,117 @@ window.addEventListener('DOMContentLoaded', () => {
             document.getElementById('kloak-update-close').onmouseout = function() { this.style.background = '#262626'; }
         }
     });
+
+    // Leave Server Modal
+
+    const leaveOverlay = document.createElement('div');
+    leaveOverlay.id = 'kloak-leave-overlay';
+
+    // Reuse kloak-update-box but inject red
+    leaveOverlay.innerHTML = `
+    <div class="kloak-update-box" style="width: 440px; border: 1px solid #ef4444; background: linear-gradient(rgba(239, 68, 68, 0.08), rgba(239, 68, 68, 0.08)), #0f0f0f;">
+    <div class="kloak-update-header">
+    <div class="kloak-update-icon" style="color: #ef4444; background: rgba(239, 68, 68, 0.15); padding: 10px; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" x2="9" y1="12" y2="12"></line>
+    </svg>
+    </div>
+    <div class="kloak-update-titles" style="margin-left: 16px;">
+    <h3 style="color: #ef4444; margin: 0 0 4px 0; font-size: 16px; font-weight: 600;">Leave Server</h3>
+    <span style="color: #949494; font-size: 13px;">Destructive Action</span>
+    </div>
+    </div>
+    <p style="color: #E0E0E0; font-size: 14px; margin-bottom: 24px; margin-top: 16px; line-height: 1.5;">
+    Are you sure you want to leave this server? You will need a new invite link to rejoin.
+    </p>
+    <div class="kloak-update-buttons" style="display: flex; gap: 12px;">
+    <button id="kloak-leave-cancel" style="padding: 10px; background: #262626; color: #E0E0E0; border: none; border-radius: 6px; cursor: pointer; flex: 1; transition: background 0.2s;">Cancel</button>
+    <button id="kloak-leave-confirm" style="padding: 10px; background: #ef4444; color: white; border: none; border-radius: 6px; cursor: pointer; flex: 1; transition: background 0.2s; font-weight: 600;">Leave Server</button>
+    </div>
+    </div>
+    `;
+
+    leaveOverlay.style.cssText = `
+    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.85); z-index: 9999999;
+    justify-content: center; align-items: center; font-family: inherit;
+    `;
+
+    document.body.appendChild(leaveOverlay);
+
+    let pendingLeaveTarget = null;
+    const originalConfirm = window.confirm;
+
+    // Hover Effects
+    document.getElementById('kloak-leave-cancel').onmouseover = function() { this.style.background = '#333333'; }
+    document.getElementById('kloak-leave-cancel').onmouseout = function() { this.style.background = '#262626'; }
+    document.getElementById('kloak-leave-confirm').onmouseover = function() { this.style.background = '#dc2626'; } // Darker red on hover
+    document.getElementById('kloak-leave-confirm').onmouseout = function() { this.style.background = '#ef4444'; }
+
+    // Button Logic
+    document.getElementById('kloak-leave-cancel').onclick = () => {
+        leaveOverlay.style.display = 'none';
+        pendingLeaveTarget = null;
+    };
+
+    // Close on background click
+    leaveOverlay.onclick = (e) => {
+        if (e.target === leaveOverlay) {
+            leaveOverlay.style.display = 'none';
+            pendingLeaveTarget = null;
+        }
+    };
+
+    document.getElementById('kloak-leave-confirm').onclick = () => {
+        leaveOverlay.style.display = 'none';
+
+        if (pendingLeaveTarget) {
+            // Temporarily overwrite window.confirm to bypass the OS popup
+            window.confirm = () => true;
+
+            // Allow specific target to bypass the capture phase blocker
+            pendingLeaveTarget.dataset.kloakBypass = "true";
+
+            // Programmatically click the real button
+            pendingLeaveTarget.click();
+
+            // Clean up immediately after React processes it
+            setTimeout(() => {
+                window.confirm = originalConfirm;
+                if (pendingLeaveTarget) pendingLeaveTarget.dataset.kloakBypass = "false";
+                pendingLeaveTarget = null;
+            }, 50);
+        }
+    };
+
+    // Capture-Phase
+    document.addEventListener('click', (e) => {
+        const target = e.target.closest('div[role="menuitem"]');
+
+        // Look for the exact red "Leave Server" menu item
+        if (target && target.classList.contains('text-destructive') && target.textContent.includes('Leave Server')) {
+
+            // If we've already approved it from our red modal, let the click pass through!
+            if (target.dataset.kloakBypass === "true") {
+                return;
+            }
+
+            // Otherwise, KILL the click before React sees it
+            e.preventDefault();
+            e.stopPropagation();
+
+            // Save the button so we can re-click it later
+            pendingLeaveTarget = target;
+
+            // Show our custom red modal with the shake animation
+            const box = leaveOverlay.querySelector('.kloak-update-box');
+            box.style.animation = 'none';
+            box.offsetHeight;
+            box.style.animation = 'gentleShake 0.4s ease-out forwards';
+
+            leaveOverlay.style.display = 'flex';
+        }
+    }, true);
 
 
 });
