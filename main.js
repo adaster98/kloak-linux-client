@@ -31,13 +31,30 @@ ipcMain.on('window-max', () => {
 });
 ipcMain.on('window-close', () => mainWindow.hide()); // Hide instead of close to keep tray active
 
+
 function createWindow() {
+    // --- 1. Create the Splash Screen Window ---
+    let splashWindow = new BrowserWindow({
+        width: 350,
+        height: 450,
+        transparent: true,
+        frame: false,
+        alwaysOnTop: true, // Keeps it above other apps while loading
+        resizable: false,
+        icon: path.join(__dirname, 'icons/icon.png')
+    });
+
+    // Load the HTML file we just created
+    splashWindow.loadFile(path.join(__dirname, 'splash.html'));
+
+    // --- 2. Create the Main Window (But keep it hidden) ---
     mainWindow = new BrowserWindow({
         width: 1600,
         height: 900,
         frame: false,
         transparent: true,
         backgroundColor: '#00000000',
+        show: false, // <-- CRUCIAL: Keeps it invisible while Kloak loads
         icon: path.join(__dirname, 'icons/icon.png'),
                                    webPreferences: {
                                        preload: path.join(__dirname, 'preload.js'),
@@ -53,7 +70,21 @@ function createWindow() {
     const appUserAgent = mainWindow.webContents.getUserAgent() + ' KloakClient Electron Tauri';
     mainWindow.webContents.setUserAgent(appUserAgent);
 
+    // Start loading the heavy website in the background
     mainWindow.loadURL('https://kloak.app/app');
+
+    // --- 3. The Window Swap ---
+    // Wait until the website is completely downloaded and parsed
+    mainWindow.webContents.once('did-finish-load', () => {
+        // Add a tiny 500ms delay to ensure their CSS paints properly before revealing
+        setTimeout(() => {
+            if (splashWindow && !splashWindow.isDestroyed()) {
+                splashWindow.close();
+            }
+            mainWindow.show();
+            mainWindow.focus();
+        }, 500);
+    });
 
     // Prevent navigation on file drop
     mainWindow.webContents.on('will-navigate', (event, url) => {
