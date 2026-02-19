@@ -7,7 +7,8 @@ Free and open source, so you can trust it.
 #### I recommend using the AppImage on all linux platforms. Just make sure to right click it and check the box to allow execution.
 <img width="300" height="46" alt="image" src="https://github.com/user-attachments/assets/802cc835-c58b-4eb6-b9c7-3cb4c2da2dfa" />
 
-I haven't tested the Windows version yet.
+<br>
+**NOTE: I haven't tested the Windows version yet. This project was originally Linux only**
 
 
 ## Progress (Linux):
@@ -21,8 +22,8 @@ Working (Confirmed):
 - Audio (Input & Output)
 - System tray icon and menu
 - Background follows theme
-- Top bar buttons <br>
-- Custom permissions/external-link UI
+- Top bar buttons
+- Custom permissions/external-link UI <br>
 <sub> Tested audio and screenshare between both my main pc (gentoo) and laptop (cachyos) and it worked perfectly </sub>
 
 TODO/Bugs:
