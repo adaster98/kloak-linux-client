@@ -124,6 +124,7 @@ window.addEventListener('DOMContentLoaded', () => {
     justify-content: center;
     align-items: center;
     font-family: inherit;
+    border-radius: 20px; overflow: hidden;
     }
 
     .kloak-screen-box {
@@ -297,7 +298,8 @@ window.addEventListener('DOMContentLoaded', () => {
     z-index: 9999999;
     justify-content: center;
     align-items: center;
-    font-family: inherit; /* Inherits Kloak's font */
+    font-family: inherit;
+    border-radius: 20px; overflow: hidden;
     }
 
     /* Shake Animation */
@@ -508,6 +510,7 @@ window.addEventListener('DOMContentLoaded', () => {
     justify-content: center;
     align-items: center;
     font-family: inherit;
+    border-radius: 20px; overflow: hidden;
     `;
 
     // Logic to handle the incoming request
@@ -548,7 +551,7 @@ window.addEventListener('DOMContentLoaded', () => {
     const updateStyle = document.createElement('style');
     updateStyle.innerHTML = `
     .kloak-update-box {
-        background: linear-gradient(180deg, #1e1e1e 0%, #161616 100%);
+        background: #0f0f0f;
         border: 1px solid #2a2a2a;
         border-radius: 12px;
         padding: 24px;
@@ -560,7 +563,8 @@ window.addEventListener('DOMContentLoaded', () => {
     /* The Green Success State */
     .kloak-update-success {
         border-color: #10b981;
-        background: linear-gradient(180deg, rgba(16, 185, 129, 0.12) 0%, #161616 100%);
+        /* Flat #0f0f0f with a solid 8% green tint layered directly on top */
+        background: linear-gradient(rgba(16, 185, 129, 0.08), rgba(16, 185, 129, 0.08)), #0f0f0f !important;
         animation: gentleShake 0.4s ease-out forwards;
     }
 
@@ -608,6 +612,7 @@ window.addEventListener('DOMContentLoaded', () => {
     display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(0, 0, 0, 0.85); z-index: 9999999;
     justify-content: center; align-items: center; font-family: inherit;
+    border-radius: 20px; overflow: hidden;
     `;
 
     document.body.appendChild(updateOverlay);
@@ -731,6 +736,7 @@ window.addEventListener('DOMContentLoaded', () => {
     display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(0, 0, 0, 0.85); z-index: 9999999;
     justify-content: center; align-items: center; font-family: inherit;
+    border-radius: 20px; overflow: hidden;
     `;
 
     document.body.appendChild(leaveOverlay);
