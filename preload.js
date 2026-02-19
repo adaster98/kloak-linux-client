@@ -542,4 +542,162 @@ window.addEventListener('DOMContentLoaded', () => {
     });
 
 
+    // Update Hijacker UI
+
+    // Inject Dedicated CSS for the Update Modal
+    const updateStyle = document.createElement('style');
+    updateStyle.innerHTML = `
+    .kloak-update-box {
+        background: linear-gradient(180deg, #1e1e1e 0%, #161616 100%);
+        border: 1px solid #2a2a2a;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* The Green Success State */
+    .kloak-update-success {
+        border-color: #10b981;
+        /* Overrides the dark gray with a subtle green-tinted gradient */
+        background: linear-gradient(180deg, rgba(16, 185, 129, 0.12) 0%, #161616 100%);
+        animation: gentleShake 0.4s ease-out forwards;
+    }
+
+    .kloak-update-header {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 16px;
+    }
+
+    .kloak-update-icon {
+        background: rgba(16, 185, 129, 0.15);
+        color: #10b981;
+        padding: 10px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .kloak-update-titles h3 { margin: 0 0 4px 0; font-size: 16px; font-weight: 600; color: #10b981; }
+    .kloak-update-titles span { font-size: 13px; color: #949494; }
+
+    .kloak-update-buttons {
+        display: flex;
+        gap: 12px;
+    }
+    `;
+    document.head.appendChild(updateStyle);
+
+    // Update Modal Container
+    const updateOverlay = document.createElement('div');
+    updateOverlay.id = 'kloak-update-overlay';
+
+    // Default Loading State
+    const loadingHTML = `
+    <div class="kloak-update-box" style="width: 440px; text-align: center;">
+    <h3 style="color: #E0E0E0; margin-bottom: 8px;">Checking GitHub...</h3>
+    <p style="color: #949494; font-size: 14px; margin: 0;">Looking for the latest Unofficial Kloak Desktop Client release.</p>
+    </div>
+    `;
+
+    updateOverlay.innerHTML = loadingHTML;
+    updateOverlay.style.cssText = `
+    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.85); z-index: 9999999;
+    justify-content: center; align-items: center; font-family: inherit;
+    `;
+
+    document.body.appendChild(updateOverlay);
+
+    let updateDownloadUrl = '';
+
+    // Event Delegation for buttons
+    updateOverlay.addEventListener('click', (e) => {
+        if (e.target.id === 'kloak-update-ignore' || e.target.id === 'kloak-update-close') {
+            updateOverlay.style.display = 'none';
+        } else if (e.target.id === 'kloak-update-download') {
+            updateOverlay.style.display = 'none';
+            ipcRenderer.send('open-external-url', updateDownloadUrl);
+        }
+    });
+
+    // Capture-Phase Click Hijacker
+    document.addEventListener('click', (e) => {
+        const target = e.target.closest('button');
+        if (target && target.textContent && /check for update/i.test(target.textContent)) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            // Reset to the neutral loading state
+            updateOverlay.innerHTML = loadingHTML;
+            updateOverlay.style.display = 'flex';
+
+            ipcRenderer.send('check-custom-update');
+        }
+    }, true);
+
+    // Listen for the result from main.js
+    ipcRenderer.on('update-status', (event, data) => {
+        if (data.available) {
+            updateDownloadUrl = data.url;
+
+            // Success State (Injects the .kloak-update-success class)
+            updateOverlay.innerHTML = `
+            <div class="kloak-update-box kloak-update-success" style="width: 440px;">
+            <div class="kloak-update-header">
+            <div class="kloak-update-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" x2="12" y1="15" y2="3"/>
+            </svg>
+            </div>
+            <div class="kloak-update-titles">
+            <h3>Client Update Available</h3>
+            <span>Version ${data.version} is ready</span>
+            </div>
+            </div>
+            <p style="color: #949494; font-size: 14px; margin-bottom: 24px; line-height: 1.5;">
+            A newer version of the Unofficial Kloak Desktop Client is available on GitHub. Would you like to download it now?
+            </p>
+            <div class="kloak-update-buttons">
+            <button id="kloak-update-ignore" style="padding: 10px; background: #262626; color: #E0E0E0; border: none; border-radius: 6px; cursor: pointer; flex: 1; transition: background 0.2s;">Later</button>
+            <button id="kloak-update-download" style="padding: 10px; background: transparent; border: 1px solid #10b981; color: #10b981; border-radius: 6px; cursor: pointer; flex: 1; transition: background 0.2s;">Download</button>
+            </div>
+            </div>
+            `;
+
+            // Slight hover effects for the new buttons
+            document.getElementById('kloak-update-ignore').onmouseover = function() { this.style.background = '#333333'; }
+            document.getElementById('kloak-update-ignore').onmouseout = function() { this.style.background = '#262626'; }
+            document.getElementById('kloak-update-download').onmouseover = function() { this.style.background = 'rgba(16, 185, 129, 0.1)'; }
+            document.getElementById('kloak-update-download').onmouseout = function() { this.style.background = 'transparent'; }
+
+        } else {
+            // "Up to Date" State (No success class added)
+            updateOverlay.innerHTML = `
+            <div class="kloak-update-box" style="width: 440px; text-align: center;">
+            <div style="color: #E0E0E0; margin-bottom: 16px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto;">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+            </div>
+            <h3 style="color: #E0E0E0; margin: 0 0 8px 0;">You're up to date!</h3>
+            <p style="color: #949494; font-size: 14px; margin-bottom: 24px;">You are running the latest version of the Unofficial Kloak Client.</p>
+            <div class="kloak-update-buttons" style="justify-content: center;">
+            <button id="kloak-update-close" style="padding: 10px 30px; background: #262626; color: #E0E0E0; border: none; border-radius: 6px; cursor: pointer;">Close</button>
+            </div>
+            </div>
+            `;
+
+            document.getElementById('kloak-update-close').onmouseover = function() { this.style.background = '#333333'; }
+            document.getElementById('kloak-update-close').onmouseout = function() { this.style.background = '#262626'; }
+        }
+    });
+
+
 });

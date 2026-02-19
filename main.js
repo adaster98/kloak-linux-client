@@ -291,6 +291,45 @@ function createWindow() {
                 shell.openExternal(url);
             }
         });
+
+
+        // Update Hijacker
+        ipcMain.on('check-custom-update', async (event) => {
+            try {
+                const currentVersion = app.getVersion();
+                const githubRepo = 'adaster98/kloak-client-unofficial';
+
+                const response = await fetch(`https://api.github.com/repos/${githubRepo}/releases/latest`);
+                const data = await response.json();
+
+
+                if (data.tag_name) {
+                    if (data.tag_name !== currentVersion) {
+                        event.reply('update-status', {
+                            available: true,
+                            url: data.html_url,
+                            version: data.tag_name
+                        });
+                        return;
+                    }
+                } else if (data.message && data.message.includes("API rate limit exceeded")) {
+                    console.log("GitHub API Rate Limit!");
+                }
+
+                event.reply('update-status', { available: false });
+            } catch (err) {
+                console.error("Update check failed", err);
+                event.reply('update-status', { available: false, error: true });
+            }
+        });
+
+        // URL opener for the download button
+        ipcMain.on('open-external-url', (event, url) => {
+            if (url) {
+                shell.openExternal(url);
+            }
+        });
+
 }
 
 function createTray() {
