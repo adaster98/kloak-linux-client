@@ -10,5 +10,11 @@
     "description": "Select a custom CSS theme from your themes folder to completely reskin the client.",
     "version": "1.0.0",
     "url": "https://raw.githubusercontent.com/adaster98/kloak-client-unofficial/main/addons/theme-injector-1.0.0.zip"
+  },
+  "zen-mode": {
+    "name": "Zen Mode",
+    "description": "Instantly hide all sidebars and focus entirely on your conversation.",
+    "version": "1.0.0",
+    "url": "https://raw.githubusercontent.com/adaster98/kloak-client-unofficial/main/addons/zen-mode-1.0.0.zip"
   }
 }
