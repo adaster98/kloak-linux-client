@@ -15,13 +15,10 @@ Hold shift and hover over any image to bring up a magnifying glass! No more tiny
 Hit Ctrl+Shift+Z (rebindable) to remove distractions like sidebars. Chat only!
 
 ## Getting started:
-Choose one of the pre-made addons or make your own using the template. <br>
-Just downoad an addon folder and copy it to your own, then restart your client.
+Choose one of the pre-made addons. <br>
+<img width="675" height="624" alt="image" src="https://github.com/user-attachments/assets/d9cd5736-8e5f-4a7c-8ac1-a0054e9fc37d" /> <br>
 
-**Use the button in the Addons menu in settings:<br>**
-<img width="399" height="182" alt="image" src="https://github.com/user-attachments/assets/aaeb2c41-f3da-4a53-ad68-9fe7f5a21cfa" />
-
-**Or manually navigate to:<br>**
+**Addon Folder Locations<br>**
 Linux - `/home/<YourUsername>/.config/kloak-client/addons` <br>
 Windows - `C:\Users\<YourUsername>\AppData\Roaming\kloak-client\addons`<br>
 
