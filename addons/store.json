@@ -23,4 +23,10 @@
     "version": "1.0.0",
     "url": "https://raw.githubusercontent.com/adaster98/kloak-client-unofficial/main/addons/quick-edit-1.0.0.zip"
   },
+  "stealth-mode": {
+    "name": "Stealth Mode",
+    "description": "Blocks the User is typing... indicator from being sent to others.",
+    "version": "1.0.0",
+    "url": "https://raw.githubusercontent.com/adaster98/kloak-client-unofficial/main/addons/stealth-mode-1.0.0.zip"
+  }
 }
