@@ -1,0 +1,14 @@
+{
+  "hover-zoom": {
+    "name": "Hover Zoom Pro",
+    "description": "High-fidelity image magnification with optical tracking.",
+    "version": "1.0.1",
+    "url": "https://raw.githubusercontent.com/adaster98/kloak-client-unofficial/main/addons/hover-zoom-1.0.1.zip"
+  },
+  "zen-mode": {
+    "name": "Zen Mode",
+    "description": "Instantly hide all sidebars and focus entirely on your conversation.",
+    "version": "1.0.0",
+    "url": "https://raw.githubusercontent.com/adaster98/kloak-client-unofficial/main/addons/zen-mode-1.0.0.zip"
+  }
+}
