@@ -3,8 +3,23 @@ const { contextBridge, ipcRenderer } = require('electron');
 // Expose the API
 contextBridge.exposeInMainWorld('electronAPI', {
     minimize: () => ipcRenderer.send('window-min'),
-                                maximize: () => ipcRenderer.send('window-max'),
-                                close: () => ipcRenderer.send('window-close')
+    maximize: () => ipcRenderer.send('window-max'),
+    close: () => ipcRenderer.send('window-close'),
+
+    // Folder helper
+    openAddonsFolder: (subPath) => ipcRenderer.send('open-addons-folder', subPath),
+
+    // Global States
+    getAddonStates: () => ipcRenderer.invoke('get-addon-states'),
+    saveAddonState: (data) => ipcRenderer.send('save-addon-state', data),
+
+    // Specific Addon Settings
+    getAddonConfig: (addonId) => ipcRenderer.invoke('get-addon-config', addonId),
+    saveAddonConfig: (data) => ipcRenderer.send('save-addon-config', data),
+
+    // Theme Engine Helpers
+    getThemeFiles: () => ipcRenderer.invoke('get-theme-files')
+
 });
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -372,4 +387,6 @@ window.addEventListener('DOMContentLoaded', () => {
             }, 50);
         }
     }, true);
+
 });
+

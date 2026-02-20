@@ -11,6 +11,17 @@ let pendingPermissions = {};
 // Store settings
 const settingsPath = path.join(app.getPath('userData'), 'kloak-settings.json');
 
+// Addon path logic
+let addonsDir = !app.isPackaged
+? path.join(app.getAppPath(), 'addons')
+: path.join(app.getPath('userData'), 'addons');
+
+let addonStatesPath = path.join(addonsDir, 'addon-states.json');
+
+if (!fs.existsSync(addonsDir)) {
+    fs.mkdirSync(addonsDir, { recursive: true });
+}
+
 function loadSettings() {
     try { return JSON.parse(fs.readFileSync(settingsPath, 'utf8')); }
     catch (e) { return { skipLinkWarning: false }; }
@@ -30,6 +41,22 @@ ipcMain.on('window-max', () => {
     }
 });
 ipcMain.on('window-close', () => mainWindow.hide()); // Hide instead of close to keep tray active
+
+// Global Folder Opener
+ipcMain.on('open-addons-folder', (event, subPath) => {
+    let targetPath = addonsDir;
+
+    // If an addon asks for a specific sub-folder, append it
+    if (subPath && typeof subPath === 'string') {
+        targetPath = path.join(addonsDir, subPath);
+        // Ensure it exists before opening
+        if (!fs.existsSync(targetPath)) {
+            fs.mkdirSync(targetPath, { recursive: true });
+        }
+    }
+
+    shell.openPath(targetPath);
+});
 
 
 function createWindow() {
@@ -69,6 +96,39 @@ function createWindow() {
 
     const appUserAgent = mainWindow.webContents.getUserAgent() + ' KloakClient Electron Tauri';
     mainWindow.webContents.setUserAgent(appUserAgent);
+
+    // Inject addon manager and load addons
+    mainWindow.webContents.on('did-finish-load', () => {
+        try {
+            let managerPath = path.join(app.getAppPath(), 'addon-manager.js');
+            if (!fs.existsSync(managerPath)) managerPath = path.join(app.getAppPath(), 'src', 'addon-manager.js');
+
+            if (fs.existsSync(managerPath)) {
+                const managerCode = fs.readFileSync(managerPath, 'utf8');
+
+                mainWindow.webContents.executeJavaScript(managerCode).then(() => {
+                    console.log("SUCCESS: Addon Manager injected!");
+
+                    // Scan the SMART addons folder
+                    if (fs.existsSync(addonsDir)) {
+                        const folders = fs.readdirSync(addonsDir);
+                        folders.forEach(folder => {
+                            const addonScript = path.join(addonsDir, folder, 'index.js');
+                            if (fs.existsSync(addonScript)) {
+                                const code = fs.readFileSync(addonScript, 'utf8');
+                                mainWindow.webContents.executeJavaScript(code)
+                                .then(() => console.log(`Loaded Addon: ${folder}`))
+                                .catch(err => console.error(`Error in addon ${folder}:`, err));
+                            }
+                        });
+                    }
+                }).catch(err => console.error("Manager execution failed:", err));
+            }
+        } catch (err) {
+            console.error("Addon injection sequence failed:", err);
+        }
+    });
+    // End of addon manager injection
 
     // Start loading the heavy website in the background
     mainWindow.loadURL('https://kloak.app/app');
@@ -329,6 +389,63 @@ function createWindow() {
                 shell.openExternal(url);
             }
         });
+
+
+        // Modular Addon Storage System
+        ipcMain.handle('get-addon-states', () => {
+            if (fs.existsSync(addonStatesPath)) {
+                try { return JSON.parse(fs.readFileSync(addonStatesPath, 'utf8')); }
+                catch (e) { console.error("Error reading addon states:", e); }
+            }
+            return {};
+        });
+
+        ipcMain.on('save-addon-state', (event, { addonId, enabled }) => {
+            let states = {};
+            if (fs.existsSync(addonStatesPath)) {
+                try { states = JSON.parse(fs.readFileSync(addonStatesPath, 'utf8')); } catch(e){}
+            }
+            states[addonId] = enabled;
+            fs.writeFileSync(addonStatesPath, JSON.stringify(states, null, 4), 'utf8');
+        });
+
+        // Specific Addon Configurations
+        ipcMain.handle('get-addon-config', (event, addonId) => {
+            const configPath = path.join(addonsDir, addonId, 'config.json');
+            if (fs.existsSync(configPath)) {
+                try { return JSON.parse(fs.readFileSync(configPath, 'utf8')); }
+                catch (e) { return {}; }
+            }
+            return {};
+        });
+
+        ipcMain.on('save-addon-config', (event, { addonId, data }) => {
+            const addonFolder = path.join(addonsDir, addonId);
+            if (!fs.existsSync(addonFolder)) fs.mkdirSync(addonFolder, { recursive: true });
+
+            const configPath = path.join(addonFolder, 'config.json');
+            fs.writeFileSync(configPath, JSON.stringify(data, null, 4), 'utf8');
+        });
+
+        ipcMain.handle('get-theme-files', () => {
+            const themesDir = path.join(addonsDir, 'theme-injector', 'themes');
+
+            if (!fs.existsSync(themesDir)) {
+                fs.mkdirSync(themesDir, { recursive: true });
+                return [];
+            }
+
+            try {
+                const files = fs.readdirSync(themesDir).filter(f => f.endsWith('.css'));
+                return files.map(f => ({
+                    filename: f,
+                    name: f.replace('.css', '').replace(/-/g, ' '),
+                                       content: fs.readFileSync(path.join(themesDir, f), 'utf8')
+                }));
+            } catch (e) { return []; }
+        });
+
+        // END OF ADDON STORAGE SYSTEM
 
 }
 
