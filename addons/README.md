@@ -5,6 +5,9 @@ Enables using the up arrow to exit your last sent message.
 **- stealth-mode:**<br>
 Disabled others from seeing "User is typing..." when your writing your chat essay!
 
+**- theme-injector:**<br>
+Stylise the UI with your own .css file. Example provided. Make sure your on the latest version of the client.
+
 ## Getting started:
 Choose one of the pre-made addons or make your own using the template. <br>
 Just downoad an addon folder and copy it to your own, then restart your client.
