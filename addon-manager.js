@@ -226,7 +226,7 @@ class KloakAddonManager {
 
         <button id="kloak-get-addons" class="addon-card" style="flex: 1; cursor: pointer; text-align: left; transition: all 0.2s; background: #161616;">
         <div class="addon-info" style="display: flex; align-items: center; gap: 12px;">
-        <div style="background: #161616; padding: 8px; border-radius: 8px; color: #10b981; display: flex;">
+        <div style="background: #161616; padding: 8px; border-radius: 8px; color: #a1a1aa; display: flex;">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
         </div>
         <div>
@@ -281,7 +281,7 @@ class KloakAddonManager {
             });
             folderBtn.addEventListener('mouseleave', () => {
                 folderBtn.style.borderColor = '#2a2a2a';
-                folderBtn.style.background = '#1a1a1a';
+                folderBtn.style.background = '#161616';
             });
             folderBtn.addEventListener('click', () => {
                 if (window.electronAPI && window.electronAPI.openAddonsFolder) {
@@ -299,13 +299,10 @@ class KloakAddonManager {
             });
             getBtn.addEventListener('mouseleave', () => {
                 getBtn.style.borderColor = '#2a2a2a';
-                getBtn.style.background = '#1a1a1a';
+                getBtn.style.background = '#161616';
             });
             getBtn.addEventListener('click', () => {
-                if (window.electronAPI && window.electronAPI.openExternalUrl) {
-                    // This links straight to your repo!
-                    window.electronAPI.openExternalUrl('https://github.com/adaster98/kloak-client-unofficial/tree/main/addons');
-                }
+                this.openAppStore();
             });
         }
 
@@ -342,5 +339,122 @@ class KloakAddonManager {
             });
         });
     }
+
+    // Addon store backend
+
+    async openAppStore() {
+        // Create or show the store modal
+        let storeModal = document.getElementById('kloak-addon-store-modal');
+        if (!storeModal) {
+            storeModal = document.createElement('div');
+            storeModal.id = 'kloak-addon-store-modal';
+            Object.assign(storeModal.style, {
+                display: 'none', position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
+                background: 'rgba(0,0,0,0.85)', zIndex: 9999999, justifyContent: 'center', alignItems: 'center',
+                          paddingTop: '36px' // Respect the title bar
+            });
+
+            storeModal.innerHTML = `
+            <div class="addon-settings-box" style="width: 600px; max-height: 85vh;">
+            <div class="addon-settings-header">
+            <h3 style="color: #e0e0e0; display: flex; align-items: center; gap: 8px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+            Addon Store
+            </h3>
+            <button id="store-close-btn" class="addon-btn-icon" style="background:transparent; border:none; cursor:pointer; color:#949494;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </button>
+            </div>
+            <div id="store-content" style="display: flex; flex-direction: column; gap: 12px; overflow-y: auto; padding-right: 4px;">
+            </div>
+            </div>
+            `;
+            document.body.appendChild(storeModal);
+
+            storeModal.addEventListener('click', (e) => {
+                if (e.target === storeModal || e.target.closest('#store-close-btn')) storeModal.style.display = 'none';
+            });
+        }
+
+        storeModal.style.display = 'flex';
+        const content = document.getElementById('store-content');
+        content.innerHTML = `<p style="text-align: center; color: #a1a1aa; padding: 20px;">Connecting to GitHub repository...</p>`;
+
+        try {
+            // Fetch the database
+            if (!window.electronAPI || !window.electronAPI.fetchStoreData) {
+                throw new Error("Backend bridge not connected. Check preload.js.");
+            }
+
+            const storeResponse = await window.electronAPI.fetchStoreData();
+            if (!storeResponse.success) {
+                throw new Error(storeResponse.error);
+            }
+            const storeData = storeResponse.data;
+
+            // Get currently installed versions from the backend
+            let localVersions = {};
+            if (window.electronAPI && window.electronAPI.getLocalVersions) {
+                localVersions = await window.electronAPI.getLocalVersions();
+            }
+
+            // Render the list
+            let html = '';
+            for (const [id, addon] of Object.entries(storeData)) {
+                const localVer = localVersions[id];
+                let btnHtml = '';
+
+                if (!localVer) {
+                    btnHtml = `<button class="store-install-btn" data-id="${id}" data-url="${addon.url}" data-ver="${addon.version}" style="background: #10b981; color: #000; border: none; padding: 6px 12px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 12px;">Install</button>`;
+                } else if (localVer !== addon.version) {
+                    btnHtml = `<button class="store-install-btn" data-id="${id}" data-url="${addon.url}" data-ver="${addon.version}" style="background: #3b82f6; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 12px;">Update (v${addon.version})</button>`;
+                } else {
+                    btnHtml = `<button disabled style="background: #27272a; color: #71717a; border: none; padding: 6px 12px; border-radius: 6px; font-weight: 600; font-size: 12px; cursor: default;">Installed</button>`;
+                }
+
+                html += `
+                <div style="background: #161616; border: 1px solid #2a2a2a; border-radius: 8px; padding: 16px; display: flex; justify-content: space-between; align-items: center; gap: 16px;">
+                <div style="flex: 1; min-width: 0;">
+                <h4 style="margin: 0 0 4px 0; color: #E0E0E0; font-size: 15px;">${addon.name} <span style="color: #71717a; font-size: 11px; font-weight: normal; margin-left: 6px;">v${addon.version}</span></h4>
+                <p style="margin: 0; color: #949494; font-size: 13px; line-height: 1.4;">${addon.description}</p>
+                </div>
+                <div>${btnHtml}</div>
+                </div>
+                `;
+            }
+            content.innerHTML = html;
+
+            // 5. Wire up the installation sequence
+            content.querySelectorAll('.store-install-btn').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const id = e.target.getAttribute('data-id');
+                    const url = e.target.getAttribute('data-url');
+                    const ver = e.target.getAttribute('data-ver');
+
+                    e.target.textContent = "Installing...";
+                    e.target.style.background = "#eab308";
+                    e.target.style.color = "#000";
+                    e.target.disabled = true;
+
+                    if (window.electronAPI && window.electronAPI.installAddon) {
+                        const result = await window.electronAPI.installAddon({ addonId: id, zipUrl: url, version: ver });
+                        if (result.success) {
+                            e.target.textContent = "Installed! Restart App";
+                            e.target.style.background = "#27272a";
+                            e.target.style.color = "#10b981";
+                        } else {
+                            e.target.textContent = "Failed";
+                            e.target.style.background = "#ef4444";
+                            e.target.style.color = "#fff";
+                        }
+                    }
+                });
+            });
+
+        } catch (err) {
+            content.innerHTML = `<p style="text-align: center; color: #ef4444; padding: 20px;">Failed to load store: ${err.message}</p>`;
+        }
+    }
+
 }
 window.KloakAddons = new KloakAddonManager();

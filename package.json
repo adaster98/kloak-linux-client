@@ -1,6 +1,6 @@
 {
   "name": "kloak-client",
-  "version": "1.1.3",
+  "version": "1.1.4",
   "description": "Desktop client for Kloak",
   "main": "main.js",
   "homepage": "https://kloak.app",
@@ -16,7 +16,10 @@
       "output": "dist"
     },
     "linux": {
-      "target": ["AppImage", "deb"],
+      "target": [
+        "AppImage",
+        "deb"
+      ],
       "icon": "icons/icon.png",
       "category": "Network",
       "maintainer": "Aster"
@@ -31,5 +34,8 @@
     "electron": "^28.0.0",
     "electron-builder": "^24.9.1",
     "rpmbuild": "^0.0.23"
+  },
+  "dependencies": {
+    "adm-zip": "^0.5.16"
   }
 }

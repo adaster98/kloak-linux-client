@@ -447,6 +447,78 @@ function createWindow() {
 
         // END OF ADDON STORAGE SYSTEM
 
+        // Addon Store
+
+        // Fetch Store Database
+        ipcMain.handle('fetch-store-data', async () => {
+            try {
+                // Add timestamp to prevent caching old versions of the store
+                const dbUrl = 'https://raw.githubusercontent.com/adaster98/kloak-client-unofficial/main/addons/store.json?t=' + Date.now();
+                const response = await fetch(dbUrl);
+
+                if (!response.ok) throw new Error(`GitHub returned status: ${response.status}`);
+
+                const data = await response.json();
+                return { success: true, data };
+            } catch (err) {
+                console.error("[Store] Database fetch failed:", err);
+                return { success: false, error: err.message };
+            }
+        });
+
+        // Check local installed versions
+        ipcMain.handle('get-local-versions', () => {
+            const versions = {};
+            if (fs.existsSync(addonsDir)) {
+                const folders = fs.readdirSync(addonsDir);
+                folders.forEach(folder => {
+                    const versionPath = path.join(addonsDir, folder, 'version.json');
+                    if (fs.existsSync(versionPath)) {
+                        try {
+                            versions[folder] = JSON.parse(fs.readFileSync(versionPath, 'utf8')).version;
+                        } catch(e) {}
+                    } else {
+                        // If it exists but has no version file, assume it's a bleeding edge 9.9.9 install
+                        versions[folder] = "9.9.9";
+                    }
+                });
+            }
+            return versions;
+        });
+
+        // Download and Extract
+        ipcMain.handle('install-addon', async (event, { addonId, zipUrl, version }) => {
+            try {
+                const AdmZip = require('adm-zip');
+                console.log(`[Store] Downloading ${addonId} v${version}...`);
+
+                // Fetch the zip file directly from GitHub
+                const response = await fetch(zipUrl);
+                if (!response.ok) throw new Error(`Download failed: ${response.statusText}`);
+
+                // Convert it to a memory buffer
+                const arrayBuffer = await response.arrayBuffer();
+                const buffer = Buffer.from(arrayBuffer);
+
+                // Unpack it
+                console.log(`[Store] Extracting ${addonId}...`);
+                const zip = new AdmZip(buffer);
+                const targetDir = path.join(addonsDir, addonId);
+
+                // This overwrites existing files
+                zip.extractAllTo(targetDir, true);
+
+                // Drop a version tracker file inside the folder
+                fs.writeFileSync(path.join(targetDir, 'version.json'), JSON.stringify({ version }));
+
+                console.log(`[Store] Success!`);
+                return { success: true };
+            } catch (err) {
+                console.error("[Store] Install failed:", err);
+                return { success: false, error: err.message };
+            }
+        });
+
 }
 
 function createTray() {

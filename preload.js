@@ -15,6 +15,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
     getAddonStates: () => ipcRenderer.invoke('get-addon-states'),
     saveAddonState: (data) => ipcRenderer.send('save-addon-state', data),
 
+    // Addon Store
+    getLocalVersions: () => ipcRenderer.invoke('get-local-versions'),
+    installAddon: (data) => ipcRenderer.invoke('install-addon', data),
+    fetchStoreData: () => ipcRenderer.invoke('fetch-store-data'),
+
     // Specific Addon Settings
     getAddonConfig: (addonId) => ipcRenderer.invoke('get-addon-config', addonId),
     saveAddonConfig: (data) => ipcRenderer.send('save-addon-config', data),
