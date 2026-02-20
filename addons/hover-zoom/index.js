@@ -1,15 +1,9 @@
 (() => {
     const ADDON_ID = 'hover-zoom';
-
     let isEnabled = false;
-    let config = { lensSize: 350, zoomLevel: 150 };
-    let activeLens = null;
-    let activeTarget = null; // Track the actual image element
-
+    let config = { lensSize: 300, zoomLevel: 2.5 };
+    let activeUI = null;
     let triggerHandler = null;
-    let mouseMoveHandler = null;
-    let keyDownHandler = null;
-    let clickHandler = null;
 
     async function loadConfig() {
         try {
@@ -17,158 +11,137 @@
                 const data = await window.electronAPI.getAddonConfig(ADDON_ID);
                 if (data) {
                     if (data.lensSize) config.lensSize = parseInt(data.lensSize, 10);
-                    if (data.zoomLevel) config.zoomLevel = parseInt(data.zoomLevel, 10);
+                    if (data.zoomLevel) config.zoomLevel = parseFloat(data.zoomLevel);
                 }
             }
         } catch (e) { console.error("[Hover Zoom] Failed to load config", e); }
     }
 
-    const createLens = (imgElement, startX, startY) => {
-        activeTarget = imgElement;
-        activeLens = document.createElement('div');
-        activeLens.id = 'kloak-zoom-lens';
-
-        Object.assign(activeLens.style, {
-            position: 'fixed',
-            width: `${config.lensSize}px`,
-            height: `${config.lensSize}px`,
-            borderRadius: '50%',
-            pointerEvents: 'none',
-            zIndex: '999999',
-            backgroundImage: `url("${imgElement.src}")`,
-                      backgroundRepeat: 'no-repeat',
-                      backgroundSize: `${config.zoomLevel}vw auto`,
-                      boxShadow: '0 0 0 9999px rgba(0,0,0,0.85), inset 0 0 20px rgba(0,0,0,0.8), 0 0 10px rgba(255,255,255,0.2)',
-                      border: '2px solid rgba(255,255,255,0.1)',
-                      transform: 'translate(-50%, -50%)',
-                      left: `${startX}px`,
-                      top: `${startY}px`,
-                      transition: 'opacity 0.1s ease-out'
+    const createZoomUI = (imgElement) => {
+        activeUI = document.createElement('div');
+        Object.assign(activeUI.style, {
+            position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
+            backgroundColor: 'rgba(0,0,0,0.95)', zIndex: '999999',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'none'
         });
 
-        updateLensPosition(startX, startY);
-        document.body.appendChild(activeLens);
+        const baseImg = document.createElement('img');
+        baseImg.src = imgElement.src;
+        Object.assign(baseImg.style, {
+            maxWidth: '85vw', maxHeight: '85vh', objectFit: 'contain',
+            boxShadow: '0 0 40px rgba(0,0,0,0.8)', userSelect: 'none', pointerEvents: 'none'
+        });
+        activeUI.appendChild(baseImg);
 
-        mouseMoveHandler = (e) => {
-            if (!activeLens) return;
-            activeLens.style.left = `${e.clientX}px`;
-            activeLens.style.top = `${e.clientY}px`;
-            updateLensPosition(e.clientX, e.clientY);
+        const lens = document.createElement('div');
+        Object.assign(lens.style, {
+            position: 'fixed', width: `${config.lensSize}px`, height: `${config.lensSize}px`,
+            borderRadius: '50%', border: '2px solid rgba(255,255,255,0.4)',
+                      pointerEvents: 'none', transform: 'translate(-50%, -50%)',
+                      boxShadow: '0 0 30px rgba(0,0,0,0.9)', zIndex: '1000000',
+                      opacity: '0', overflow: 'hidden', backgroundColor: '#000'
+        });
+
+        const zoomedImg = document.createElement('img');
+        zoomedImg.src = imgElement.src;
+        Object.assign(zoomedImg.style, {
+            position: 'absolute', top: 0, left: 0,
+            pointerEvents: 'none', willChange: 'transform',
+            maxWidth: 'none', maxHeight: 'none' // Prevent global styles from squishing it
+        });
+        lens.appendChild(zoomedImg);
+        activeUI.appendChild(lens);
+
+        const updateLens = (e) => {
+            const rect = baseImg.getBoundingClientRect();
+            lens.style.left = `${e.clientX}px`;
+            lens.style.top = `${e.clientY}px`;
+
+            const buffer = config.lensSize / 2;
+            if (e.clientX >= rect.left - buffer && e.clientX <= rect.right + buffer &&
+                e.clientY >= rect.top - buffer && e.clientY <= rect.bottom + buffer) {
+
+                lens.style.opacity = '1';
+
+            const localX = e.clientX - rect.left;
+            const localY = e.clientY - rect.top;
+
+            // Set width and height explicitly based on the stage image size
+            // This ensures it stays proportional to the image the user is looking at
+            const zWidth = rect.width * config.zoomLevel;
+            const zHeight = rect.height * config.zoomLevel;
+
+            zoomedImg.style.width = `${zWidth}px`;
+            zoomedImg.style.height = `${zHeight}px`;
+
+            const tx = (localX * config.zoomLevel) - (config.lensSize / 2);
+            const ty = (localY * config.zoomLevel) - (config.lensSize / 2);
+
+            zoomedImg.style.transform = `translate(${-tx}px, ${-ty}px)`;
+                } else {
+                    lens.style.opacity = '0';
+                }
         };
 
-        keyDownHandler = (e) => {
-            if (e.key === 'Escape') closeLens();
-        };
-
-            clickHandler = () => closeLens();
-
-            document.addEventListener('mousemove', mouseMoveHandler);
-            document.addEventListener('keydown', keyDownHandler);
-            document.addEventListener('mousedown', clickHandler);
-    };
-
-    const updateLensPosition = (x, y) => {
-        if (!activeTarget) return;
-
-        // Get the exact coordinates of the image on the screen
-        const rect = activeTarget.getBoundingClientRect();
-
-        // Calculate the mouse's percentage strictly WITHIN the image bounds
-        let xPct = ((x - rect.left) / rect.width) * 100;
-        let yPct = ((y - rect.top) / rect.height) * 100;
-
-        // Clamp the values between 0 and 100 just in case the mouse drifts slightly off the edge
-        xPct = Math.max(0, Math.min(100, xPct));
-        yPct = Math.max(0, Math.min(100, yPct));
-
-        activeLens.style.backgroundPosition = `${xPct}% ${yPct}%`;
-    };
-
-    const closeLens = () => {
-        if (activeLens) {
-            activeLens.remove();
-            activeLens = null;
-            activeTarget = null;
-        }
-        if (mouseMoveHandler) document.removeEventListener('mousemove', mouseMoveHandler);
-        if (keyDownHandler) document.removeEventListener('keydown', keyDownHandler);
-        if (clickHandler) document.removeEventListener('mousedown', clickHandler);
-    };
-
-        window.KloakAddons.registerAddon({
-            id: ADDON_ID,
-            name: 'Hover Zoom',
-            description: 'Hold Shift and hover your mouse over any image to bring up a magnifying glass. Press Escape or click to close.',
-
-            onEnable: async () => {
-                isEnabled = true;
-                await loadConfig();
-
-                triggerHandler = (e) => {
-                    if (!isEnabled || !e.shiftKey || activeLens) return;
-
-                    if (e.target.tagName === 'IMG' && e.target.src) {
-                        // We now pass the entire image element, not just the src!
-                        createLens(e.target, e.clientX, e.clientY);
-                    }
-                };
-
-                document.addEventListener('mousemove', triggerHandler);
-            },
-
-            onDisable: () => {
-                isEnabled = false;
-                closeLens();
-                if (triggerHandler) document.removeEventListener('mousemove', triggerHandler);
-            },
-
-            renderSettings: async (container) => {
-                container.innerHTML = `<p style="color: #949494; text-align: center;">Loading settings...</p>`;
-                await loadConfig();
-
-                container.innerHTML = `
-                <div style="color: #E0E0E0; display: flex; flex-direction: column; gap: 16px;">
-                <p style="margin: 0; color: #a1a1aa; font-size: 13px;">Tune the optics of your magnifying glass below.</p>
-
-                <div>
-                <div style="display: flex; justify-content: space-between;">
-                <label style="font-size: 11px; color: #71717a; text-transform: uppercase; font-weight: 700;">Lens Size (<span id="hz-size-val">${config.lensSize}</span>px)</label>
-                </div>
-                <input id="hz-size-input" type="range" min="150" max="800" value="${config.lensSize}" style="width: 100%; margin-top: 8px; accent-color: #10b981; cursor: pointer;">
-                </div>
-
-                <div>
-                <div style="display: flex; justify-content: space-between;">
-                <label style="font-size: 11px; color: #71717a; text-transform: uppercase; font-weight: 700;">Zoom Power (<span id="hz-zoom-val">${config.zoomLevel}</span>%)</label>
-                </div>
-                <input id="hz-zoom-input" type="range" min="50" max="300" value="${config.zoomLevel}" style="width: 100%; margin-top: 8px; accent-color: #10b981; cursor: pointer;">
-                </div>
-
-                <div style="display: flex; align-items: center; gap: 12px; margin-top: 4px; padding-top: 16px; border-top: 1px solid #27272a;">
-                <button id="hz-save-btn" style="background: #10b981; color: #000; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600;">Save Calibration</button>
-                <span id="hz-saved-msg" style="color: #10b981; font-size: 13px; font-weight: 500; opacity: 0; transition: opacity 0.2s;">✓ Saved</span>
-                </div>
-                </div>
-                `;
-
-                const sizeInput = container.querySelector('#hz-size-input');
-                const zoomInput = container.querySelector('#hz-zoom-input');
-
-                sizeInput.addEventListener('input', (e) => container.querySelector('#hz-size-val').textContent = e.target.value);
-                zoomInput.addEventListener('input', (e) => container.querySelector('#hz-zoom-val').textContent = e.target.value);
-
-                container.querySelector('#hz-save-btn').addEventListener('click', () => {
-                    config.lensSize = parseInt(sizeInput.value, 10);
-                    config.zoomLevel = parseInt(zoomInput.value, 10);
-
-                    if (window.electronAPI && window.electronAPI.saveAddonConfig) {
-                        window.electronAPI.saveAddonConfig({ addonId: ADDON_ID, data: config });
-
-                        const msg = container.querySelector('#hz-saved-msg');
-                        msg.style.opacity = '1';
-                        setTimeout(() => msg.style.opacity = '0', 2000);
-                    }
-                });
+        const closeUI = (e) => {
+            if (e.key === 'Escape' || e.type === 'mousedown') {
+                activeUI.remove();
+                activeUI = null;
+                document.removeEventListener('mousemove', updateLens);
+                document.removeEventListener('keydown', closeUI);
+                document.removeEventListener('mousedown', closeUI);
             }
-        });
+        };
+
+        document.addEventListener('mousemove', updateLens);
+        document.addEventListener('keydown', closeUI);
+        document.addEventListener('mousedown', closeUI);
+        document.body.appendChild(activeUI);
+    };
+
+    window.KloakAddons.registerAddon({
+        id: ADDON_ID,
+        name: 'Hover Zoom Pro',
+        description: 'Aspect-ratio fixed magnification with full corner tracking.',
+
+        onEnable: async () => {
+            isEnabled = true;
+            await loadConfig();
+            triggerHandler = (e) => {
+                if (!isEnabled || !e.shiftKey || activeUI) return;
+                if (e.target.tagName === 'IMG' && e.target.src) createZoomUI(e.target);
+            };
+                document.addEventListener('mousemove', triggerHandler);
+        },
+        onDisable: () => {
+            isEnabled = false;
+            if (activeUI) activeUI.remove();
+            document.removeEventListener('mousemove', triggerHandler);
+        },
+        renderSettings: async (container) => {
+            await loadConfig();
+            container.innerHTML = `
+            <div style="color: #E0E0E0; display: flex; flex-direction: column; gap: 16px;">
+            <div>
+            <label style="font-size: 11px; color: #71717a; text-transform: uppercase; font-weight: 700;">Lens Size (<span id="hz-size-val">${config.lensSize}</span>px)</label>
+            <input id="hz-size-input" type="range" min="150" max="600" value="${config.lensSize}" style="width: 100%; margin-top: 8px; accent-color: #10b981;">
+            </div>
+            <div>
+            <label style="font-size: 11px; color: #71717a; text-transform: uppercase; font-weight: 700;">Magnification (<span id="hz-zoom-val">${config.zoomLevel}</span>x)</label>
+            <input id="hz-zoom-input" type="range" min="1.1" max="10" step="0.1" value="${config.zoomLevel}" style="width: 100%; margin-top: 8px; accent-color: #10b981;">
+            </div>
+            <button id="hz-save-btn" style="background: #10b981; color: #000; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: 600;">Save Calibration</button>
+            </div>
+            `;
+            const sizeIn = container.querySelector('#hz-size-input');
+            const zoomIn = container.querySelector('#hz-zoom-input');
+            sizeIn.oninput = (e) => container.querySelector('#hz-size-val').textContent = e.target.value;
+            zoomIn.oninput = (e) => container.querySelector('#hz-zoom-val').textContent = e.target.value;
+            container.querySelector('#hz-save-btn').onclick = () => {
+                config.lensSize = parseInt(sizeIn.value);
+                config.zoomLevel = parseFloat(zoomIn.value);
+                window.electronAPI.saveAddonConfig({ addonId: ADDON_ID, data: config });
+            };
+        }
+    });
 })();
