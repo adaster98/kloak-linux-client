@@ -16,5 +16,11 @@
     "description": "Instantly hide all sidebars and focus entirely on your conversation.",
     "version": "1.0.0",
     "url": "https://raw.githubusercontent.com/adaster98/kloak-client-unofficial/main/addons/zen-mode-1.0.0.zip"
-  }
+  },
+  "quick-edit": {
+    "name": "Quick Edit",
+    "description": "Press Up Arrow to edit your last sent message.",
+    "version": "1.0.0",
+    "url": "https://raw.githubusercontent.com/adaster98/kloak-client-unofficial/main/addons/quick-edit-1.0.0.zip"
+  },
 }
