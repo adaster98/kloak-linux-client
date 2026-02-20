@@ -23,7 +23,7 @@ More dev photos: https://albums.ente.io/?t=ANSUYEBSD4#6E1i6E1vGUQbh3CRsFBwkd2gzW
 Create build enviroment and clone repo:
 ```shell
 mkdir kloak-client
-git clone https://github.com/adaster98/kloak-linux-client
+git clone https://github.com/adaster98/kloak-linux-client/src
 npm install
 npm install adm-zip
 ```
