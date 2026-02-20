@@ -29,15 +29,24 @@ class KloakAddonManager {
         }
     }
 
+    getTopOffset() {
+        // Look for system announce banner
+        const banner = document.querySelector('.bg-slate-700.border-b.border-slate-600');
+        const bannerHeight = banner ? banner.offsetHeight : 0;
+
+        // Return value to push the top down
+        return 36 + bannerHeight;
+    }
+
     injectCSS() {
         const style = document.createElement('style');
         style.innerHTML = `
-        /* Pane with Top Offset and Subtle Gradient */
         #kloak-addon-pane {
-        display: none; position: absolute;
-        top: 36px;
+        display: none;
+        position: absolute;
+        /* Remove 'top: 36px' from here */
         right: 0; bottom: 0; left: 224px;
-        background: linear-gradient(0deg, #0f0f0f 0%, #0f0f0f 100%);
+        background: #0f0f0f;
         z-index: 999; padding: 40px; overflow-y: auto;
         border-bottom-right-radius: inherit;
         }
@@ -145,12 +154,22 @@ class KloakAddonManager {
 
     activateAddonTab(nav, addonBtn, addonPane) {
         this.isActive = true;
+
+        // Calculate current offset (checks if system banner exists)
+        const offset = this.getTopOffset();
+
+        // Apply the offset to the pane
+        addonPane.style.top = `${offset}px`;
+
         nav.querySelectorAll('button').forEach(btn => {
-            if (btn.id !== 'kloak-nav-addons' && !btn.classList.contains('text-destructive')) btn.className = "w-full flex items-center gap-2.5 text-sm font-medium px-3 py-2 rounded-md transition-colors text-muted-foreground hover:bg-secondary/60 hover:text-foreground";
+            if (btn.id !== 'kloak-nav-addons' && !btn.classList.contains('text-destructive')) {
+                btn.className = "w-full flex items-center gap-2.5 text-sm font-medium px-3 py-2 rounded-md transition-colors text-muted-foreground hover:bg-secondary/60 hover:text-foreground";
+            }
         });
-            addonBtn.className = "w-full flex items-center gap-2.5 text-sm font-medium px-3 py-2 rounded-md transition-colors bg-primary text-primary-foreground";
-            this.renderAddonUI(addonPane);
-            addonPane.classList.add('active');
+
+        addonBtn.className = "w-full flex items-center gap-2.5 text-sm font-medium px-3 py-2 rounded-md transition-colors bg-primary text-primary-foreground";
+        this.renderAddonUI(addonPane);
+        addonPane.classList.add('active');
     }
 
     openSettingsModal(addon) {
@@ -192,20 +211,34 @@ class KloakAddonManager {
         <h2>Addons</h2>
         <p>Manage custom addons and client modifications</p>
 
-        <button id="kloak-open-folder" class="addon-card" style="width: 35%; margin-top: 16px; cursor: pointer; text-align: left; transition: all 0.2s; background: #1a1a1a;">
+        <div style="display: flex; gap: 16px; margin-top: 16px; max-width: 600px;">
+        <button id="kloak-open-folder" class="addon-card" style="flex: 1; cursor: pointer; text-align: left; transition: all 0.2s; background: #161616;">
         <div class="addon-info" style="display: flex; align-items: center; gap: 12px;">
-        <div style="background: #262626; padding: 8px; border-radius: 8px; color: #a1a1aa; display: flex;">
+        <div style="background: #161616; padding: 8px; border-radius: 8px; color: #a1a1aa; display: flex;">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>
         </div>
         <div>
-        <h3 style="margin: 0; font-size: 14px; color: #E0E0E0;">Open Addons Folder</h3>
-        <p style="margin: 0; font-size: 12px; color: #71717a;">Install or remove addons in file manager</p>
+        <h3 style="margin: 0; font-size: 14px; color: #E0E0E0;">Open Folder</h3>
+        <p style="margin: 0; font-size: 12px; color: #71717a;">Manage installed files</p>
+        </div>
+        </div>
+        </button>
+
+        <button id="kloak-get-addons" class="addon-card" style="flex: 1; cursor: pointer; text-align: left; transition: all 0.2s; background: #161616;">
+        <div class="addon-info" style="display: flex; align-items: center; gap: 12px;">
+        <div style="background: #161616; padding: 8px; border-radius: 8px; color: #10b981; display: flex;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+        </div>
+        <div>
+        <h3 style="margin: 0; font-size: 14px; color: #E0E0E0;">Get More Addons</h3>
+        <p style="margin: 0; font-size: 12px; color: #71717a;">Download from GitHub</p>
         </div>
         </div>
         <div class="addon-controls">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #4b4b4b;"><path d="m9 18 6-6-6-6"/></svg>
         </div>
         </button>
+        </div>
         </div>
         `;
 
@@ -253,6 +286,25 @@ class KloakAddonManager {
             folderBtn.addEventListener('click', () => {
                 if (window.electronAPI && window.electronAPI.openAddonsFolder) {
                     window.electronAPI.openAddonsFolder();
+                }
+            });
+        }
+
+        // Wire up the Get Addons button
+        const getBtn = container.querySelector('#kloak-get-addons');
+        if (getBtn) {
+            getBtn.addEventListener('mouseenter', () => {
+                getBtn.style.borderColor = '#10b981'; // Gives it a nice green highlight
+                getBtn.style.background = '#222';
+            });
+            getBtn.addEventListener('mouseleave', () => {
+                getBtn.style.borderColor = '#2a2a2a';
+                getBtn.style.background = '#1a1a1a';
+            });
+            getBtn.addEventListener('click', () => {
+                if (window.electronAPI && window.electronAPI.openExternalUrl) {
+                    // This links straight to your repo!
+                    window.electronAPI.openExternalUrl('https://github.com/adaster98/kloak-client-unofficial/tree/main/addons');
                 }
             });
         }

@@ -6,6 +6,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     maximize: () => ipcRenderer.send('window-max'),
     close: () => ipcRenderer.send('window-close'),
 
+    openExternalUrl: (url) => ipcRenderer.send('open-external-url', url),
+
     // Folder helper
     openAddonsFolder: (subPath) => ipcRenderer.send('open-addons-folder', subPath),
 
