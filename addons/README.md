@@ -8,6 +8,9 @@ Disabled others from seeing "User is typing..." when your writing your chat essa
 **- theme-injector:**<br>
 Stylise the UI with your own .css file. Example provided. Make sure your on the latest version of the client.
 
+**- hover-zoom:**<br>
+Hold shift and hover over any image to bring up a magnifying glass! No more tiny unreadable memes.
+
 ## Getting started:
 Choose one of the pre-made addons or make your own using the template. <br>
 Just downoad an addon folder and copy it to your own, then restart your client.
