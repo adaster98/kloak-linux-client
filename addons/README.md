@@ -11,6 +11,9 @@ Stylise the UI with your own .css file. Example provided. Make sure your on the 
 **- hover-zoom:**<br>
 Hold shift and hover over any image to bring up a magnifying glass! No more tiny unreadable memes.
 
+**- zen-mode:**<br>
+Hit Ctrl+Shift+Z (rebindable) to remove distractions like sidebars. Chat only!
+
 ## Getting started:
 Choose one of the pre-made addons or make your own using the template. <br>
 Just downoad an addon folder and copy it to your own, then restart your client.
