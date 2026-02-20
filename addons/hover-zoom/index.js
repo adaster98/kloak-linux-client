@@ -101,8 +101,8 @@
 
     window.KloakAddons.registerAddon({
         id: ADDON_ID,
-        name: 'Hover Zoom Pro',
-        description: 'Aspect-ratio fixed magnification with full corner tracking.',
+        name: 'Hover Zoom',
+        description: 'Hold shift over any image to magnify.',
 
         onEnable: async () => {
             isEnabled = true;
