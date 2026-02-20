@@ -132,7 +132,7 @@
     window.KloakAddons.registerAddon({
         id: ADDON_ID,
         name: 'Zen Mode',
-        description: 'Instantly hide all sidebars and focus entirely on your conversation. Features a customizable hotkey.',
+        description: 'Instantly hide all sidebars and focus entirely on your conversation.',
 
         onEnable: async () => {
             isEnabled = true;
