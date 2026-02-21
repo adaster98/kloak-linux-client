@@ -29,4 +29,10 @@
     "version": "1.0.0",
     "url": "https://raw.githubusercontent.com/adaster98/kloak-client-unofficial/main/addons/release/stealth-mode/stealth-mode-1.0.0.zip"
   }
+  "developer-ids": {
+    "name": "Developer IDs",
+    "description": "Displays raw Message and User IDs in the chat interface and adds copy buttons to the context menu.",
+    "version": "1.0.0",
+    "url": "https://raw.githubusercontent.com/adaster98/kloak-client-unofficial/main/addons/release/stealth-mode/devveloper-ids-1.0.0.zip"
+  }
 }
