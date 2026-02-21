@@ -30,9 +30,9 @@
     "url": "https://raw.githubusercontent.com/adaster98/kloak-client-unofficial/main/addons/release/stealth-mode/stealth-mode-1.0.0.zip"
   },
   "developer-ids": {
-    "name": "Developer IDs",
-    "description": "Displays raw Message and User IDs in the chat interface and adds copy buttons to the context menu.",
-    "version": "1.0.0",
-    "url": "https://raw.githubusercontent.com/adaster98/kloak-client-unofficial/main/addons/release/developer-ids/developer-ids-1.0.0.zip"
+    "name": "Developer Toolkit",
+    "description": "A powerful multitool for developers. View hidden user info and copy raw database IDs directly from the chat.",
+    "version": "1.0.1",
+    "url": "https://raw.githubusercontent.com/adaster98/kloak-client-unofficial/main/addons/release/developer-toolkit/developer-toolkit-1.0.1.zip"
   }
 }
