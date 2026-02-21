@@ -18,7 +18,7 @@
     window.KloakAddons.registerAddon({
         id: ADDON_ID,
         name: 'Quick Edit',
-        description: 'Press Up Arrow to edit your last sent message.',
+        description: 'Press Up Arrow to instantly edit your last sent message.',
 
         onEnable: () => {
             let isSearching = false;
@@ -37,53 +37,46 @@
                 if (isSearching) return;
                 isSearching = true;
 
-                // Slice based on our clean, memory-loaded config
+                // Grab recent messages based on limit
                 const messages = Array.from(document.querySelectorAll('div[id^="message-"]'))
                 .reverse()
                 .slice(0, config.maxMessages);
 
                 for (const msg of messages) {
-                    const clickTarget = msg.querySelector('.group') || msg;
-                    clickTarget.dispatchEvent(new MouseEvent('contextmenu', {
-                        bubbles: true, cancelable: true, button: 2, buttons: 2,
-                        clientX: clickTarget.getBoundingClientRect().left + 20,
-                                                             clientY: clickTarget.getBoundingClientRect().top + 20
-                    }));
-
-                    await new Promise(resolve => setTimeout(resolve, 50));
-
-                    const menuItems = Array.from(document.querySelectorAll('div[role="menuitem"]'));
-                    const editBtn = menuItems.find(item => item.textContent.includes('Edit Message'));
+                    // Look for the inline Edit button
+                    const editBtn = msg.querySelector('button[aria-label="Edit"]');
 
                     if (editBtn) {
-                        editBtn.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));
-                        editBtn.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, cancelable: true }));
+
                         editBtn.click();
 
-                        // Focus fix (Radix UI jank)
+                        // Wait for React to mount the textarea and grab focus
                         let attempts = 0;
                         const focusInterval = setInterval(() => {
                             attempts++;
                             const editBox = msg.querySelector('textarea');
+
                             if (editBox) {
                                 clearInterval(focusInterval);
                                 editBox.focus();
                                 const textLen = editBox.value.length;
                                 editBox.setSelectionRange(textLen, textLen);
+
+                                // Double-tap the focus just in case React tries to steal it back
                                 setTimeout(() => {
                                     editBox.focus();
                                     editBox.setSelectionRange(textLen, textLen);
                                 }, 50);
-                            } else if (attempts > 50) clearInterval(focusInterval);
+                            } else if (attempts > 50) {
+                                clearInterval(focusInterval); // Give up after 500ms
+                            }
                         }, 10);
 
-                            isSearching = false;
-                            return;
-                    } else {
-                        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
-                        await new Promise(resolve => setTimeout(resolve, 15));
+                        isSearching = false;
+                        return; // Stop searching
                     }
                 }
+
                 isSearching = false;
             };
 
