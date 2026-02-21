@@ -14,7 +14,7 @@ Hold shift and hover over any image to bring up a magnifying glass! No more tiny
 **- zen-mode:**<br>
 Hit Ctrl+Shift+Z (rebindable) to remove distractions like sidebars. Chat only!
 
-**- developer-tools:**<br>
+**- developer-toolkit:**<br>
 A powerful multitool for developers. View hidden user info and copy raw database IDs directly from the chat.
 
 
