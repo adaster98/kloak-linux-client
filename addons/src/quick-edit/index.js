@@ -66,6 +66,10 @@
                                 setTimeout(() => {
                                     editBox.focus();
                                     editBox.setSelectionRange(textLen, textLen);
+                                    // Grab the entire message group wrapper
+                                    const messageContainer = editBox.closest('.group') || msg;
+                                    // Scroll the whole block into view
+                                    messageContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                                 }, 50);
                             } else if (attempts > 50) {
                                 clearInterval(focusInterval); // Give up after 500ms
