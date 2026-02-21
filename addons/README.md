@@ -14,6 +14,10 @@ Hold shift and hover over any image to bring up a magnifying glass! No more tiny
 **- zen-mode:**<br>
 Hit Ctrl+Shift+Z (rebindable) to remove distractions like sidebars. Chat only!
 
+**- developer-tools:**<br>
+A powerful multitool for developers. View hidden user info and copy raw database IDs directly from the chat.
+
+
 ## Getting started:
 Choose one of the pre-made addons. <br>
 <img width="675" height="624" alt="image" src="https://github.com/user-attachments/assets/d9cd5736-8e5f-4a7c-8ac1-a0054e9fc37d" /> <br>
