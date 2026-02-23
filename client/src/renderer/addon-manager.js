@@ -231,7 +231,7 @@ class KloakAddonManager {
         </div>
         <div>
         <h3 style="margin: 0; font-size: 14px; color: #E0E0E0;">Get More Addons</h3>
-        <p style="margin: 0; font-size: 12px; color: #71717a;">Download from GitHub</p>
+        <p style="margin: 0; font-size: 12px; color: #71717a;">Download from Codeberg</p>
         </div>
         </div>
         <div class="addon-controls">
@@ -378,7 +378,7 @@ class KloakAddonManager {
 
         storeModal.style.display = 'flex';
         const content = document.getElementById('store-content');
-        content.innerHTML = `<p style="text-align: center; color: #a1a1aa; padding: 20px;">Connecting to GitHub repository...</p>`;
+        content.innerHTML = `<p style="text-align: center; color: #a1a1aa; padding: 20px;">Connecting to Codeberg repository...</p>`;
 
         try {
             // Fetch the database
