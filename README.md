@@ -27,7 +27,7 @@ Create build enviroment and clone repo:
 
 ```shell
 mkdir kloak-client
-git clone https://github.com/adaster98/kloak-linux-client/src
+git clone https://codeberg.org/adaster98/kloak-client-unofficial/client
 npm install
 ```
 
