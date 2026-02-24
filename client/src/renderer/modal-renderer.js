@@ -3,24 +3,11 @@ if (window.electronAPI && !window.electron) {
     minimize: () => window.electronAPI.minimize(),
     maximize: () => window.electronAPI.maximize(),
     close: () => window.electronAPI.close(),
-    // British aliases
-    minimise: () => window.electronAPI.minimize(),
-    maximise: () => window.electronAPI.maximize(),
-    // Shorter aliases
-    min: () => window.electronAPI.minimize(),
-    max: () => window.electronAPI.maximize(),
-    exit: () => window.electronAPI.close(),
-    winMin: () => window.electronAPI.minimize(),
-    winMax: () => window.electronAPI.maximize(),
-    winClose: () => window.electronAPI.close(),
     send: (channel) => {
       const c = channel?.toLowerCase() || "";
-      if (c === "minimize" || c === "minimise" || c === "window-min")
-        window.electronAPI.minimize();
-      else if (c === "maximize" || c === "maximise" || c === "window-max")
-        window.electronAPI.maximize();
-      else if (c === "close" || c === "window-close")
-        window.electronAPI.close();
+      if (c === "minimize") window.electronAPI.minimize();
+      else if (c === "maximize") window.electronAPI.maximize();
+      else if (c === "close") window.electronAPI.close();
       else window.electronAPI.send(channel);
     },
   };
@@ -42,13 +29,88 @@ if (window.electronAPI) {
     }
   });
 
-  // Permanent window.confirm shim to prevent system prompts
+  // Destructive Action Hijacker
+
+  // Track target button before click
+  let lastDestructiveButton = null;
+  const trackDestructiveBtn = (e) => {
+    const target =
+      e.target.closest(".text-destructive") ||
+      e.target.closest('div[role="menuitem"]');
+    if (
+      target &&
+      /Leave|Quit|Exit/i.test(target.innerText || target.textContent || "")
+    ) {
+      lastDestructiveButton = target;
+    }
+  };
+
+  // Track via hover or focus
+  document.addEventListener("pointermove", trackDestructiveBtn, true);
+  document.addEventListener("focusin", trackDestructiveBtn, true);
+
+  // Intercept native confirm
   let modalConfirmedFlag = false;
   window.confirm = (message) => {
     if (window.electronAPI.log)
       window.electronAPI.log(`Kloak: window.confirm intercepted: ${message}`);
-    return !!modalConfirmedFlag;
+
+    // Allow simulated clicks
+    if (modalConfirmedFlag) return true;
+
+    // Prevent duplicate modals
+    if (document.querySelector(".kloak-modal-overlay")) return false;
+
+    // Radix menu unmounts natively, clearing focus traps prior to render
+    renderDestructiveModal(
+      "Destructive Action",
+      message ||
+        "Are you sure you want to perform this action? It cannot be undone.",
+      "Confirm",
+      (confirmed) => {
+        if (confirmed) {
+          modalConfirmedFlag = true;
+
+          if (lastDestructiveButton) {
+            try {
+              // Extract React props from unmounted node
+              const reactPropsKey = Object.keys(lastDestructiveButton).find(
+                (k) => k.startsWith("__reactProps$"),
+              );
+              const props = reactPropsKey
+                ? lastDestructiveButton[reactPropsKey]
+                : null;
+
+              if (props) {
+                if (typeof props.onSelect === "function") {
+                  props.onSelect(new Event("select"));
+                } else if (typeof props.onClick === "function") {
+                  props.onClick({
+                    preventDefault: () => {},
+                    stopPropagation: () => {},
+                  });
+                }
+              } else {
+                // Fallback
+                lastDestructiveButton.click();
+              }
+            } catch (e) {
+              console.error("Kloak Redispatch Error:", e);
+            }
+          }
+
+          // Reset bypass flag
+          setTimeout(() => (modalConfirmedFlag = false), 200);
+        }
+      },
+    );
+
+    // Block native execution
+    return false;
   };
+  // End of Destructive Action Hijacker
+
+  // Modal Renderers
 
   function renderUpdateBanner(data) {
     if (document.getElementById("kloak-update-banner")) return;
@@ -196,7 +258,11 @@ if (window.electronAPI) {
   function renderDestructiveModal(title, message, confirmText, callback) {
     const overlay = document.createElement("div");
     overlay.className = "kloak-modal-overlay";
+
+    // Override pointer events to bypass background traps
+    overlay.style.cssText = "pointer-events: auto !important;";
     overlay.tabIndex = -1;
+
     overlay.innerHTML = `
             <div class="kloak-modal-container modal-destructive kloak-shake" tabIndex="0">
                 <div class="kloak-modal-header">
@@ -217,12 +283,13 @@ if (window.electronAPI) {
         `;
     document.body.appendChild(overlay);
 
-    // Aggressive focus management with delay for animation
+    // Focus management with animation delay
     setTimeout(() => {
       const cancelBtn = overlay.querySelector("#dest-cancel");
       if (cancelBtn) {
         cancelBtn.focus({ preventScroll: true });
-        // Force the window to recognize our focus
+
+        // Force focus event
         cancelBtn.dispatchEvent(new FocusEvent("focus"));
       }
     }, 150);
@@ -244,118 +311,14 @@ if (window.electronAPI) {
       overlay.remove();
     };
   }
+  // End of Modal Renderers
 
-  // Native React-Level Interceptor
-  // Only listens to click, extracts the internal React click handler, and bypasses detached DOM issues.
-  document.addEventListener(
-    "click",
-    (e) => {
-      const target = e.target.closest(".text-destructive");
-      if (!target) return;
-      if (
-        !/Leave|Quit|Exit/i.test(target.innerText || target.textContent || "")
-      )
-        return;
-
-      if (window.electronAPI.log) {
-        window.electronAPI.log(
-          `Kloak Debug: Intercepted click on target: ${target.tagName}, isTrusted: ${e.isTrusted}`,
-        );
-      }
-
-      if (!target.dataset.kloakConfirmed) {
-        e.preventDefault();
-        e.stopPropagation();
-        e.stopImmediatePropagation();
-
-        // Extract Internal React Props before the element is potentially unmounted
-        const reactPropsKey = Object.keys(target).find(
-          (k) =>
-            k.startsWith("__reactProps$") ||
-            k.startsWith("__reactEventHandlers$"),
-        );
-        let reactOnClick = null;
-        if (reactPropsKey && target[reactPropsKey]) {
-          reactOnClick =
-            target[reactPropsKey].onClick ||
-            target[reactPropsKey].onPointerDown ||
-            target[reactPropsKey].onMouseDown;
-        }
-
-        if (window.electronAPI.log) {
-          window.electronAPI.log(
-            `Kloak Debug: React handler extracted: ${!!reactOnClick}`,
-          );
-        }
-
-        if (!document.querySelector(".kloak-modal-overlay")) {
-          renderDestructiveModal(
-            "Leave Server",
-            "Are you sure you want to leave this server? This action cannot be undone.",
-            "Leave Server",
-            (confirmed) => {
-              if (window.electronAPI.log)
-                window.electronAPI.log(
-                  `Kloak Debug: Modal returned confirmed: ${confirmed}`,
-                );
-              if (confirmed) {
-                target.dataset.kloakConfirmed = "true";
-                modalConfirmedFlag = true;
-
-                setTimeout(() => {
-                  try {
-                    if (window.electronAPI.log)
-                      window.electronAPI.log(
-                        `Kloak Debug: Redispatching via React / Click`,
-                      );
-                    if (reactOnClick) {
-                      // Invoke the React function directly
-                      reactOnClick({
-                        preventDefault: () => {},
-                        stopPropagation: () => {},
-                        nativeEvent: new MouseEvent("click", {
-                          bubbles: true,
-                          cancelable: true,
-                        }),
-                        currentTarget: target,
-                        target: target,
-                        type: "click",
-                      });
-                    }
-                    // Always try a native click fallback on the off chance it survives the DOM
-                    if (document.contains(target)) {
-                      target.click();
-                    }
-                  } catch (err) {
-                    if (window.electronAPI.log)
-                      window.electronAPI.log(
-                        `Kloak Debug: Error during redispatch: ${err.message}`,
-                      );
-                  }
-
-                  setTimeout(() => {
-                    modalConfirmedFlag = false;
-                    delete target.dataset.kloakConfirmed;
-                  }, 100);
-                }, 50);
-              }
-            },
-          );
-        }
-      } else {
-        if (window.electronAPI.log)
-          window.electronAPI.log(
-            `Kloak Debug: Click allowed to pass (kloakConfirmed is true)`,
-          );
-      }
-    },
-    true, // capture phase
-  );
+  // Top Bar Window Controls
 
   function setupTopBarButtons() {
     const elements = Array.from(document.querySelectorAll("[aria-label]"));
 
-    // Diagnostic logging to see what we are finding
+    // Diagnostic logging
     if (window.electronAPI.log && elements.length > 0) {
       elements.forEach((el) => {
         if (!el.dataset.kloakLogged) {
@@ -420,9 +383,11 @@ if (window.electronAPI) {
     }
   }
 
-  // Periodic check to bind buttons (handles SPA re-renders)
+  // Handle SPA re-renders
   setInterval(() => {
     setupTopBarButtons();
   }, 1000);
   setupTopBarButtons();
+
+  // End of Top Bar Window Controls
 }
