@@ -234,7 +234,7 @@
       : `background-color: ${bannerColor};`;
 
     overlay.innerHTML = `
-        <div style="background: #0f0f0f; border: 1px solid #2a2a2a; border-radius: 12px; width: 440px; overflow: hidden; font-family: sans-serif; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7);" class="kloak-shake">
+        <div style="background: #0f0f0f; border: 1px solid #2a2a2a; border-radius: 12px; width: 440px; overflow: hidden; font-family: sans-serif; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7);">
         <div style="height: 100px; width: 100%; position: relative; ${bannerStyle}">
           <div style="position: absolute; bottom: -36px; left: 20px; padding: 4px; background: #0f0f0f; border-radius: 50%;">
             <img src="${avatarSrc}" style="width: 72px; height: 72px; border-radius: 50%; background: #161616; object-fit: cover; border: 1px solid #2a2a2a;">
