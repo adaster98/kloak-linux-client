@@ -19,10 +19,15 @@
 .addon-header-container p { font-size: 14px; color: #a1a1aa; margin: 0; }
 
 .addon-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-.addon-card { background: #161616; border: 1px solid #2a2a2a; border-radius: 12px; padding: 16px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
-.addon-info { flex: 1; min-width: 0; }
-.addon-info h3 { margin: 0 0 4px 0; font-size: 15px; color: #E0E0E0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.addon-info p { margin: 0; font-size: 13px; color: #949494; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.addon-card { 
+    background: #161616; border: 1px solid #2a2a2a; border-radius: 12px; 
+    padding: 16px; display: flex; align-items: center; 
+    justify-content: space-between; gap: 16px; transition: all 0.2s;
+}
+.addon-card:hover { background: #1c1c1c; border-color: #3f3f46; }
+.addon-info { flex: 1; min-width: 0; text-align: left; }
+.addon-info h3 { margin: 0 0 4px 0; font-size: 15px; color: #E0E0E0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; }
+.addon-info p { margin: 0; font-size: 13px; color: #949494; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.2; }
 .addon-controls { display: flex; align-items: center; gap: 12px; }
 
 .addon-btn-icon { background: #262626; border: 1px solid transparent; color: #949494; padding: 6px; border-radius: 6px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
@@ -39,41 +44,93 @@
 .addon-settings-header h3 { margin: 0; color: #E0E0E0; font-size: 18px; display: flex; align-items: center; gap: 8px; }
 .addon-settings-content { color: #949494; font-size: 14px; line-height: 1.5; }
 
-/* Modal Bridged UI */
+/* Modal Bridged UI (Premium Design) */
 .kloak-modal-overlay {
     position: fixed; inset: 0; background: rgba(0,0,0,0.85);
     z-index: 9999999; display: flex; align-items: center; justify-content: center;
+    backdrop-filter: blur(4px);
 }
 
 .kloak-modal-container {
-    background: #111; border: 1px solid #2a2a2a; border-radius: 12px;
-    padding: 28px; width: 400px; color: #e0e0e0;
+    background: #0f0f0f; border: 1px solid #2a2a2a; border-radius: 14px;
+    padding: 32px; width: 460px; color: #e0e0e0;
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8);
+    position: relative;
 }
+
+/* Modal Categories */
+.kloak-modal-container.modal-warning { border-color: #D49524; background-color: #13110a; }
+.kloak-modal-container.modal-destructive { border-color: #ef4444; background-color: #130a0a; }
+.kloak-modal-container.modal-success { border-color: #10b981; background-color: #0a130a; }
+.modal-neutral { border-color: #3f3f46; background-color: #0f0f0f; }
+
+.kloak-modal-header { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
+.kloak-modal-icon {
+    width: 48px; height: 48px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+}
+
+.modal-warning .kloak-modal-icon { background: rgba(212, 149, 36, 0.15); color: #D49524; }
+.modal-destructive .kloak-modal-icon { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+.modal-success .kloak-modal-icon { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+.modal-neutral .kloak-modal-icon { background: rgba(113, 113, 122, 0.15); color: #71717a; }
+
+.kloak-modal-title-group { flex: 1; }
+.kloak-modal-title { margin: 0; font-size: 18px; font-weight: 600; }
+.modal-warning .kloak-modal-title { color: #D49524; }
+.modal-destructive .kloak-modal-title { color: #ef4444; }
+.modal-success .kloak-modal-title { color: #10b981; }
+.modal-neutral .kloak-modal-title { color: #e0e0e0; }
+
+.kloak-modal-subtitle { margin: 4px 0 0 0; font-size: 14px; color: #71717a; }
+
+.kloak-modal-body { margin-bottom: 24px; font-size: 14px; color: #a1a1aa; line-height: 1.6; }
+
+.kloak-modal-footer { display: flex; gap: 12px; }
+.kloak-modal-footer button { flex: 1; }
 
 .kloak-link-preview {
-    margin: 0 0 20px 0; font-size: 12px; color: #71717a;
-    word-break: break-all; background: #1c1c1c; padding: 8px 10px;
-    border-radius: 6px;
+    margin: 16px 0; font-size: 12px; color: #D49524;
+    word-break: break-all; background: #161616; padding: 10px 12px;
+    border: 1px solid #2a2a2a; border-radius: 8px; font-family: monospace;
 }
 
-.kloak-btn-primary {
-    padding: 8px 20px; border-radius: 6px; border: none;
-    background: #10b981; color: #000; cursor: pointer;
-    font-size: 14px; font-weight: 600;
+.kloak-btn-primary, .kloak-btn-secondary {
+    padding: 12px 20px; border-radius: 8px; border: 1px solid #2a2a2a;
+    background: #1c1c1c; color: #e0e0e0; cursor: pointer;
+    font-size: 14px; font-weight: 500; transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
 }
+.kloak-btn-primary:hover, .kloak-btn-secondary:hover { background: #262626; border-color: #3f3f46; }
 
-.kloak-btn-secondary {
-    padding: 8px 20px; border-radius: 6px; border: 1px solid #3f3f46;
-    background: #27272a; color: #a1a1aa; cursor: pointer; font-size: 14px;
+/* Animation: Shake */
+@keyframes kloak-shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
+    20%, 40%, 60%, 80% { transform: translateX(4px); }
 }
+.kloak-shake { animation: kloak-shake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
 
 #kloak-update-banner {
     position: fixed; top: 40px; right: 16px; z-index: 9999999;
-    background: #10b981; color: #000; padding: 10px 16px;
+    background: #10b981; color: #000; padding: 0;
     border-radius: 8px; font-size: 13px; font-weight: 600;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.4); cursor: pointer;
-    display: flex; align-items: center; gap: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    display: flex; align-items: stretch; overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
+#kloak-update-banner:hover { transform: translateY(-2px); }
+
+.update-content {
+    padding: 10px 16px; display: flex; align-items: center; gap: 8px; cursor: pointer;
+}
+.update-close {
+    border-left: 1px solid rgba(0,0,0,0.1); padding: 0 12px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: background 0.2s;
+}
+.update-close:hover { background: rgba(0,0,0,0.1); }
 
 /* Screen Picker */
 .screen-source-card {

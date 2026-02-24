@@ -200,7 +200,7 @@ function createWindow() {
       if (sets.skipLinkWarning) {
         shell.openExternal(url);
       } else {
-        mainWindow.webContents.send("show-link-warning", url);
+        mainWindow.webContents.send("show-link-warning", { url });
       }
     }
   });
@@ -212,7 +212,7 @@ function createWindow() {
       if (sets.skipLinkWarning) {
         require("electron").shell.openExternal(url);
       } else {
-        mainWindow.webContents.send("show-link-warning", url);
+        mainWindow.webContents.send("show-link-warning", { url });
       }
     }
     return { action: "deny" };

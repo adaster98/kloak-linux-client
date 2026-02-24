@@ -199,7 +199,7 @@ function registerIpcHandlers() {
             ).version;
           } catch (e) {}
         } else {
-          versions[folder] = "9.9.9";
+          versions[folder] = "9999";
         }
       });
     }
