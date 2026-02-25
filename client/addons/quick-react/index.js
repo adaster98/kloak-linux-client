@@ -277,9 +277,9 @@
             event.preventDefault();
             addReactionToMessage(messageId, emojiStr);
 
-            // Visual feedback: briefly color the button green or just log
+            // Visual feedback: briefly color the button
             const origColor = btn.style.color;
-            btn.style.color = "#10b981"; // success green
+            btn.style.color = "var(--kloak-text-main)";
             setTimeout(() => {
               btn.style.color = origColor;
             }, 500);
@@ -309,19 +309,14 @@
 
     renderSettings: (container) => {
       container.innerHTML = `
-        <div style="color: #E0E0E0; display: flex; flex-direction: column; gap: 16px;">
-          <p style="margin: 0; color: #a1a1aa;">Configure how long (in days) emojis should stay in memory for the hover menu.</p>
-          <div>
-            <label style="font-size: 11px; color: #71717a; text-transform: uppercase; font-weight: 700;">Memory Duration (Days)</label>
-            <input id="qm-duration-input" type="number" min="1" max="365" value="${config.memoryDurationDays}" style="width: 100%; padding: 10px; background: #18181b; border: 1px solid #27272a; border-radius: 6px; color: white; margin-top: 6px; outline: none;">
-          </div>
-          <div style="display: flex; align-items: center; gap: 12px; margin-top: 8px; padding-top: 16px; border-top: 1px solid #27272a;">
-            <button id="qm-save-btn" style="background: #10b981; color: #000; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600;">Save Changes</button>
-            <span id="qm-saved-msg" style="color: #10b981; font-size: 13px; font-weight: 500; opacity: 0; transition: opacity 0.2s;">✓ Saved</span>
-          </div>
-          <div style="margin-top: 16px;">
-             <p style="margin: 0; color: #a1a1aa; font-size: 13px;">Currently tracking ${Object.keys(config.emojis).length} emojis.</p>
-          </div>
+        <div class="addon-settings-item">
+          <p style="margin: 0; color: var(--kloak-text-sub); font-size: 13px;">Configure how long (in days) emojis should stay in memory for the hover menu.</p>
+          <label class="addon-label">Memory Duration (Days)</label>
+          <input id="qm-duration-input" type="number" min="1" max="365" value="${config.memoryDurationDays}" style="width: 100%; padding: 10px; background: var(--kloak-bg-box); border: 1px solid var(--kloak-bg-btn); border-radius: 6px; color: var(--kloak-text-main); margin-top: 6px; outline: none;">
+        </div>
+        <button id="qm-save-btn" class="addon-btn-save">Save Changes</button>
+        <div style="margin-top: 16px;">
+           <p style="margin: 0; color: var(--kloak-text-sub); font-size: 13px;">Currently tracking ${Object.keys(config.emojis).length} emojis.</p>
         </div>
       `;
 
@@ -338,9 +333,10 @@
         cleanupOldEmojis(); // Clean up immediately when settings change
         saveConfig();
 
-        const msg = container.querySelector("#qm-saved-msg");
-        msg.style.opacity = "1";
-        setTimeout(() => (msg.style.opacity = "0"), 2000);
+        const saveBtn = container.querySelector("#qm-save-btn");
+        const originalText = saveBtn.textContent;
+        saveBtn.textContent = "✓ Saved to config";
+        setTimeout(() => (saveBtn.textContent = originalText), 2000);
       });
     },
   });

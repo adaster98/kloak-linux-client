@@ -100,23 +100,20 @@
 
       // D. Draw the UI
       container.innerHTML = `
-            <div style="color: #E0E0E0; display: flex; flex-direction: column; gap: 16px;">
-            <p style="margin: 0; color: #a1a1aa;">Modify these inputs to see how state is saved to your local folder.</p>
+            <div class="addon-settings-item">
+            <p style="margin: 0; color: var(--kloak-text-sub); font-size: 13px;">Modify these inputs to see how state is saved to your local folder.</p>
 
-            <div>
-            <label style="font-size: 11px; color: #71717a; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Custom String</label>
-            <input id="tpl-text-input" type="text" value="${currentText}" style="width: 100%; padding: 10px; background: #18181b; border: 1px solid #27272a; border-radius: 6px; color: white; margin-top: 6px; box-sizing: border-box; outline: none; transition: border 0.2s;">
+            <div style="margin-top: 12px;">
+            <label class="addon-label">Custom String</label>
+            <input id="tpl-text-input" type="text" value="${currentText}" style="width: 100%; padding: 10px; background: var(--kloak-bg-box); border: 1px solid var(--kloak-bg-btn); border-radius: 6px; color: var(--kloak-text-main); margin-top: 6px; box-sizing: border-box; outline: none; transition: border 0.2s;">
             </div>
 
-            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; color: #E0E0E0; user-select: none;">
-            <input id="tpl-checkbox" type="checkbox" ${isFeatureEnabled} style="cursor: pointer; width: 16px; height: 16px; accent-color: #10b981;">
+            <label class="kloak-checkbox-label" style="user-select: none;">
+            <input id="tpl-checkbox" type="checkbox" ${isFeatureEnabled} style="cursor: pointer; width: 16px; height: 16px; accent-color: var(--kloak-text-main);">
             Enable Secret Feature
             </label>
 
-            <div style="display: flex; align-items: center; gap: 12px; margin-top: 8px; padding-top: 16px; border-top: 1px solid #27272a;">
-            <button id="tpl-save-btn" style="background: #10b981; color: #000; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: opacity 0.2s;">Save Changes</button>
-            <span id="tpl-saved-msg" style="color: #10b981; font-size: 13px; font-weight: 500; opacity: 0; transition: opacity 0.2s;">✓ Saved to config.json</span>
-            </div>
+            <button id="tpl-save-btn" class="addon-btn-save">Save Changes</button>
             </div>
             `;
 
@@ -126,14 +123,14 @@
       const textInput = container.querySelector("#tpl-text-input");
       const checkboxInput = container.querySelector("#tpl-checkbox");
 
-      // Add a nice hover effect to the input
+      // Add a nice focus effect to the input
       textInput.addEventListener(
         "focus",
-        () => (textInput.style.borderColor = "#10b981"),
+        () => (textInput.style.borderColor = "var(--kloak-text-main)"),
       );
       textInput.addEventListener(
         "blur",
-        () => (textInput.style.borderColor = "#27272a"),
+        () => (textInput.style.borderColor = "var(--kloak-bg-btn)"),
       );
 
       saveBtn.addEventListener("click", () => {
@@ -145,18 +142,18 @@
         if (window.KloakAddonAPI && window.KloakAddonAPI.settings) {
           window.KloakAddonAPI.settings.set(ADDON_ID, config);
 
-          // Trigger notice
-          savedMsg.style.opacity = "1";
-          setTimeout(() => (savedMsg.style.opacity = "0"), 2000);
+          const originalText = saveBtn.textContent;
+          saveBtn.textContent = "✓ Saved to config.json";
+          setTimeout(() => (saveBtn.textContent = originalText), 2000);
         } else if (window.electronAPI && window.electronAPI.saveAddonConfig) {
           window.electronAPI.saveAddonConfig({
             addonId: ADDON_ID,
             data: config,
           });
 
-          // Trigger the "Saved!" UI feedback
-          savedMsg.style.opacity = "1";
-          setTimeout(() => (savedMsg.style.opacity = "0"), 2000);
+          const originalText = saveBtn.textContent;
+          saveBtn.textContent = "✓ Saved to config.json";
+          setTimeout(() => (saveBtn.textContent = originalText), 2000);
         }
       });
     },

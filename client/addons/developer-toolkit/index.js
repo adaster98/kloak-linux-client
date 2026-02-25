@@ -193,10 +193,10 @@
       : `background-color: ${bannerColor};`;
 
     overlay.innerHTML = `
-        <div style="background: #0f0f0f; border: 1px solid #2a2a2a; border-radius: 12px; width: 440px; overflow: hidden; font-family: sans-serif; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7);">
+        <div style="background: var(--kloak-bg-main); border: 1px solid var(--kloak-bg-btn); border-radius: 12px; width: 440px; overflow: hidden; font-family: sans-serif; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7);">
         <div style="height: 100px; width: 100%; position: relative; ${bannerStyle}">
-          <div style="position: absolute; bottom: -36px; left: 20px; padding: 4px; background: #0f0f0f; border-radius: 50%;">
-            <img src="${avatarSrc}" style="width: 72px; height: 72px; border-radius: 50%; background: #161616; object-fit: cover; border: 1px solid #2a2a2a;">
+          <div style="position: absolute; bottom: -36px; left: 20px; padding: 4px; background: var(--kloak-bg-main); border-radius: 50%;">
+            <img src="${avatarSrc}" style="width: 72px; height: 72px; border-radius: 50%; background: var(--kloak-bg-box); object-fit: cover; border: 1px solid var(--kloak-bg-btn);">
           </div>
         </div>
 
@@ -205,38 +205,38 @@
             <div style="min-width: 0; flex: 1;">
               <h2 style="margin: 0 0 2px 0; color: #E0E0E0; font-size: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${displayName}</h2>
               <div style="display: flex; align-items: center; gap: 8px;">
-                <span style="color: #949494; font-size: 13px;">${username}</span>
-                <span style="color: #71717a; font-size: 11px; background: #1c1c1f; padding: 1px 6px; border-radius: 4px; border: 1px solid #27272a;">${u.pronouns || "None"}</span>
+                <span style="color: var(--kloak-text-sub); font-size: 13px;">${username}</span>
+                <span style="color: var(--kloak-text-sub); font-size: 11px; background: var(--kloak-bg-btn); padding: 1px 6px; border-radius: 4px; border: 1px solid var(--kloak-bg-btn);">${u.pronouns || "None"}</span>
               </div>
             </div>
-            ${u.status === "online" ? '<span style="color: #10b981; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 4px;"><span style="width: 6px; height: 6px; background: #10b981; border-radius: 50%;"></span> Online</span>' : ""}
+            ${u.status === "online" ? '<span style="color: var(--kloak-text-main); font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 4px;"><span style="width: 6px; height: 6px; background: var(--kloak-text-main); border-radius: 50%;"></span> Online</span>' : ""}
           </div>
 
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-            <div style="grid-column: span 2; background: #161616; border: 1px solid #2a2a2a; border-radius: 8px; padding: 10px;">
+            <div style="grid-column: span 2; background: var(--kloak-bg-box); border: 1px solid var(--kloak-bg-btn); border-radius: 8px; padding: 10px;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                <label style="color: #71717a; font-size: 10px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Message ID</label>
-                <code style="color: #3b82f6; font-size: 11px; user-select: text;">${messageId || "N/A"}</code>
+                <label style="color: var(--kloak-text-sub); font-size: 10px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Message ID</label>
+                <code style="color: var(--kloak-text-main); font-size: 11px; user-select: text;">${messageId || "N/A"}</code>
               </div>
               <div style="display: flex; justify-content: space-between; align-items: center;">
-                <label style="color: #71717a; font-size: 10px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">User ID</label>
-                <code style="color: #10b981; font-size: 11px; user-select: text;">${userId}</code>
+                <label style="color: var(--kloak-text-sub); font-size: 10px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">User ID</label>
+                <code style="color: var(--kloak-text-main); font-size: 11px; user-select: text;">${userId}</code>
               </div>
             </div>
 
-            <div style="background: #161616; border: 1px solid #2a2a2a; border-radius: 8px; padding: 10px;">
-              <label style="color: #71717a; font-size: 10px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; display: block; margin-bottom: 6px;">Theme Primary</label>
+            <div style="background: var(--kloak-bg-box); border: 1px solid var(--kloak-bg-btn); border-radius: 8px; padding: 10px;">
+              <label style="color: var(--kloak-text-sub); font-size: 10px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; display: block; margin-bottom: 6px;">Theme Primary</label>
               <div style="display: flex; align-items: center; gap: 8px;">
-                <div style="width: 14px; height: 14px; border-radius: 3px; background: ${primaryTheme}; border: 1px solid #333;"></div>
-                <code style="color: #E0E0E0; font-size: 11px;">${primaryTheme}</code>
+                <div style="width: 14px; height: 14px; border-radius: 3px; background: ${primaryTheme}; border: 1px solid var(--kloak-bg-btn);"></div>
+                <code style="color: var(--kloak-text-main); font-size: 11px;">${primaryTheme}</code>
               </div>
             </div>
 
-            <div style="background: #161616; border: 1px solid #2a2a2a; border-radius: 8px; padding: 10px;">
-              <label style="color: #71717a; font-size: 10px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; display: block; margin-bottom: 6px;">Theme Accent</label>
+            <div style="background: var(--kloak-bg-box); border: 1px solid var(--kloak-bg-btn); border-radius: 8px; padding: 10px;">
+              <label style="color: var(--kloak-text-sub); font-size: 10px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; display: block; margin-bottom: 6px;">Theme Accent</label>
               <div style="display: flex; align-items: center; gap: 8px;">
-                <div style="width: 14px; height: 14px; border-radius: 3px; background: ${accentTheme}; border: 1px solid #333;"></div>
-                <code style="color: #E0E0E0; font-size: 11px;">${accentTheme}</code>
+                <div style="width: 14px; height: 14px; border-radius: 3px; background: ${accentTheme}; border: 1px solid var(--kloak-bg-btn);"></div>
+                <code style="color: var(--kloak-text-main); font-size: 11px;">${accentTheme}</code>
               </div>
             </div>
 
@@ -251,13 +251,13 @@
             </div>
 
             <div style="grid-column: span 2;">
-              <label style="color: #71717a; font-size: 10px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; display: block; margin-bottom: 4px;">Custom Status</label>
-              <div style="color: #E0E0E0; font-size: 12px; background: #161616; padding: 8px; border-radius: 6px; border: 1px solid #2a2a2a;">${u.custom_status || "None set"}</div>
+              <label style="color: var(--kloak-text-sub); font-size: 10px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; display: block; margin-bottom: 4px;">Custom Status</label>
+              <div style="color: var(--kloak-text-main); font-size: 12px; background: var(--kloak-bg-box); padding: 8px; border-radius: 6px; border: 1px solid var(--kloak-bg-btn);">${u.custom_status || "None set"}</div>
             </div>
 
             <div style="grid-column: span 2;">
-              <label style="color: #71717a; font-size: 10px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; display: block; margin-bottom: 4px;">Bio</label>
-              <div style="color: #E0E0E0; font-size: 12px; line-height: 1.4; background: #161616; padding: 10px; border-radius: 6px; border: 1px solid #2a2a2a; max-height: 80px; overflow-y: auto; white-space: pre-wrap;">${u.bio || "No biography available."}</div>
+              <label style="color: var(--kloak-text-sub); font-size: 10px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; display: block; margin-bottom: 4px;">Bio</label>
+              <div style="color: var(--kloak-text-main); font-size: 12px; line-height: 1.4; background: var(--kloak-bg-box); padding: 10px; border-radius: 6px; border: 1px solid var(--kloak-bg-btn); max-height: 80px; overflow-y: auto; white-space: pre-wrap;">${u.bio || "No biography available."}</div>
             </div>
             
             ${
@@ -273,7 +273,7 @@
           </div>
 
           <div style="margin-top: 16px; display: flex; justify-content: flex-end;">
-            <button id="dev-modal-close" style="background: #27272a; color: #E0E0E0; border: 1px solid #3f3f46; padding: 6px 20px; border-radius: 6px; cursor: pointer; font-weight: 500; font-size: 13px; transition: all 0.2s;">Close</button>
+            <button id="dev-modal-close" style="background: var(--kloak-bg-btn); color: var(--kloak-text-main); border: 1px solid var(--kloak-bg-btn); padding: 6px 20px; border-radius: 6px; cursor: pointer; font-weight: 500; font-size: 13px; transition: all 0.2s;">Close</button>
           </div>
         </div>
         </div>
@@ -494,19 +494,15 @@
 
       renderSettings: (container) => {
         container.innerHTML = `
-              <div style="color: #E0E0E0; display: flex; flex-direction: column; gap: 16px;">
-              <p style="margin: 0; color: #a1a1aa;">Configure your Developer Toolkit preferences.</p>
-  
-              <label style="display: flex; align-items: center; gap: 12px; cursor: pointer;">
-              <input type="checkbox" id="dt-show-ids" ${config.showIdsInChat ? "checked" : ""} style="width: 16px; height: 16px; accent-color: #10b981;">
-              <span style="font-size: 14px; color: #E0E0E0;">Show Message & User IDs in Chat</span>
-              </label>
-  
-              <div style="display: flex; align-items: center; gap: 12px; margin-top: 8px; padding-top: 16px; border-top: 1px solid #27272a;">
-              <button id="dt-save-btn" style="background: #10b981; color: #000; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600;">Save Changes</button>
-              <span id="dt-saved-msg" style="color: #10b981; font-size: 13px; font-weight: 500; opacity: 0; transition: opacity 0.2s;">✓ Saved</span>
+              <div class="addon-settings-item">
+                <p style="margin: 0; color: var(--kloak-text-sub); font-size: 13px;">Configure your Developer Toolkit preferences.</p>
+                <label class="kloak-checkbox-label">
+                  <input type="checkbox" id="dt-show-ids" ${config.showIdsInChat ? "checked" : ""} style="width: 16px; height: 16px; accent-color: var(--kloak-text-main);">
+                  <span>Show Message & User IDs in Chat</span>
+                </label>
               </div>
-              </div>
+  
+              <button id="dt-save-btn" class="addon-btn-save">Save Changes</button>
               `;
 
         container
@@ -520,9 +516,10 @@
                 addonId: ADDON_ID,
                 data: config,
               });
-              const msg = container.querySelector("#dt-saved-msg");
-              msg.style.opacity = "1";
-              setTimeout(() => (msg.style.opacity = "0"), 2000);
+              const saveBtn = container.querySelector("#dt-save-btn");
+              const originalText = saveBtn.textContent;
+              saveBtn.textContent = "✓ Saved to config";
+              setTimeout(() => (saveBtn.textContent = originalText), 2000);
             }
 
             if (config.showIdsInChat) {

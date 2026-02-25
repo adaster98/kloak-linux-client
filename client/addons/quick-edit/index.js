@@ -108,17 +108,12 @@
 
     renderSettings: (container) => {
       container.innerHTML = `
-            <div style="color: #E0E0E0; display: flex; flex-direction: column; gap: 16px;">
-            <p style="margin: 0; color: #a1a1aa;">Configure how far up the chat the script will search for your last message.</p>
-            <div>
-            <label style="font-size: 11px; color: #71717a; text-transform: uppercase; font-weight: 700;">Search Limit (Messages)</label>
-            <input id="qe-limit-input" type="number" min="1" max="50" value="${config.maxMessages}" style="width: 100%; padding: 10px; background: #18181b; border: 1px solid #27272a; border-radius: 6px; color: white; margin-top: 6px; outline: none;">
+            <div class="addon-settings-item">
+                <p style="margin: 0; color: var(--kloak-text-sub); font-size: 13px;">Configure how far up the chat the script will search for your last message.</p>
+                <label class="addon-label">Search Limit (Messages)</label>
+                <input id="qe-limit-input" type="number" min="1" max="50" value="${config.maxMessages}" style="width: 100%; padding: 10px; background: var(--kloak-bg-box); border: 1px solid var(--kloak-bg-btn); border-radius: 6px; color: var(--kloak-text-main); margin-top: 6px; outline: none;">
             </div>
-            <div style="display: flex; align-items: center; gap: 12px; margin-top: 8px; padding-top: 16px; border-top: 1px solid #27272a;">
-            <button id="qe-save-btn" style="background: #10b981; color: #000; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600;">Save Changes</button>
-            <span id="qe-saved-msg" style="color: #10b981; font-size: 13px; font-weight: 500; opacity: 0; transition: opacity 0.2s;">✓ Saved</span>
-            </div>
-            </div>
+            <button id="qe-save-btn" class="addon-btn-save">Save Changes</button>
             `;
 
       container.querySelector("#qe-save-btn").addEventListener("click", () => {
@@ -136,9 +131,10 @@
             addonId: ADDON_ID,
             data: config,
           });
-          const msg = container.querySelector("#qe-saved-msg");
-          msg.style.opacity = "1";
-          setTimeout(() => (msg.style.opacity = "0"), 2000);
+          const saveBtn = container.querySelector("#qe-save-btn");
+          const originalText = saveBtn.textContent;
+          saveBtn.textContent = "✓ Saved to config";
+          setTimeout(() => (saveBtn.textContent = originalText), 2000);
         }
       });
     },

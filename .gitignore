@@ -12,3 +12,4 @@ client/addons/theme-injector/config.json
 fix_addon_manager.py
 .gitignore
 fix_styles.py
+client/addons/hover-zoom/config.json
