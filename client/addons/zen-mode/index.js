@@ -66,7 +66,7 @@
     const text = document.createElement("div");
     text.textContent = "Zen Mode";
     Object.assign(text.style, {
-      color: "#fef08a",
+      color: "var(--kloak-text-main)",
       fontSize: "2.5rem",
       fontWeight: "300",
       letterSpacing: "8px",
@@ -186,7 +186,7 @@
 
       container.innerHTML = `
             <style>
-            .zen-kbd { background: var(--kloak-bg-btn); padding: 4px 8px; border-radius: 4px; border-bottom: 2px solid #000; font-family: monospace; color: var(--kloak-text-main); font-size: 13px; }
+            .zen-kbd { background: var(--kloak-bg-btn); padding: 4px 8px; border-radius: 4px; border-bottom: 2px solid var(--kloak-bg-main); font-family: monospace; color: var(--kloak-text-main); font-size: 13px; }
             .hotkey-box { position: relative; background: var(--kloak-bg-box); border: 1px solid var(--kloak-bg-btn); padding: 24px; border-radius: 12px; margin-bottom: 8px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
             .hotkey-box:hover { border-color: var(--kloak-text-main); background: var(--kloak-icon-bg); }
             .hotkey-box.listening { border-color: var(--kloak-accent-warning); box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2); animation: pulse-border 1.5s infinite; }
@@ -245,7 +245,7 @@
         isListeningForHotkey = false;
         box.classList.remove("listening");
         helperText.textContent = "Click the box below to map a new hotkey.";
-        helperText.style.color = "#a1a1aa";
+        helperText.style.color = "var(--kloak-text-sub)";
         document.removeEventListener("keydown", recordKey, true);
       };
 

@@ -76,7 +76,7 @@
     // --- 3. SETTINGS MENU ---
     renderSettings: async (container) => {
       // A. Show a quick loading message
-      container.innerHTML = `<p style="color: #949494; text-align: center;">Loading settings...</p>`;
+      container.innerHTML = `<p style="color: var(--kloak-text-sub); text-align: center;">Loading settings...</p>`;
 
       // B. Fetch this specific addon's config.json safely
       let config = {};

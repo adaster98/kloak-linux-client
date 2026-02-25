@@ -183,10 +183,10 @@
     const username = u.username ? `@${u.username}` : "n/a";
     const userId = u.id || "Unknown ID";
     const isPartial = !u.created_at && !u.bio;
-    const bannerColor = u.banner_color || "#18181b";
+    const bannerColor = u.banner_color || "var(--kloak-bg-box)";
 
-    const primaryTheme = u.profile_theme_primary || "#0f0f0f";
-    const accentTheme = u.profile_theme_accent || "#b2775d";
+    const primaryTheme = u.profile_theme_primary || "var(--kloak-bg-main)";
+    const accentTheme = u.profile_theme_accent || "var(--kloak-icon-bg)";
 
     const bannerStyle = u.banner_url
       ? `background-image: url('${u.banner_url}'); background-size: cover; background-position: center;`
@@ -203,7 +203,7 @@
         <div style="padding: 48px 20px 20px 20px;">
           <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
             <div style="min-width: 0; flex: 1;">
-              <h2 style="margin: 0 0 2px 0; color: #E0E0E0; font-size: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${displayName}</h2>
+              <h2 style="margin: 0 0 2px 0; color: var(--kloak-text-main); font-size: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${displayName}</h2>
               <div style="display: flex; align-items: center; gap: 8px;">
                 <span style="color: var(--kloak-text-sub); font-size: 13px;">${username}</span>
                 <span style="color: var(--kloak-text-sub); font-size: 11px; background: var(--kloak-bg-btn); padding: 1px 6px; border-radius: 4px; border: 1px solid var(--kloak-bg-btn);">${u.pronouns || "None"}</span>
@@ -241,13 +241,13 @@
             </div>
 
             <div>
-              <label style="color: #71717a; font-size: 10px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; display: block;">Last Seen</label>
-              <div style="color: #E0E0E0; font-size: 11px; margin-top: 4px;">${formatDate(u.last_seen)}</div>
+              <label style="color: var(--kloak-text-sub); font-size: 10px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; display: block;">Last Seen</label>
+              <div style="color: var(--kloak-text-main); font-size: 11px; margin-top: 4px;">${formatDate(u.last_seen)}</div>
             </div>
 
             <div>
-              <label style="color: #71717a; font-size: 10px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; display: block;">Joined</label>
-              <div style="color: #E0E0E0; font-size: 11px; margin-top: 4px;">${formatDate(u.created_at)}</div>
+              <label style="color: var(--kloak-text-sub); font-size: 10px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; display: block;">Joined</label>
+              <div style="color: var(--kloak-text-main); font-size: 11px; margin-top: 4px;">${formatDate(u.created_at)}</div>
             </div>
 
             <div style="grid-column: span 2;">
@@ -263,7 +263,7 @@
             ${
               isPartial
                 ? `
-            <div style="grid-column: span 2; background: rgba(212, 149, 36, 0.05); border: 1px solid rgba(212, 149, 36, 0.2); border-radius: 6px; padding: 8px; font-size: 11px; color: #D49524; display: flex; align-items: center; gap: 8px;">
+            <div style="grid-column: span 2; background: transparent; border: 1px solid var(--kloak-accent-warning); border-radius: 6px; padding: 8px; font-size: 11px; color: var(--kloak-accent-warning); display: flex; align-items: center; gap: 8px;">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0zM12 9v4M12 17h.01"/></svg>
                 Profile fetch failed. Using cached basic user data.
             </div>
@@ -281,8 +281,10 @@
     document.body.appendChild(overlay);
 
     const closeBtn = overlay.querySelector("#dev-modal-close");
-    closeBtn.onmouseenter = () => (closeBtn.style.background = "#3f3f46");
-    closeBtn.onmouseleave = () => (closeBtn.style.background = "#27272a");
+    closeBtn.onmouseenter = () =>
+      (closeBtn.style.background = "var(--kloak-icon-bg)");
+    closeBtn.onmouseleave = () =>
+      (closeBtn.style.background = "var(--kloak-bg-btn)");
 
     closeBtn.onclick = () => overlay.remove();
     overlay.onclick = (e) => {

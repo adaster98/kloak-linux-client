@@ -60,7 +60,7 @@
       zIndex: "1000000",
       opacity: "0",
       overflow: "hidden",
-      backgroundColor: "#000",
+      backgroundColor: "var(--kloak-bg-main)",
     });
 
     const zoomedImg = document.createElement("img");
@@ -149,13 +149,17 @@
     renderSettings: async (container) => {
       await loadConfig();
       container.innerHTML = `
+            <style>
+            .hz-slider { background: linear-gradient(to right, var(--kloak-slider-body) 0%, var(--kloak-slider-body) var(--range-percent, 0%), var(--kloak-slider-track) var(--range-percent, 0%), var(--kloak-slider-track) 100%) !important; }
+            .hz-slider::-webkit-slider-thumb { background: var(--kloak-slider-knob) !important; border: 2px solid var(--kloak-slider-body) !important; }
+            </style>
             <div class="addon-settings-item">
                 <label class="addon-label">Lens Size <span class="addon-val"><span id="hz-size-val">${config.lensSize}</span>px</span></label>
-                <input id="hz-size-input" type="range" min="150" max="600" value="${config.lensSize}" class="kloak-slider">
+                <input id="hz-size-input" type="range" min="150" max="600" value="${config.lensSize}" class="kloak-slider hz-slider">
             </div>
             <div class="addon-settings-item">
                 <label class="addon-label">Magnification <span class="addon-val"><span id="hz-zoom-val">${config.zoomLevel}</span>x</span></label>
-                <input id="hz-zoom-input" type="range" min="1.1" max="10" step="0.1" value="${config.zoomLevel}" class="kloak-slider">
+                <input id="hz-zoom-input" type="range" min="1.1" max="10" step="0.1" value="${config.zoomLevel}" class="kloak-slider hz-slider">
             </div>
             <button id="hz-save-btn" class="addon-btn-save">Save Calibration</button>
             `;

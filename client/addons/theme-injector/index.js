@@ -76,11 +76,16 @@
       const themes = await getThemes();
 
       let html = `
+            <style>
+            .theme-option input[type="radio"] { border-color: var(--kloak-radiobtn-border); }
+            .theme-option input[type="radio"]:checked { border-color: var(--kloak-radiobtn-selected); background: var(--kloak-radiobtn-selected); }
+            .theme-option input[type="radio"]:checked::after { background: var(--kloak-radiobtn-selected-ctr); }
+            </style>
             <div class="addon-settings-item">
                 <p style="margin: 0; color: var(--kloak-text-sub); font-size: 13px;">Drop <code>.css</code> files into the themes folder to install them.</p>
 
                 <div style="display: flex; flex-direction: column; gap: 8px; max-height: 260px; overflow-y: auto; padding-right: 4px; margin-top: 12px;">
-                <label class="theme-option" style="display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--kloak-bg-box); border: 1px solid ${currentConfig.selectedTheme === "" ? "var(--kloak-text-main)" : "var(--kloak-bg-btn)"}; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+                <label class="theme-option" style="display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--kloak-bg-box); border: 1px solid ${currentConfig.selectedTheme === "" ? "var(--kloak-radiobtn-selected)" : "var(--kloak-radiobtn-border)"}; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
                 <input type="radio" name="theme-select" value="" ${currentConfig.selectedTheme === "" ? "checked" : ""}>
                 <div>
                 <div style="font-weight: 600; font-size: 14px; color: var(--kloak-text-main);">None (Default Kloak)</div>
@@ -92,7 +97,7 @@
         themes.forEach((theme) => {
           const isSelected = currentConfig.selectedTheme === theme.filename;
           html += `
-                    <label class="theme-option" style="display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--kloak-bg-box); border: 1px solid ${isSelected ? "var(--kloak-text-main)" : "var(--kloak-bg-btn)"}; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+                    <label class="theme-option" style="display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--kloak-bg-box); border: 1px solid ${isSelected ? "var(--kloak-radiobtn-selected)" : "var(--kloak-radiobtn-border)"}; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
                     <input type="radio" name="theme-select" value="${theme.filename}" ${isSelected ? "checked" : ""}>
                     <div>
                     <div style="font-weight: 600; font-size: 14px; color: var(--kloak-text-main); text-transform: capitalize;">${theme.name}</div>
@@ -152,11 +157,11 @@
 
             const labels = container.querySelectorAll(".theme-option");
             labels.forEach(
-              (l) => (l.style.borderColor = "var(--kloak-bg-btn)"),
+              (l) => (l.style.borderColor = "var(--kloak-radiobtn-border)"),
             );
             if (selectedRadio)
               selectedRadio.closest(".theme-option").style.borderColor =
-                "var(--kloak-text-main)";
+                "var(--kloak-radiobtn-selected)";
 
             if (isEnabled) await applySelectedTheme();
 

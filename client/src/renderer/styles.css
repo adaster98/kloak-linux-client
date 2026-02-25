@@ -4,6 +4,8 @@
     --kloak-bg-btn: #2B2B2B;
     --kloak-switch-on: #ECECEC;
     --kloak-switch-off: #2B2B2B;
+    --kloak-btn-white: #ECECEC;
+    --kloak-btn-gray: #2B2B2B;
     --kloak-icon-bg: #252525;
     --kloak-icon-fg: #949494;
     --kloak-text-main: #ECECEC;
@@ -11,6 +13,12 @@
     --kloak-accent-warning: #F59E0B;
     --kloak-accent-destructive: #EB1414;
     --kloak-accent-success: #40BF80;
+    --kloak-slider-body: #ECECEC;
+    --kloak-slider-knob: #0F0F0F;
+    --kloak-slider-track: #2B2B2B;
+    --kloak-radiobtn-selected: #ECECEC;
+    --kloak-radiobtn-selected-ctr: #0F0F0F;
+    --kloak-radiobtn-border: #2B2B2B;
 }
 
 /* Global UI Components */
