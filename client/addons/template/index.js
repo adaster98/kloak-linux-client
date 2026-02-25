@@ -9,50 +9,73 @@
  */
 
 (() => {
-    // 1. DEFINE THE ID HERE! (This must exactly match your folder name)
-    const ADDON_ID = 'template-addon';
+  // 1. DEFINE THE ID HERE! (This must exactly match your folder name)
+  const ADDON_ID = "template-addon";
 
-    window.KloakAddons.registerAddon({
-        // --- 1. METADATA ---
-        id: ADDON_ID,
-        name: 'Developer Template',
-        description: 'A complete boilerplate showing how to use toggles, UI settings, and specific file storage.',
+  window.KloakAddons.registerAddon({
+    // --- 1. METADATA ---
+    id: ADDON_ID,
+    name: "Developer Template",
+    description:
+      "A complete boilerplate showing how to use toggles, UI settings, and specific file storage.",
 
-        // --- 2. LIFECYCLE HOOKS ---
-        // Fires instantly when the user toggles the switch ON
-        onEnable: () => {
-            console.log(`[${ADDON_ID}] Addon Enabled!`);
-        },
+    // --- 2. LIFECYCLE HOOKS ---
+    // Fires instantly when the user toggles the switch ON
+    onEnable: () => {
+      console.log(`[${ADDON_ID}] Addon Enabled!`);
 
-        // Fires instantly when the user toggles the switch OFF
-        onDisable: () => {
-            console.log(`[${ADDON_ID}] Addon Disabled!`);
-        },
+      /**
+       * NEW: KloakAddonAPI Usage
+       * Use the API to access user identity and authentication keys.
+       * Always wrap logic needing this data in the onReady callback.
+       */
+      if (window.KloakAddonAPI) {
+        window.KloakAddonAPI.onReady((api) => {
+          console.log(`[${ADDON_ID}] API Ready!`);
+          console.log(`[${ADDON_ID}] User ID:`, api.userID);
+          console.log(`[${ADDON_ID}] Auth Hash:`, api.xHash);
 
-        // --- 3. SETTINGS MENU ---
-        renderSettings: async (container) => {
-            // A. Show a quick loading message
-            container.innerHTML = `<p style="color: #949494; text-align: center;">Loading settings...</p>`;
+          // You can also access the full user profile
+          if (api.userProfile) {
+            console.log(`[${ADDON_ID}] Username:`, api.userProfile.username);
+          }
 
-            // B. Fetch this specific addon's config.json safely
-            let config = {};
-            try {
-                if (window.electronAPI && window.electronAPI.getAddonConfig) {
-                    const savedConfig = await window.electronAPI.getAddonConfig(ADDON_ID);
-                    if (savedConfig) {
-                        config = savedConfig;
-                    }
-                }
-            } catch (err) {
-                console.error(`[${ADDON_ID}] Failed to load config:`, err);
-            }
+          // These keys are required for making authenticated RPC calls
+          // api.apiKey
+          // api.authToken
+        });
+      }
+    },
 
-            // C. Set default values if the config is empty (first time launch)
-            const currentText = config.customText || "Default String";
-            const isFeatureEnabled = config.enableFeature === true ? "checked" : "";
+    // Fires instantly when the user toggles the switch OFF
+    onDisable: () => {
+      console.log(`[${ADDON_ID}] Addon Disabled!`);
+    },
 
-            // D. Draw the UI
-            container.innerHTML = `
+    // --- 3. SETTINGS MENU ---
+    renderSettings: async (container) => {
+      // A. Show a quick loading message
+      container.innerHTML = `<p style="color: #949494; text-align: center;">Loading settings...</p>`;
+
+      // B. Fetch this specific addon's config.json safely
+      let config = {};
+      try {
+        if (window.electronAPI && window.electronAPI.getAddonConfig) {
+          const savedConfig = await window.electronAPI.getAddonConfig(ADDON_ID);
+          if (savedConfig) {
+            config = savedConfig;
+          }
+        }
+      } catch (err) {
+        console.error(`[${ADDON_ID}] Failed to load config:`, err);
+      }
+
+      // C. Set default values if the config is empty (first time launch)
+      const currentText = config.customText || "Default String";
+      const isFeatureEnabled = config.enableFeature === true ? "checked" : "";
+
+      // D. Draw the UI
+      container.innerHTML = `
             <div style="color: #E0E0E0; display: flex; flex-direction: column; gap: 16px;">
             <p style="margin: 0; color: #a1a1aa;">Modify these inputs to see how state is saved to your local folder.</p>
 
@@ -73,30 +96,39 @@
             </div>
             `;
 
-            // E. Handle the Save Event
-            const saveBtn = container.querySelector('#tpl-save-btn');
-            const savedMsg = container.querySelector('#tpl-saved-msg');
-            const textInput = container.querySelector('#tpl-text-input');
-            const checkboxInput = container.querySelector('#tpl-checkbox');
+      // E. Handle the Save Event
+      const saveBtn = container.querySelector("#tpl-save-btn");
+      const savedMsg = container.querySelector("#tpl-saved-msg");
+      const textInput = container.querySelector("#tpl-text-input");
+      const checkboxInput = container.querySelector("#tpl-checkbox");
 
-            // Add a nice hover effect to the input
-            textInput.addEventListener('focus', () => textInput.style.borderColor = '#10b981');
-            textInput.addEventListener('blur', () => textInput.style.borderColor = '#27272a');
+      // Add a nice hover effect to the input
+      textInput.addEventListener(
+        "focus",
+        () => (textInput.style.borderColor = "#10b981"),
+      );
+      textInput.addEventListener(
+        "blur",
+        () => (textInput.style.borderColor = "#27272a"),
+      );
 
-            saveBtn.addEventListener('click', () => {
-                // Update our config object in memory
-                config.customText = textInput.value;
-                config.enableFeature = checkboxInput.checked;
+      saveBtn.addEventListener("click", () => {
+        // Update our config object in memory
+        config.customText = textInput.value;
+        config.enableFeature = checkboxInput.checked;
 
-                // Send it back through the secure bridge to write to the hard drive
-                if (window.electronAPI && window.electronAPI.saveAddonConfig) {
-                    window.electronAPI.saveAddonConfig({ addonId: ADDON_ID, data: config });
+        // Send it back through the secure bridge to write to the hard drive
+        if (window.electronAPI && window.electronAPI.saveAddonConfig) {
+          window.electronAPI.saveAddonConfig({
+            addonId: ADDON_ID,
+            data: config,
+          });
 
-                    // Trigger the "Saved!" UI feedback
-                    savedMsg.style.opacity = '1';
-                    setTimeout(() => savedMsg.style.opacity = '0', 2000);
-                }
-            });
+          // Trigger the "Saved!" UI feedback
+          savedMsg.style.opacity = "1";
+          setTimeout(() => (savedMsg.style.opacity = "0"), 2000);
         }
-    });
+      });
+    },
+  });
 })();

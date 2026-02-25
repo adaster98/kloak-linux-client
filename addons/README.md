@@ -1,4 +1,5 @@
 ## Pre-made addons:
+
 **- quick-edit:**<br>
 Enables using the up arrow to exit your last sent message.
 
@@ -17,8 +18,11 @@ Hit Ctrl+Shift+Z (rebindable) to remove distractions like sidebars. Chat only!
 **- developer-toolkit:**<br>
 A powerful multitool for developers. View hidden user info and copy raw database IDs directly from the chat.
 
+**- quick-react:**<br>
+Puts your most recently used emojis in the message hover menu for fast access.
 
 ## Getting started:
+
 Choose one of the pre-made addons. <br>
 <img width="675" height="624" alt="image" src="https://github.com/user-attachments/assets/d9cd5736-8e5f-4a7c-8ac1-a0054e9fc37d" /> <br>
 
@@ -29,6 +33,7 @@ Windows - `C:\Users\<YourUsername>\AppData\Roaming\kloak-client\addons`<br>
 **NOTE: The addon folders must not be renamed!!**
 
 ## Info for nerds/devs:
+
 **Instructions for how to make your own can be found inside the template addon.**<br>
 
 <img width="521" height="87" alt="image" src="https://github.com/user-attachments/assets/50fe038d-7dc1-4f7e-b5c0-f46c10c2ccbf" />
@@ -41,3 +46,27 @@ Windows - `C:\Users\<YourUsername>\AppData\Roaming\kloak-client\addons`<br>
 <img width="548" height="217" alt="image" src="https://github.com/user-attachments/assets/842fa79b-fc47-4717-ac54-45ef4b0a5c3d" /><br>
 Each addon gets a card in the menu with a toggle, tile and description.<br>
 You can also choose to have a settings menu, else it will fall back to an information menu.
+
+### Using the KloakAddonAPI
+
+The `window.KloakAddonAPI` provides easy access to user credentials and profile data, handling the complexities of intercepting network requests for you.
+
+**Available Properties:**
+
+- `api.userID`: Unique UUID for the logged-in user.
+- `api.xHash`: The X-Key-Hash required for many RPC requests.
+- `api.userProfile`: Full profile object (username, display name, avatar, bio, status).
+- `api.apiKey`: Supabase API key for RPC headers.
+- `api.authToken`: JWT Authorization token for RPC headers.
+
+**Example Usage:**
+Since credentials may change or be captured after an addon loads, use `onReady` to ensure the data is available:
+
+```javascript
+window.KloakAddonAPI.onReady((api) => {
+  console.log("Logged in as:", api.userProfile.username);
+
+  // Use credentials for custom RPC calls
+  // api.xHash, api.authToken, etc.
+});
+```
