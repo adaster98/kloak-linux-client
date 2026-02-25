@@ -141,9 +141,9 @@ class KloakAddonManager {
                         <h3 id="addon-settings-title" class="kloak-modal-title">Addon Info</h3>
                         <p class="kloak-modal-subtitle">Configuration & Details</p>
                     </div>
-                    <button id="addon-settings-close" class="kloak-btn-secondary" style="padding: 8px; border-radius: 50%; width: 32px; height: 32px; border: none; background: transparent;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+                    <button id="addon-settings-close" class="kloak-btn-secondary kloak-modal-close-icon-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
                 </div>
-                <div id="addon-settings-content" class="kloak-modal-body" style="margin-bottom: 0;"></div>
+                <div id="addon-settings-content" class="kloak-modal-body mb-0"></div>
             </div>
             `;
       document.body.appendChild(modal);
@@ -161,13 +161,13 @@ class KloakAddonManager {
       addon.renderSettings(contentBox);
     } else {
       contentBox.innerHTML = `
-            <div style="text-align: center; padding: 20px;">
-            <div style="background: #262626; display: inline-block; padding: 16px; border-radius: 50%; margin-bottom: 16px; color: #10b981;">
+            <div class="addon-no-settings">
+            <div class="addon-no-settings-icon">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
             </div>
-            <h3 style="color: #E0E0E0; margin-bottom: 8px;">${addon.name}</h3>
+            <h3 class="addon-no-settings-title">${addon.name}</h3>
             <p>${addon.description}</p>
-            <p style="margin-top: 16px; font-size: 12px; color: #666;">This addon does not have configurable settings.</p>
+            <p class="addon-no-settings-desc">This addon does not have configurable settings.</p>
             </div>
             `;
     }
@@ -187,27 +187,27 @@ class KloakAddonManager {
         <h2>Addons</h2>
         <p>Manage custom addons and client modifications</p>
 
-        <div style="display: flex; gap: 16px; margin-top: 16px; max-width: 600px;">
-        <button id="kloak-open-folder" class="addon-card" style="flex: 1; cursor: pointer; text-align: left;">
-        <div style="display: flex; align-items: center; gap: 14px;">
-        <div style="color: #a1a1aa; display: flex; flex-shrink: 0;">
+        <div class="addon-header-actions">
+        <button id="kloak-open-folder" class="addon-card addon-action-btn">
+        <div class="addon-action-content">
+        <div class="addon-action-icon">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>
         </div>
-        <div style="display: flex; flex-direction: column; justify-content: center;">
-        <h3 style="margin: 0; font-size: 14px; line-height: 1.2;">Open Folder</h3>
-        <p style="margin: 2px 0 0 0; font-size: 12px; color: #71717a; line-height: 1.2;">Manage installed files</p>
+        <div class="addon-action-text-group">
+        <h3 class="addon-action-title">Open Folder</h3>
+        <p class="addon-action-subtitle">Manage installed files</p>
         </div>
         </div>
         </button>
 
-        <button id="kloak-get-addons" class="addon-card" style="flex: 1; cursor: pointer; text-align: left;">
-        <div style="display: flex; align-items: center; gap: 14px;">
-        <div style="color: #a1a1aa; display: flex; flex-shrink: 0;">
+        <button id="kloak-get-addons" class="addon-card addon-action-btn">
+        <div class="addon-action-content">
+        <div class="addon-action-icon">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
         </div>
-        <div style="display: flex; flex-direction: column; justify-content: center;">
-        <h3 style="margin: 0; font-size: 14px; line-height: 1.2;">Get More Addons</h3>
-        <p style="margin: 2px 0 0 0; font-size: 12px; color: #71717a; line-height: 1.2;">Download from Codeberg</p>
+        <div class="addon-action-text-group">
+        <h3 class="addon-action-title">Get More Addons</h3>
+        <p class="addon-action-subtitle">Download from Codeberg</p>
         </div>
         </div>
         </button>
@@ -216,7 +216,7 @@ class KloakAddonManager {
         `;
 
     if (this.addons.length === 0) {
-      html += `<p style="color: #949494; text-align: center; margin-top: 40px;">No addons found. Click the folder above to get started.</p>`;
+      html += `<p class="addon-empty-state">No addons found. Click the folder above to get started.</p>`;
     } else {
       html += `<div class="addon-grid">`;
       this.addons.forEach((addon) => {
@@ -231,9 +231,9 @@ class KloakAddonManager {
         html += `
                 <div class="addon-card">
                 <div class="addon-info">
-                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;">
-                    <h3 style="margin: 0;">${addon.name}</h3>
-                    <span style="color: #71717a; font-size: 10px; background: #000; padding: 1px 5px; border-radius: 4px; border: 1px solid #27272a;">v${ver}</span>
+                <div class="addon-name-wrapper">
+                    <h3 class="m-0">${addon.name}</h3>
+                    <span class="addon-version-badge">v${ver}</span>
                 </div>
                 <p title="${addon.description}">${addon.description}</p>
                 </div>
@@ -308,7 +308,7 @@ class KloakAddonManager {
       storeModal.id = "kloak-addon-store-modal";
       storeModal.className = "kloak-modal-overlay";
       storeModal.innerHTML = `
-            <div class="kloak-modal-container modal-neutral" style="width: 640px; max-height: 85vh; display: flex; flex-direction: column;">
+            <div class="kloak-modal-container modal-neutral store-modal-container">
                 <div class="kloak-modal-header">
                     <div class="kloak-modal-icon">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
@@ -317,9 +317,9 @@ class KloakAddonManager {
                         <h3 class="kloak-modal-title">Addon Store</h3>
                         <p class="kloak-modal-subtitle">Download from Codeberg</p>
                     </div>
-                    <button id="store-close-btn" class="kloak-btn-secondary" style="padding: 8px; border-radius: 50%; width: 32px; height: 32px; border: none; background: transparent;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+                    <button id="store-close-btn" class="kloak-btn-secondary kloak-modal-close-icon-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
                 </div>
-                <div id="store-content" class="kloak-modal-body" style="overflow-y: auto; padding-right: 8px; display: flex; flex-direction: column; gap: 12px;">
+                <div id="store-content" class="kloak-modal-body store-modal-content">
                 </div>
             </div>
             `;
@@ -332,7 +332,7 @@ class KloakAddonManager {
 
     storeModal.style.display = "flex";
     const content = document.getElementById("store-content");
-    content.innerHTML = `<p style="text-align: center; color: #a1a1aa; padding: 20px;">Connecting to Codeberg repository...</p>`;
+    content.innerHTML = `<p class="store-loading-msg">Connecting to Codeberg repository...</p>`;
 
     try {
       const storeResponse = await window.electronAPI.fetchStoreData();
@@ -346,22 +346,22 @@ class KloakAddonManager {
         let btnHtml = "";
 
         if (!localVer) {
-          btnHtml = `<button class="store-install-btn kloak-btn-primary" data-id="${id}" data-url="${addon.url}" data-ver="${addon.version}" style="padding: 6px 16px;">Install</button>`;
+          btnHtml = `<button class="store-install-btn kloak-btn-primary store-btn-install" data-id="${id}" data-url="${addon.url}" data-ver="${addon.version}">Install</button>`;
         } else if (localVer === "9999") {
-          btnHtml = `<button disabled style="background: transparent; color: #71717a; border: 1px solid #27272a; padding: 6px 12px; border-radius: 8px; font-weight: 600; font-size: 12px; cursor: default; opacity: 0.6;">Custom</button>`;
+          btnHtml = `<button disabled class="store-btn-custom">Custom</button>`;
         } else if (localVer !== addon.version) {
-          btnHtml = `<button class="store-install-btn" data-id="${id}" data-url="${addon.url}" data-ver="${addon.version}" style="background: #3b82f6; color: #fff; border: 1px solid #3b82f6; padding: 6px 12px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 12px; transition: all 0.2s;">Update (v${addon.version})</button>`;
+          btnHtml = `<button class="store-install-btn store-btn-update" data-id="${id}" data-url="${addon.url}" data-ver="${addon.version}">Update (v${addon.version})</button>`;
         } else {
-          btnHtml = `<button disabled style="background: transparent; color: #10b981; border: 1px solid #10b981; padding: 6px 12px; border-radius: 8px; font-weight: 600; font-size: 12px; cursor: default; opacity: 0.6;">Installed</button>`;
+          btnHtml = `<button disabled class="store-btn-installed">Installed</button>`;
         }
 
         html += `
-                <div style="background: #161616; border: 1px solid #2a2a2a; border-radius: 10px; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; gap: 16px; transition: border-color 0.2s;">
-                <div style="flex: 1; min-width: 0;">
-                <h4 style="margin: 0 0 2px 0; color: #E0E0E0; font-size: 14px; font-weight: 600;">${addon.name} <span style="color: #71717a; font-size: 11px; font-weight: normal; margin-left: 6px; background: #000; padding: 2px 6px; border-radius: 4px;">v${addon.version}</span></h4>
-                <p style="margin: 0; color: #949494; font-size: 12px; line-height: 1.4;">${addon.description}</p>
+                <div class="store-addon-card">
+                <div class="store-addon-info">
+                <h4 class="store-addon-title">${addon.name} <span class="addon-version-badge">v${addon.version}</span></h4>
+                <p class="store-addon-desc">${addon.description}</p>
                 </div>
-                <div style="flex-shrink: 0;">${btnHtml}</div>
+                <div class="store-addon-action">${btnHtml}</div>
                 </div>
                 `;
       }
@@ -381,15 +381,15 @@ class KloakAddonManager {
           });
           if (result.success) {
             e.target.textContent = "Installed! Restart App";
-            e.target.style.color = "#10b981";
+            e.target.style.color = "var(--kloak-accent-success)";
           } else {
             e.target.textContent = "Failed";
-            e.target.style.background = "#ef4444";
+            e.target.style.background = "var(--kloak-accent-destructive)";
           }
         });
       });
     } catch (err) {
-      content.innerHTML = `<p style="text-align: center; color: #ef4444; padding: 20px;">Failed to load store: ${err.message}</p>`;
+      content.innerHTML = `<p class="store-error-msg">Failed to load store: ${err.message}</p>`;
     }
   }
 }

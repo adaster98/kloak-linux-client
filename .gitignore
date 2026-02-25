@@ -9,3 +9,6 @@ client/addons/quick-react/config.json
 client/addons/stealth-mode/config.json
 client/addons/template/hello.txt
 client/addons/theme-injector/config.json
+fix_addon_manager.py
+.gitignore
+fix_styles.py

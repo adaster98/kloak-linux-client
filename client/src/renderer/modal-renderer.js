@@ -133,8 +133,7 @@ if (window.electronAPI) {
       window.electronAPI.openExternalUrl(data.url);
     banner.querySelector(".update-close").onclick = (e) => {
       e.stopPropagation();
-      banner.style.opacity = "0";
-      banner.style.transform = "translateX(20px)";
+      banner.classList.add("kloak-fade-out");
       setTimeout(() => banner.remove(), 300);
     };
 
@@ -165,7 +164,7 @@ if (window.electronAPI) {
                 </div>
                 <div class="kloak-modal-footer">
                     <button id="perm-deny" class="kloak-btn-secondary"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg> Deny</button>
-                    <button id="perm-allow" class="kloak-btn-primary" style="color: #D49524;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Allow</button>
+                    <button id="perm-allow" class="kloak-btn-primary kloak-text-warning"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Allow</button>
                 </div>
             </div>
         `;
@@ -197,13 +196,13 @@ if (window.electronAPI) {
                 <div class="kloak-modal-body">
                     Proceed with caution. External links may contain malicious content or tracking scripts.
                     <div class="kloak-link-preview">${data.url}</div>
-                    <label style="display:flex; align-items:center; gap:8px; margin-top:16px; font-size:13px; cursor:pointer; color: #71717a;">
-                        <input type="checkbox" id="link-remember" style="accent-color: #D49524;"> Don't show again for this session
+                    <label class="kloak-checkbox-label">
+                        <input type="checkbox" id="link-remember" class="kloak-checkbox-warning"> Don't show again for this session
                     </label>
                 </div>
                 <div class="kloak-modal-footer">
                     <button id="link-cancel" class="kloak-btn-secondary">Cancel</button>
-                    <button id="link-open" class="kloak-btn-primary" style="color: #D49524;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></svg> Open Link</button>
+                    <button id="link-open" class="kloak-btn-primary kloak-text-warning"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></svg> Open Link</button>
                 </div>
             </div>
         `;
@@ -222,7 +221,7 @@ if (window.electronAPI) {
     const overlay = document.createElement("div");
     overlay.className = "kloak-modal-overlay";
     overlay.innerHTML = `
-            <div class="kloak-modal-container modal-neutral" style="width:640px; max-height:85vh; display:flex; flex-direction:column;">
+            <div class="kloak-modal-container modal-neutral store-modal-container">
                 <div class="kloak-modal-header">
                     <div class="kloak-modal-icon">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
@@ -232,8 +231,8 @@ if (window.electronAPI) {
                         <p class="kloak-modal-subtitle">Choose a source to start capture</p>
                     </div>
                 </div>
-                <div id="sources-grid" style="display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; overflow-y:auto; padding: 12px; border: 1px solid #2a2a2a; border-radius: 10px; background: #0c0c0c;"></div>
-                <div class="kloak-modal-footer" style="margin-top: 24px;">
+                <div id="sources-grid" class="kloak-screen-picker-grid"></div>
+                <div class="kloak-modal-footer mt-24">
                     <button id="picker-cancel" class="kloak-btn-secondary">Cancel</button>
                 </div>
             </div>
@@ -261,7 +260,7 @@ if (window.electronAPI) {
     overlay.className = "kloak-modal-overlay";
 
     // Override pointer events to bypass background traps
-    overlay.style.cssText = "pointer-events: auto !important;";
+    overlay.classList.add("pointer-events-auto");
     overlay.tabIndex = -1;
 
     overlay.innerHTML = `
@@ -278,7 +277,7 @@ if (window.electronAPI) {
                 <div class="kloak-modal-body">${message}</div>
                 <div class="kloak-modal-footer">
                     <button id="dest-cancel" class="kloak-btn-secondary">Cancel</button>
-                    <button id="dest-confirm" class="kloak-btn-primary" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.4);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg> ${confirmText}</button>
+                    <button id="dest-confirm" class="kloak-btn-primary kloak-text-destructive"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg> ${confirmText}</button>
                 </div>
             </div>
         `;
