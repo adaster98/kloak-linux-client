@@ -5,7 +5,6 @@
   let config = {
     memoryDurationDays: 7,
     emojis: {}, // format: "emoji": { date: "YYYY-MM-DD", count: 1 }
-    lastUserId: null,
   };
 
   try {
@@ -20,9 +19,6 @@
         }
         if (savedConfig.emojis) {
           config.emojis = savedConfig.emojis;
-        }
-        if (savedConfig.lastUserId) {
-          config.lastUserId = savedConfig.lastUserId;
         }
       }
     }
@@ -70,9 +66,8 @@
     saveConfig();
   };
 
-  let lastAuthToken = "";
-  let lastApiKey = "";
-  let lastXKeyHash = "";
+  // No need for manual header scraping variables anymore
+  // KloakAddonAPI provides apiKey and authToken
 
   // Monkey-patch fetch to intercept reactions and messages
   const originalFetch = window.fetch;
@@ -80,27 +75,7 @@
     const url = args[0];
     const options = args[1] || {};
 
-    if (options.headers) {
-      if (options.headers instanceof Headers) {
-        if (options.headers.has("Authorization"))
-          lastAuthToken = options.headers.get("Authorization");
-        if (options.headers.has("apikey"))
-          lastApiKey = options.headers.get("apikey");
-        if (options.headers.has("X-Key-Hash"))
-          lastXKeyHash = options.headers.get("X-Key-Hash");
-        else if (options.headers.has("x-key-hash"))
-          lastXKeyHash = options.headers.get("x-key-hash");
-      } else {
-        const auth =
-          options.headers["Authorization"] || options.headers["authorization"];
-        if (auth) lastAuthToken = auth;
-        const api = options.headers["apikey"] || options.headers["apiKey"];
-        if (api) lastApiKey = api;
-        const keyHash =
-          options.headers["X-Key-Hash"] || options.headers["x-key-hash"];
-        if (keyHash) lastXKeyHash = keyHash;
-      }
-    }
+    // We no longer need to scrape headers manually
 
     // Call the original fetch
     const response = await originalFetch.apply(this, args);
@@ -131,12 +106,6 @@
               }
             }
           } else if (url.includes("rpc/add_reaction")) {
-            const reqBody = options.body ? JSON.parse(options.body) : null;
-            if (reqBody && reqBody._user_id) {
-              config.lastUserId = reqBody._user_id;
-              saveConfig();
-            }
-
             const resData = await clonedResponse.json();
             const items = Array.isArray(resData) ? resData : [resData];
             for (const item of items) {
@@ -156,24 +125,12 @@
 
   // Helper to add a reaction via fetch
   const addReactionToMessage = async (messageId, emojiStr) => {
-    if (!lastAuthToken) {
+    const api = window.KloakAddonAPI;
+    if (!api || !api.authToken) {
       console.warn(
-        `[${ADDON_ID}] Cannot add reaction, no auth token captured yet.`,
+        `[${ADDON_ID}] Cannot add reaction, authToken missing from API.`,
       );
       return;
-    }
-
-    // Fallback api key if not found in headers, sometimes it's the token without Bearer
-    const fallbackApikey = lastAuthToken.replace("Bearer ", "");
-
-    // Attempt to grab user ID from the profile picture in the bottom left
-    let finalUserId = config.lastUserId;
-    const avatarImg = document.querySelector('img[src*="/avatars/"]');
-    if (avatarImg && avatarImg.src) {
-      const match = avatarImg.src.match(/\/avatars\/([a-zA-Z0-9-]+)\//);
-      if (match && match[1]) {
-        finalUserId = match[1];
-      }
     }
 
     try {
@@ -183,13 +140,13 @@
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: lastAuthToken,
-            apikey: lastApiKey || fallbackApikey,
-            "X-Key-Hash": lastXKeyHash,
+            Authorization: api.authToken,
+            apiKey: api.apiKey,
+            "X-Key-Hash": api.xHash,
           },
           body: JSON.stringify({
             _message_id: messageId,
-            _user_id: finalUserId || undefined,
+            _user_id: api.userID,
             _emoji: emojiStr,
           }),
         },

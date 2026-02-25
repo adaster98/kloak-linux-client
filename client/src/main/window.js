@@ -97,6 +97,17 @@ function createWindow() {
         mainWindow.webContents.executeJavaScript(modalCode);
       }
 
+      let apiPath = path.join(
+        app.getAppPath(),
+        "src",
+        "renderer",
+        "addon-api.js",
+      );
+      if (fs.existsSync(apiPath)) {
+        const apiCode = fs.readFileSync(apiPath, "utf8");
+        mainWindow.webContents.executeJavaScript(apiCode).catch(console.error);
+      }
+
       let managerPath = path.join(
         app.getAppPath(),
         "src",
