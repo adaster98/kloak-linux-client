@@ -30,8 +30,6 @@
   let originalFetch = null;
 
   let lastRightClickedMessageId = null;
-  let apiHeaders = {};
-  let myUserId = null;
 
   const msgToUserMap = new Map();
   const userProfileCache = new Map();
@@ -42,43 +40,10 @@
 
     window.fetch = async (...args) => {
       const resource = args[0];
-      const reqConfig = args[1] || {};
       const url =
         typeof resource === "string" ? resource : resource ? resource.url : "";
 
-      if (url.includes(SUPABASE_URL)) {
-        let headers =
-          reqConfig.headers ||
-          (resource instanceof Request ? resource.headers : null);
-        if (headers) {
-          if (headers instanceof Headers) {
-            const apikey = headers.get("apikey");
-            if (apikey) apiHeaders.apikey = apikey;
-          } else {
-            const getHeader = (key) => {
-              const k = Object.keys(headers).find(
-                (k) => k.toLowerCase() === key.toLowerCase(),
-              );
-              return k ? headers[k] : null;
-            };
-            const apikey = getHeader("apikey");
-            if (apikey) apiHeaders.apikey = apikey;
-          }
-        }
-      }
-
       const response = await originalFetch(...args);
-
-      if (url.includes("/rpc/login_user")) {
-        response
-          .clone()
-          .json()
-          .then((data) => {
-            const user = Array.isArray(data) ? data[0] : data;
-            if (user && user.id) myUserId = user.id;
-          })
-          .catch(() => {});
-      }
 
       if (
         url.includes("/rpc/get_channel_messages_secure") ||
@@ -95,13 +60,6 @@
 
                 if (msg.id && uId) {
                   msgToUserMap.set(String(msg.id), String(uId));
-
-                  if (
-                    msg.is_own === true ||
-                    (myUserId && String(uId) === myUserId)
-                  ) {
-                    myUserId = String(uId);
-                  }
                 }
 
                 if (uProfile && uProfile.id) {
@@ -139,9 +97,10 @@
 
     if (msgToUserMap.has(msgId)) return msgToUserMap.get(msgId);
 
-    if (myUserId && msgNode.classList.contains("flex-row-reverse")) {
-      msgToUserMap.set(msgId, myUserId);
-      return myUserId;
+    const api = window.KloakAddonAPI;
+    if (api && api.userID && msgNode.classList.contains("flex-row-reverse")) {
+      msgToUserMap.set(msgId, api.userID);
+      return api.userID;
     }
 
     return null;
@@ -357,220 +316,242 @@
     return item;
   };
 
-  window.KloakAddons.registerAddon({
-    id: ADDON_ID,
-    name: "Developer Toolkit",
-    description:
-      "A powerful multitool for developers. View hidden user info and copy raw database IDs directly from the chat.",
+  const initAddon = () => {
+    window.KloakAddons.registerAddon({
+      id: ADDON_ID,
+      name: "Developer Toolkit",
+      description:
+        "A powerful multitool for developers. View hidden user info and copy raw database IDs directly from the chat.",
 
-    onEnable: () => {
-      setupInterceptor();
+      onEnable: () => {
+        setupInterceptor();
 
-      setTimeout(
-        () =>
-          document.querySelectorAll(MESSAGE_SELECTOR).forEach(processMessage),
-        1000,
-      );
+        setTimeout(
+          () =>
+            document.querySelectorAll(MESSAGE_SELECTOR).forEach(processMessage),
+          1000,
+        );
 
-      domObserver = new MutationObserver((mutations) => {
-        for (const mut of mutations) {
-          for (const node of mut.addedNodes) {
-            if (node.nodeType === 1) {
-              if (
-                node.id &&
-                (node.id.startsWith("message-") ||
-                  node.id.startsWith("dm-message-"))
-              ) {
-                processMessage(node);
-              } else if (node.querySelectorAll) {
-                node.querySelectorAll(MESSAGE_SELECTOR).forEach(processMessage);
+        domObserver = new MutationObserver((mutations) => {
+          for (const mut of mutations) {
+            for (const node of mut.addedNodes) {
+              if (node.nodeType === 1) {
+                if (
+                  node.id &&
+                  (node.id.startsWith("message-") ||
+                    node.id.startsWith("dm-message-"))
+                ) {
+                  processMessage(node);
+                } else if (node.querySelectorAll) {
+                  node
+                    .querySelectorAll(MESSAGE_SELECTOR)
+                    .forEach(processMessage);
+                }
               }
             }
           }
-        }
-      });
-      domObserver.observe(document.body, { childList: true, subtree: true });
+        });
+        domObserver.observe(document.body, { childList: true, subtree: true });
 
-      document.addEventListener("contextmenu", handleContextMenu, true);
+        document.addEventListener("contextmenu", handleContextMenu, true);
 
-      rightClickObserver = new MutationObserver((mutations) => {
-        for (const mut of mutations) {
-          for (const node of mut.addedNodes) {
-            if (
-              node.nodeType === 1 &&
-              node.querySelector &&
-              lastRightClickedMessageId
-            ) {
-              const menu =
-                node.querySelector("[data-radix-menu-content]") ||
-                (node.hasAttribute("data-radix-menu-content") ? node : null);
+        rightClickObserver = new MutationObserver((mutations) => {
+          for (const mut of mutations) {
+            for (const node of mut.addedNodes) {
+              if (
+                node.nodeType === 1 &&
+                node.querySelector &&
+                lastRightClickedMessageId
+              ) {
+                const menu =
+                  node.querySelector("[data-radix-menu-content]") ||
+                  (node.hasAttribute("data-radix-menu-content") ? node : null);
 
-              if (menu && !menu.querySelector(".kloak-custom-context-btn")) {
-                const targetUserId = msgToUserMap.get(
-                  lastRightClickedMessageId,
-                );
+                if (menu && !menu.querySelector(".kloak-custom-context-btn")) {
+                  const targetUserId = msgToUserMap.get(
+                    lastRightClickedMessageId,
+                  );
 
-                const msgIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-hash w-4 h-4 mr-2"><line x1="4" x2="20" y1="9" y2="9"/><line x1="4" x2="20" y1="15" y2="15"/><line x1="10" x2="8" y1="3" y2="21"/><line x1="16" x2="14" y1="3" y2="21"/></svg>`;
-                menu.appendChild(
-                  createContextMenuItem("Copy Message ID", msgIcon, () =>
-                    navigator.clipboard.writeText(lastRightClickedMessageId),
-                  ),
-                );
-
-                if (targetUserId) {
-                  const userIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user w-4 h-4 mr-2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`;
+                  const msgIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-hash w-4 h-4 mr-2"><line x1="4" x2="20" y1="9" y2="9"/><line x1="4" x2="20" y1="15" y2="15"/><line x1="10" x2="8" y1="3" y2="21"/><line x1="16" x2="14" y1="3" y2="21"/></svg>`;
                   menu.appendChild(
-                    createContextMenuItem("Copy User ID", userIcon, () =>
-                      navigator.clipboard.writeText(targetUserId),
+                    createContextMenuItem("Copy Message ID", msgIcon, () =>
+                      navigator.clipboard.writeText(lastRightClickedMessageId),
+                    ),
+                  );
+
+                  if (targetUserId) {
+                    const userIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user w-4 h-4 mr-2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`;
+                    menu.appendChild(
+                      createContextMenuItem("Copy User ID", userIcon, () =>
+                        navigator.clipboard.writeText(targetUserId),
+                      ),
+                    );
+                  }
+
+                  const devIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-terminal w-4 h-4 mr-2"><polyline points="4 17 10 11 4 5"/><line x1="12" x2="20" y1="19" y2="19"/></svg>`;
+                  menu.appendChild(
+                    createContextMenuItem(
+                      "View User Info",
+                      devIcon,
+                      async () => {
+                        if (!targetUserId) {
+                          showDeveloperModal(lastRightClickedMessageId, {
+                            bio: "Error: Could not identify target User ID from network cache.",
+                          });
+                          return;
+                        }
+
+                        if (userProfileCache.has(targetUserId)) {
+                          showDeveloperModal(
+                            lastRightClickedMessageId,
+                            userProfileCache.get(targetUserId),
+                          );
+                          return;
+                        }
+
+                        const api = window.KloakAddonAPI;
+                        if (
+                          !api ||
+                          !api.userID ||
+                          !api.apiKey ||
+                          !api.authToken ||
+                          !api.xHash
+                        ) {
+                          showDeveloperModal(lastRightClickedMessageId, {
+                            id: targetUserId,
+                            bio: `RPC Failed: Missing credentials.\nAPI Ready: ${!!api}\nHas User ID: ${!!api?.userID}\nHas API Key: ${!!api?.apiKey}`,
+                          });
+                          return;
+                        }
+
+                        try {
+                          const res = await fetch(
+                            `${SUPABASE_URL}/rest/v1/rpc/get_user_profile_secure`,
+                            {
+                              method: "POST",
+                              headers: {
+                                "Content-Type": "application/json",
+                                "X-Key-Hash": api.xHash,
+                                apikey: api.apiKey,
+                                Authorization: api.authToken,
+                              },
+                              body: JSON.stringify({
+                                _target_user_id: targetUserId,
+                                _requesting_user_id: api.userID,
+                              }),
+                            },
+                          );
+
+                          const rawData = await res.json();
+                          const profile = Array.isArray(rawData)
+                            ? rawData[0]
+                            : rawData;
+
+                          if (profile && profile.id) {
+                            userProfileCache.set(targetUserId, profile);
+                            showDeveloperModal(
+                              lastRightClickedMessageId,
+                              profile,
+                            );
+                            return;
+                          }
+                        } catch (e) {
+                          console.error(`[${ADDON_ID}] RPC Fetch error:`, e);
+                        }
+
+                        showDeveloperModal(lastRightClickedMessageId, {
+                          id: targetUserId,
+                          bio: "User data not found in cache and RPC fetch failed.",
+                        });
+                      },
                     ),
                   );
                 }
-
-                const devIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-terminal w-4 h-4 mr-2"><polyline points="4 17 10 11 4 5"/><line x1="12" x2="20" y1="19" y2="19"/></svg>`;
-                menu.appendChild(
-                  createContextMenuItem("View User Info", devIcon, async () => {
-                    if (!targetUserId) {
-                      showDeveloperModal(lastRightClickedMessageId, {
-                        bio: "Error: Could not identify target User ID from network cache.",
-                      });
-                      return;
-                    }
-
-                    if (userProfileCache.has(targetUserId)) {
-                      showDeveloperModal(
-                        lastRightClickedMessageId,
-                        userProfileCache.get(targetUserId),
-                      );
-                      return;
-                    }
-
-                    if (!myUserId) {
-                      try {
-                        const authStr = localStorage.getItem("kloak-auth");
-                        if (authStr) {
-                          const parsed = JSON.parse(authStr);
-                          if (parsed?.state?.user?.id)
-                            myUserId = parsed.state.user.id;
-                        }
-                      } catch (e) {}
-                    }
-
-                    if (!myUserId || !apiHeaders.apikey) {
-                      showDeveloperModal(lastRightClickedMessageId, {
-                        id: targetUserId,
-                        bio: `RPC Failed: Missing credentials.\nHas Your User ID: ${!!myUserId}\nHas API Key: ${!!apiHeaders.apikey}`,
-                      });
-                      return;
-                    }
-
-                    try {
-                      const res = await fetch(
-                        `${SUPABASE_URL}/rest/v1/rpc/get_user_profile_secure`,
-                        {
-                          method: "POST",
-                          headers: {
-                            ...apiHeaders,
-                            "Content-Type": "application/json",
-                          },
-                          body: JSON.stringify({
-                            _target_user_id: targetUserId,
-                            _requesting_user_id: myUserId,
-                          }),
-                        },
-                      );
-
-                      const rawData = await res.json();
-                      const profile = Array.isArray(rawData)
-                        ? rawData[0]
-                        : rawData;
-
-                      if (profile && profile.id) {
-                        userProfileCache.set(targetUserId, profile);
-                        showDeveloperModal(lastRightClickedMessageId, profile);
-                        return;
-                      }
-                    } catch (e) {
-                      console.error(`[${ADDON_ID}] RPC Fetch error:`, e);
-                    }
-
-                    showDeveloperModal(lastRightClickedMessageId, {
-                      id: targetUserId,
-                      bio: "User data not found in cache and RPC fetch failed.",
-                    });
-                  }),
-                );
               }
             }
           }
-        }
-      });
-      rightClickObserver.observe(document.body, {
-        childList: true,
-        subtree: false,
-      });
-    },
+        });
+        rightClickObserver.observe(document.body, {
+          childList: true,
+          subtree: false,
+        });
+      },
 
-    onDisable: () => {
-      removeInterceptor();
-      if (domObserver) domObserver.disconnect();
-      if (rightClickObserver) rightClickObserver.disconnect();
-      document.removeEventListener("contextmenu", handleContextMenu, true);
+      onDisable: () => {
+        removeInterceptor();
+        if (domObserver) domObserver.disconnect();
+        if (rightClickObserver) rightClickObserver.disconnect();
+        document.removeEventListener("contextmenu", handleContextMenu, true);
 
-      document
-        .querySelectorAll(".kloak-injected-msg-id, .kloak-injected-user-id")
-        .forEach((el) => el.remove());
-      document.querySelectorAll(MESSAGE_SELECTOR).forEach((msg) => {
-        delete msg.dataset.msgIdInjected;
-        delete msg.dataset.usrIdInjected;
-      });
-    },
+        document
+          .querySelectorAll(".kloak-injected-msg-id, .kloak-injected-user-id")
+          .forEach((el) => el.remove());
+        document.querySelectorAll(MESSAGE_SELECTOR).forEach((msg) => {
+          delete msg.dataset.msgIdInjected;
+          delete msg.dataset.usrIdInjected;
+        });
+      },
 
-    renderSettings: (container) => {
-      container.innerHTML = `
-            <div style="color: #E0E0E0; display: flex; flex-direction: column; gap: 16px;">
-            <p style="margin: 0; color: #a1a1aa;">Configure your Developer Toolkit preferences.</p>
+      renderSettings: (container) => {
+        container.innerHTML = `
+              <div style="color: #E0E0E0; display: flex; flex-direction: column; gap: 16px;">
+              <p style="margin: 0; color: #a1a1aa;">Configure your Developer Toolkit preferences.</p>
+  
+              <label style="display: flex; align-items: center; gap: 12px; cursor: pointer;">
+              <input type="checkbox" id="dt-show-ids" ${config.showIdsInChat ? "checked" : ""} style="width: 16px; height: 16px; accent-color: #10b981;">
+              <span style="font-size: 14px; color: #E0E0E0;">Show Message & User IDs in Chat</span>
+              </label>
+  
+              <div style="display: flex; align-items: center; gap: 12px; margin-top: 8px; padding-top: 16px; border-top: 1px solid #27272a;">
+              <button id="dt-save-btn" style="background: #10b981; color: #000; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600;">Save Changes</button>
+              <span id="dt-saved-msg" style="color: #10b981; font-size: 13px; font-weight: 500; opacity: 0; transition: opacity 0.2s;">✓ Saved</span>
+              </div>
+              </div>
+              `;
 
-            <label style="display: flex; align-items: center; gap: 12px; cursor: pointer;">
-            <input type="checkbox" id="dt-show-ids" ${config.showIdsInChat ? "checked" : ""} style="width: 16px; height: 16px; accent-color: #10b981;">
-            <span style="font-size: 14px; color: #E0E0E0;">Show Message & User IDs in Chat</span>
-            </label>
+        container
+          .querySelector("#dt-save-btn")
+          .addEventListener("click", () => {
+            config.showIdsInChat =
+              container.querySelector("#dt-show-ids").checked;
 
-            <div style="display: flex; align-items: center; gap: 12px; margin-top: 8px; padding-top: 16px; border-top: 1px solid #27272a;">
-            <button id="dt-save-btn" style="background: #10b981; color: #000; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600;">Save Changes</button>
-            <span id="dt-saved-msg" style="color: #10b981; font-size: 13px; font-weight: 500; opacity: 0; transition: opacity 0.2s;">✓ Saved</span>
-            </div>
-            </div>
-            `;
+            if (window.electronAPI && window.electronAPI.saveAddonConfig) {
+              window.electronAPI.saveAddonConfig({
+                addonId: ADDON_ID,
+                data: config,
+              });
+              const msg = container.querySelector("#dt-saved-msg");
+              msg.style.opacity = "1";
+              setTimeout(() => (msg.style.opacity = "0"), 2000);
+            }
 
-      container.querySelector("#dt-save-btn").addEventListener("click", () => {
-        config.showIdsInChat = container.querySelector("#dt-show-ids").checked;
-
-        if (window.electronAPI && window.electronAPI.saveAddonConfig) {
-          window.electronAPI.saveAddonConfig({
-            addonId: ADDON_ID,
-            data: config,
+            if (config.showIdsInChat) {
+              document.querySelectorAll(MESSAGE_SELECTOR).forEach((n) => {
+                delete n.dataset.msgIdInjected;
+                delete n.dataset.usrIdInjected;
+                processMessage(n);
+              });
+            } else {
+              document
+                .querySelectorAll(
+                  ".kloak-injected-msg-id, .kloak-injected-user-id",
+                )
+                .forEach((el) => el.remove());
+              document.querySelectorAll(MESSAGE_SELECTOR).forEach((msg) => {
+                delete msg.dataset.msgIdInjected;
+                delete msg.dataset.usrIdInjected;
+              });
+            }
           });
-          const msg = container.querySelector("#dt-saved-msg");
-          msg.style.opacity = "1";
-          setTimeout(() => (msg.style.opacity = "0"), 2000);
-        }
+      },
+    });
+  };
 
-        if (config.showIdsInChat) {
-          document.querySelectorAll(MESSAGE_SELECTOR).forEach((n) => {
-            delete n.dataset.msgIdInjected;
-            delete n.dataset.usrIdInjected;
-            processMessage(n);
-          });
-        } else {
-          document
-            .querySelectorAll(".kloak-injected-msg-id, .kloak-injected-user-id")
-            .forEach((el) => el.remove());
-          document.querySelectorAll(MESSAGE_SELECTOR).forEach((msg) => {
-            delete msg.dataset.msgIdInjected;
-            delete msg.dataset.usrIdInjected;
-          });
-        }
-      });
-    },
-  });
+  if (window.KloakAddonAPI) {
+    window.KloakAddonAPI.onReady(() => {
+      initAddon();
+    });
+  } else {
+    initAddon();
+  }
 })();
