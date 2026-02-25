@@ -1,0 +1,213 @@
+/**
+ * Theme Name: Midnight Purple
+ * Description: Deep purple theme for Kloak.
+ * Author: Aster
+ */
+
+/* --- 1. Core Variables --- */
+:root, .dark, [data-theme="dark"], body {
+    /* Main Backgrounds */
+    --background: 260 30% 11% !important;
+    --layout-chat: 260 30% 11% !important;
+    --layout-sidebar: 260 36% 8% !important;
+    --layout-members: 260 36% 8% !important;
+    --layout-sidebar-secondary: 260 36% 8% !important;
+
+    /* Surfaces & Containers */
+    --card: 260 30% 13% !important;
+    --popover: 260 30% 13% !important;
+    --secondary: 260 30% 18% !important;
+    --muted: 260 30% 15% !important;
+
+    /* Outlines & Dividers */
+    --border: 260 25% 22% !important;
+    --input: 260 25% 22% !important;
+    --ring: 265 89% 65% !important;
+
+    /* Typography */
+    --foreground: 260 20% 90% !important;
+    --card-foreground: 260 20% 90% !important;
+    --popover-foreground: 260 20% 90% !important;
+    --secondary-foreground: 260 20% 90% !important;
+    --muted-foreground: 260 15% 65% !important;
+
+    /* Accents & Buttons */
+    --primary: 265 89% 65% !important;
+    --primary-foreground: 0 0% 100% !important;
+    --accent: 260 30% 22% !important;
+    --accent-foreground: 260 20% 90% !important;
+}
+
+/* --- 2. Layout Overrides --- */
+.bg-layout-sidebar, .bg-layout-members {
+    background-color: hsl(260, 36%, 8%) !important;
+}
+.bg-layout-chat, .bg-background {
+    background-color: hsl(260, 30%, 11%) !important;
+}
+
+/* Server Bar & Notice Backgrounds */
+.bg-background\/20,
+.bg-muted\/60,
+.bg-background\/50,
+.bg-background\/70 {
+    background-color: hsl(260, 36%, 8%) !important;
+    border-color: hsl(260, 25%, 22%) !important;
+}
+
+/* Resize Handles */
+[data-resize-handle]::after {
+    background-color: hsl(260, 25%, 22%) !important;
+}
+[data-resize-handle]:hover,
+[data-resize-handle][data-resize-handle-state="drag"] {
+    background-color: hsl(265, 89%, 65%, 0.5) !important;
+}
+
+/* --- 3. Addon Manager Base --- */
+#kloak-addon-pane,
+.addon-settings-box,
+.kloak-modal-container.modal-neutral {
+    background: hsl(260, 30%, 11%) !important;
+}
+
+.addon-card,
+.screen-source-card {
+    background: hsl(260, 30%, 15%) !important;
+    border-color: hsl(260, 25%, 22%) !important;
+}
+
+.addon-card:hover,
+.screen-source-card:hover {
+    background: hsl(260, 30%, 18%) !important;
+    border-color: hsl(265, 89%, 65%) !important;
+}
+
+.addon-header-container,
+.addon-settings-header {
+    border-bottom-color: hsl(260, 25%, 22%) !important;
+}
+
+#kloak-addon-close,
+.kloak-btn-secondary,
+.addon-btn-icon {
+    background: hsl(260, 30%, 18%) !important;
+    border-color: hsl(260, 25%, 22%) !important;
+    color: hsl(260, 20%, 90%) !important;
+}
+
+#kloak-addon-close:hover,
+.kloak-btn-secondary:hover,
+.addon-btn-icon:hover {
+    background: hsl(260, 30%, 22%) !important;
+    color: #fff !important;
+}
+
+.kloak-modal-container {
+    border-color: hsl(260, 25%, 22%) !important;
+}
+
+/* Master Toggle */
+.addon-toggle.enabled {
+    background: hsl(265, 89%, 65%) !important;
+}
+
+/* --- 4. Inline Style Overrides --- */
+
+/* Inputs & Sliders */
+#kloak-addon-settings-modal input[type="radio"],
+#kloak-addon-settings-modal input[type="checkbox"],
+#kloak-addon-settings-modal input[type="range"],
+#kloak-addon-store-modal input[type="radio"],
+#kloak-addon-store-modal input[type="checkbox"] {
+accent-color: hsl(265, 89%, 65%) !important;
+}
+
+/* Accent Text & Borders (Hex & RGB) */
+#kloak-addon-settings-modal [style*="#10b981"],
+#kloak-addon-store-modal [style*="#10b981"],
+#kloak-addon-settings-modal [style*="rgb(16, 185, 129)"],
+#kloak-addon-store-modal [style*="rgb(16, 185, 129)"] {
+color: hsl(265, 89%, 65%) !important;
+border-color: hsl(265, 89%, 65%) !important;
+}
+
+/* Accent Backgrounds (Hex & RGB) */
+#kloak-addon-settings-modal [style*="background: #10b981"],
+#kloak-addon-store-modal [style*="background: #10b981"],
+#kloak-addon-settings-modal [style*="background-color: rgb(16, 185, 129)"],
+#kloak-addon-store-modal [style*="background-color: rgb(16, 185, 129)"],
+#kloak-addon-settings-modal button[style*="#10b981"],
+#kloak-addon-store-modal button[style*="#10b981"],
+#kloak-addon-settings-modal button[style*="rgb(16, 185, 129)"],
+#kloak-addon-store-modal button[style*="rgb(16, 185, 129)"] {
+background: hsl(265, 89%, 65%) !important;
+background-color: hsl(265, 89%, 65%) !important;
+color: #fff !important;
+}
+
+/* Base Containers (Hex & RGB) */
+#kloak-addon-settings-modal [style*="#161616"],
+#kloak-addon-settings-modal [style*="#18181b"],
+#kloak-addon-settings-modal [style*="#262626"],
+#kloak-addon-store-modal [style*="#161616"],
+#kloak-addon-settings-modal [style*="rgb(22, 22, 22)"],
+#kloak-addon-settings-modal [style*="rgb(24, 24, 27)"],
+#kloak-addon-settings-modal [style*="rgb(38, 38, 38)"] {
+background-color: hsl(260, 30%, 15%) !important;
+}
+
+/* Component Borders (Hex & RGB) */
+#kloak-addon-settings-modal [style*="#2a2a2a"],
+#kloak-addon-settings-modal [style*="#27272a"],
+#kloak-addon-store-modal [style*="#2a2a2a"],
+#kloak-addon-settings-modal [style*="rgb(42, 42, 42)"],
+#kloak-addon-settings-modal [style*="rgb(39, 39, 42)"] {
+border-color: hsl(260, 25%, 22%) !important;
+}
+
+/* Secondary Buttons (Hex & RGB) */
+#kloak-addon-settings-modal button[style*="#27272a"],
+#kloak-addon-settings-modal button[style*="#262626"],
+#kloak-addon-settings-modal button[style*="#3f3f46"],
+#kloak-addon-store-modal button[style*="#27272a"],
+#kloak-addon-settings-modal button[style*="rgb(39, 39, 42)"],
+#kloak-addon-settings-modal button[style*="rgb(38, 38, 38)"],
+#kloak-addon-settings-modal button[style*="rgb(63, 63, 70)"] {
+background: hsl(260, 30%, 18%) !important;
+background-color: hsl(260, 30%, 18%) !important;
+border-color: hsl(260, 25%, 22%) !important;
+color: hsl(260, 20%, 90%) !important;
+}
+
+#kloak-addon-settings-modal button[style*="#27272a"]:hover,
+#kloak-addon-settings-modal button[style*="#262626"]:hover,
+#kloak-addon-settings-modal button[style*="#3f3f46"]:hover,
+#kloak-addon-store-modal button[style*="#27272a"]:hover,
+#kloak-addon-settings-modal button[style*="rgb(39, 39, 42)"]:hover,
+#kloak-addon-settings-modal button[style*="rgb(38, 38, 38)"]:hover,
+#kloak-addon-settings-modal button[style*="rgb(63, 63, 70)"]:hover {
+background: hsl(260, 30%, 22%) !important;
+background-color: hsl(260, 30%, 22%) !important;
+}
+
+/* Active Theme Option Selection */
+#kloak-addon-settings-modal .theme-option {
+background-color: hsl(260, 30%, 15%) !important;
+border-color: hsl(260, 25%, 22%) !important;
+}
+#kloak-addon-settings-modal .theme-option:has(input:checked) {
+border-color: hsl(265, 89%, 65%) !important;
+}
+
+/* --- 5. Scrollbars --- */
+::-webkit-scrollbar-thumb {
+    background-color: hsl(260, 30%, 22%) !important;
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background-color: hsl(260, 30%, 30%) !important;
+}
+::-webkit-scrollbar-track {
+    background-color: transparent !important;
+}

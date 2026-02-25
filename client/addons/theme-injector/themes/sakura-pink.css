@@ -1,0 +1,267 @@
+/**
+ * Theme Name: Sakura Pink (Light Mode)
+ * Description: Bright cherry blossom theme based on the Sakura palette.
+ * Author: Developer Toolkit
+ */
+
+/* --- 1. Core Variables (Light Mode Inversion) --- */
+:root, .dark, [data-theme="dark"], body {
+    --background: 330 67% 96% !important;
+    --layout-chat: 330 67% 96% !important;
+    --layout-sidebar: 331 62% 94% !important;
+    --layout-members: 331 62% 94% !important;
+    --layout-sidebar-secondary: 331 62% 94% !important;
+
+    --card: 330 67% 96% !important;
+    --popover: 330 67% 96% !important;
+    --secondary: 337 72% 88% !important;
+    --muted: 338 65% 85% !important;
+
+    --border: 338 61% 78% !important;
+    --input: 338 61% 78% !important;
+    --ring: 341 60% 58% !important;
+
+    --foreground: 338 46% 20% !important;
+    --card-foreground: 338 46% 20% !important;
+    --popover-foreground: 338 46% 20% !important;
+    --secondary-foreground: 338 46% 20% !important;
+    --muted-foreground: 338 30% 45% !important;
+
+    --primary: 341 60% 58% !important;
+    --primary-foreground: 0 0% 100% !important;
+    --accent: 337 72% 88% !important;
+    --accent-foreground: 338 46% 20% !important;
+}
+
+/* --- 2. Layout Overrides --- */
+.bg-layout-sidebar, .bg-layout-members {
+    background-color: hsl(331, 62%, 94%) !important;
+}
+.bg-layout-chat, .bg-background {
+    background-color: hsl(330, 67%, 96%) !important;
+}
+
+.bg-background\/20,
+.bg-muted\/60,
+.bg-background\/50,
+.bg-background\/70 {
+    background-color: hsl(331, 62%, 94%) !important;
+    border-color: hsl(338, 61%, 78%) !important;
+    color: hsl(338, 46%, 20%) !important;
+}
+
+[data-resize-handle]::after {
+    background-color: hsl(338, 61%, 78%) !important;
+}
+[data-resize-handle]:hover,
+[data-resize-handle][data-resize-handle-state="drag"] {
+    background-color: hsl(341, 60%, 58%, 0.5) !important;
+}
+
+/* --- 3. Addon Manager Base --- */
+#kloak-addon-pane,
+.addon-settings-box,
+.kloak-modal-container.modal-neutral {
+    background: hsl(330, 67%, 96%) !important;
+    color: hsl(338, 46%, 20%) !important;
+}
+
+.addon-card,
+.screen-source-card {
+    background: hsl(331, 62%, 94%) !important;
+    border-color: hsl(338, 61%, 78%) !important;
+}
+
+.addon-card:hover,
+.screen-source-card:hover {
+    background: hsl(337, 72%, 88%) !important;
+    border-color: hsl(341, 60%, 58%) !important;
+}
+
+.addon-header-container,
+.addon-settings-header {
+    border-bottom-color: hsl(338, 61%, 78%) !important;
+}
+
+#kloak-addon-close,
+.kloak-btn-secondary,
+.addon-btn-icon {
+    background: hsl(337, 72%, 88%) !important;
+    border-color: hsl(338, 61%, 78%) !important;
+    color: hsl(338, 46%, 20%) !important;
+}
+
+#kloak-addon-close:hover,
+.kloak-btn-secondary:hover,
+.addon-btn-icon:hover {
+    background: hsl(338, 65%, 79%) !important;
+    color: hsl(338, 46%, 20%) !important;
+}
+
+.kloak-modal-container {
+    border-color: hsl(338, 61%, 78%) !important;
+}
+
+.addon-toggle.enabled {
+    background: hsl(341, 60%, 58%) !important;
+}
+
+/* Base Addon Text Color Fixes */
+.addon-header-container h2,
+.addon-info h3,
+.kloak-modal-title,
+#addon-settings-title {
+color: hsl(338, 46%, 20%) !important;
+}
+
+.addon-header-container p,
+.addon-info p,
+.kloak-modal-subtitle,
+.kloak-modal-body,
+#addon-settings-content {
+color: hsl(338, 30%, 45%) !important;
+}
+
+/* --- 4. Inline Style Overrides --- */
+#kloak-addon-settings-modal input[type="radio"],
+#kloak-addon-settings-modal input[type="checkbox"],
+#kloak-addon-settings-modal input[type="range"],
+#kloak-addon-store-modal input[type="radio"],
+#kloak-addon-store-modal input[type="checkbox"] {
+accent-color: hsl(341, 60%, 58%) !important;
+}
+
+/* Accent Tracking */
+#kloak-addon-settings-modal [style*="#10b981"],
+#kloak-addon-store-modal [style*="#10b981"],
+#kloak-addon-settings-modal [style*="rgb(16, 185, 129)"],
+#kloak-addon-store-modal [style*="rgb(16, 185, 129)"] {
+color: hsl(341, 60%, 58%) !important;
+border-color: hsl(341, 60%, 58%) !important;
+}
+
+#kloak-addon-settings-modal [style*="background: #10b981"],
+#kloak-addon-store-modal [style*="background: #10b981"],
+#kloak-addon-settings-modal [style*="background-color: rgb(16, 185, 129)"],
+#kloak-addon-store-modal [style*="background-color: rgb(16, 185, 129)"],
+#kloak-addon-settings-modal button[style*="#10b981"],
+#kloak-addon-store-modal button[style*="#10b981"],
+#kloak-addon-settings-modal button[style*="rgb(16, 185, 129)"],
+#kloak-addon-store-modal button[style*="rgb(16, 185, 129)"] {
+background: hsl(341, 60%, 58%) !important;
+background-color: hsl(341, 60%, 58%) !important;
+color: #fff !important;
+}
+
+/* Nullify Hardcoded Dark Backgrounds */
+#kloak-addon-settings-modal [style*="#161616"],
+#kloak-addon-settings-modal [style*="#18181b"],
+#kloak-addon-settings-modal [style*="#262626"],
+#kloak-addon-store-modal [style*="#161616"],
+#kloak-addon-settings-modal [style*="rgb(22, 22, 22)"],
+#kloak-addon-settings-modal [style*="rgb(24, 24, 27)"],
+#kloak-addon-settings-modal [style*="rgb(38, 38, 38)"] {
+background-color: hsl(331, 62%, 94%) !important;
+}
+
+#kloak-addon-settings-modal [style*="#2a2a2a"],
+#kloak-addon-settings-modal [style*="#27272a"],
+#kloak-addon-store-modal [style*="#2a2a2a"],
+#kloak-addon-settings-modal [style*="rgb(42, 42, 42)"],
+#kloak-addon-settings-modal [style*="rgb(39, 39, 42)"] {
+border-color: hsl(338, 61%, 78%) !important;
+}
+
+/* Secondary Buttons */
+#kloak-addon-settings-modal button[style*="#27272a"],
+#kloak-addon-settings-modal button[style*="#262626"],
+#kloak-addon-settings-modal button[style*="#3f3f46"],
+#kloak-addon-store-modal button[style*="#27272a"],
+#kloak-addon-settings-modal button[style*="rgb(39, 39, 42)"],
+#kloak-addon-settings-modal button[style*="rgb(38, 38, 38)"],
+#kloak-addon-settings-modal button[style*="rgb(63, 63, 70)"] {
+background: hsl(337, 72%, 88%) !important;
+background-color: hsl(337, 72%, 88%) !important;
+border-color: hsl(338, 61%, 78%) !important;
+color: hsl(338, 46%, 20%) !important;
+}
+
+#kloak-addon-settings-modal button[style*="#27272a"]:hover,
+#kloak-addon-settings-modal button[style*="#262626"]:hover,
+#kloak-addon-settings-modal button[style*="#3f3f46"]:hover,
+#kloak-addon-store-modal button[style*="#27272a"]:hover,
+#kloak-addon-settings-modal button[style*="rgb(39, 39, 42)"]:hover,
+#kloak-addon-settings-modal button[style*="rgb(38, 38, 38)"]:hover,
+#kloak-addon-settings-modal button[style*="rgb(63, 63, 70)"]:hover {
+background: hsl(338, 65%, 79%) !important;
+background-color: hsl(338, 65%, 79%) !important;
+}
+
+/* Text Inversions (With case-insensitive 'i' and RGB catchers) */
+#kloak-addon-pane [style*="#e0e0e0" i],
+#kloak-addon-pane [style*="#fff" i],
+#kloak-addon-pane [style*="white" i],
+#kloak-addon-pane [style*="rgb(224, 224, 224)"],
+#kloak-addon-pane [style*="rgb(255, 255, 255)"],
+#kloak-addon-settings-modal [style*="#e0e0e0" i],
+#kloak-addon-settings-modal [style*="#fff" i],
+#kloak-addon-settings-modal [style*="white" i],
+#kloak-addon-settings-modal [style*="rgb(224, 224, 224)"],
+#kloak-addon-settings-modal [style*="rgb(255, 255, 255)"],
+#kloak-addon-store-modal [style*="#e0e0e0" i],
+#kloak-addon-store-modal [style*="#fff" i],
+#kloak-addon-store-modal [style*="white" i],
+#kloak-addon-store-modal [style*="rgb(224, 224, 224)"],
+#kloak-addon-store-modal [style*="rgb(255, 255, 255)"] {
+color: hsl(338, 46%, 20%) !important;
+}
+
+#kloak-addon-pane [style*="#a1a1aa" i],
+#kloak-addon-pane [style*="#949494" i],
+#kloak-addon-pane [style*="#71717a" i],
+#kloak-addon-pane [style*="rgb(161, 161, 170)"],
+#kloak-addon-pane [style*="rgb(148, 148, 148)"],
+#kloak-addon-pane [style*="rgb(113, 113, 122)"],
+#kloak-addon-settings-modal [style*="#a1a1aa" i],
+#kloak-addon-settings-modal [style*="#949494" i],
+#kloak-addon-settings-modal [style*="#71717a" i],
+#kloak-addon-settings-modal [style*="rgb(161, 161, 170)"],
+#kloak-addon-settings-modal [style*="rgb(148, 148, 148)"],
+#kloak-addon-settings-modal [style*="rgb(113, 113, 122)"],
+#kloak-addon-store-modal [style*="#a1a1aa" i],
+#kloak-addon-store-modal [style*="#949494" i],
+#kloak-addon-store-modal [style*="#71717a" i],
+#kloak-addon-store-modal [style*="rgb(161, 161, 170)"],
+#kloak-addon-store-modal [style*="rgb(148, 148, 148)"],
+#kloak-addon-store-modal [style*="rgb(113, 113, 122)"] {
+color: hsl(338, 30%, 45%) !important;
+}
+
+/* Fix Version Tags */
+#kloak-addon-pane [style*="background: #000"],
+#kloak-addon-settings-modal [style*="background: #000"],
+#kloak-addon-store-modal [style*="background: #000"] {
+background-color: hsl(338, 61%, 78%) !important;
+color: hsl(338, 46%, 20%) !important;
+}
+
+/* Theme Option Active State */
+#kloak-addon-settings-modal .theme-option {
+background-color: hsl(331, 62%, 94%) !important;
+border-color: hsl(338, 61%, 78%) !important;
+}
+#kloak-addon-settings-modal .theme-option:has(input:checked) {
+border-color: hsl(341, 60%, 58%) !important;
+}
+
+/* --- 5. Scrollbars --- */
+::-webkit-scrollbar-thumb {
+    background-color: hsl(338, 61%, 78%) !important;
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background-color: hsl(338, 65%, 65%) !important;
+}
+::-webkit-scrollbar-track {
+    background-color: transparent !important;
+}
