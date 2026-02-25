@@ -54,23 +54,12 @@
 
 /* Settings Modal */
 #kloak-addon-settings-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999999; justify-content: center; align-items: center; border-radius: 20px; overflow: hidden; }
-.addon-settings-box { 
-    background: var(--kloak-bg-main); 
-    border: 1px solid var(--kloak-bg-btn); 
-    border-radius: 12px; 
-    padding: 24px 24px 12px 24px; 
-    width: 500px; 
-    max-height: 80vh; 
-    overflow-y: auto; 
-    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7); 
-    display: flex; 
-    flex-direction: column; 
-}
+
 .addon-settings-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--kloak-bg-btn); padding-bottom: 16px; margin-bottom: 16px; }
 .addon-settings-header h3 { margin: 0; color: var(--kloak-text-main); font-size: 18px; display: flex; align-items: center; gap: 8px; }
 .addon-settings-content { color: var(--kloak-icon-fg); font-size: 14px; line-height: 1.5; }
 
-/* Modal Bridged UI (Premium Design) */
+/* Modal Bridged UI */
 .kloak-modal-overlay {
     position: fixed; inset: 0; background: rgba(0,0,0,0.85);
     z-index: 9999999; display: flex; align-items: center; justify-content: center;
@@ -79,7 +68,7 @@
 
 .kloak-modal-container {
     background: var(--kloak-bg-main); border: 1px solid var(--kloak-bg-btn); border-radius: 14px;
-    padding: 32px; width: 460px; color: var(--kloak-text-main);
+    padding: 32px 32px 32px 32px; width: 460px; color: var(--kloak-text-main);
     box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8);
     position: relative;
 }
@@ -112,6 +101,8 @@
 .kloak-modal-subtitle { margin: 4px 0 0 0; font-size: 14px; color: var(--kloak-text-sub); }
 
 .kloak-modal-body { margin-bottom: 24px; font-size: 14px; color: var(--kloak-text-sub); line-height: 1.6; }
+.kloak-modal-body > *:last-child { margin-bottom: 0 !important; }
+
 
 .kloak-modal-footer { display: flex; gap: 12px; }
 .kloak-modal-footer button { flex: 1; }
@@ -270,11 +261,11 @@
 input[type="radio"] {
     -webkit-appearance: none;
     appearance: none;
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
     border: 2px solid var(--kloak-bg-btn);
     border-radius: 50%;
-    background: transparent;
+    background: var(--kloak-bg-box);
     cursor: pointer;
     position: relative;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -294,8 +285,8 @@ input[type="radio"]:checked::after {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 6px;
-    height: 6px;
+    width: 8px;
+    height: 8px;
     background: var(--kloak-bg-main);
     border-radius: 50%;
 }
