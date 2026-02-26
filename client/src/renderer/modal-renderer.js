@@ -20,6 +20,8 @@ if (window.electronAPI) {
 
     if (type === "update-status") {
       renderUpdateBanner(detail);
+    } else if (type === "update-progress") {
+      updateProgressModal(detail);
     } else if (type === "show-custom-permission") {
       renderPermissionModal(detail);
     } else if (type === "show-link-warning") {
@@ -125,13 +127,24 @@ if (window.electronAPI) {
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
         <span>Update Available: ${data.version}</span>
       </div>
-      <div class="update-close" title="Dismiss">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+      <div class="update-actions">
+        <div class="update-now" title="Update Now">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/><path d="M22 10 16 12 18 18z"/></svg>
+        </div>
+        <div class="update-close" title="Dismiss">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </div>
       </div>
     `;
 
     banner.querySelector(".update-content").onclick = () =>
       window.electronAPI.openExternalUrl(data.url);
+    banner.querySelector(".update-now").onclick = (e) => {
+      e.stopPropagation();
+      renderUpdateProgressModal(data);
+      window.electronAPI.startUpdate(data.version);
+      banner.remove();
+    };
     banner.querySelector(".update-close").onclick = (e) => {
       e.stopPropagation();
       banner.classList.add("kloak-fade-out");
@@ -140,6 +153,80 @@ if (window.electronAPI) {
 
     document.body.appendChild(banner);
   }
+
+  function renderUpdateProgressModal(data) {
+    if (document.getElementById("update-progress-modal")) return;
+
+    const overlay = document.createElement("div");
+    overlay.className = "kloak-modal-overlay";
+    overlay.id = "update-progress-modal";
+    overlay.innerHTML = `
+      <div class="kloak-modal-container modal-neutral">
+        <div class="kloak-modal-header">
+          <div class="kloak-modal-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          </div>
+          <div class="kloak-modal-title-group">
+            <h3 class="kloak-modal-title">Updating Kloak</h3>
+            <p class="kloak-modal-subtitle">Downloading version ${data.version}</p>
+          </div>
+        </div>
+        <div class="kloak-modal-body">
+          <div class="kloak-progress-container">
+            <div id="update-progress-bar" class="kloak-progress-bar" style="width: 0%"></div>
+          </div>
+          <div id="update-status-text" class="kloak-progress-status">Initializing...</div>
+        </div>
+        <div class="kloak-modal-footer">
+          <button id="update-cancel" class="kloak-btn-secondary">Cancel</button>
+          <button id="update-restart" class="kloak-btn-primary" disabled>Restart App</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+
+    overlay.querySelector("#update-cancel").onclick = () => {
+      overlay.remove();
+    };
+
+    overlay.querySelector("#update-restart").onclick = () => {
+      window.electronAPI.quitAndInstall();
+    };
+  }
+
+  function updateProgressModal(status) {
+    const overlay = document.getElementById("update-progress-modal");
+    if (!overlay) return;
+
+    if (status.error) {
+      overlay.querySelector("#update-status-text").textContent =
+        "Error: " + status.error;
+      overlay.querySelector("#update-status-text").style.color =
+        "var(--kloak-accent-destructive)";
+      const cancelBtn = overlay.querySelector("#update-cancel");
+      cancelBtn.style.display = "";
+      cancelBtn.textContent = "Dismiss";
+      return;
+    }
+
+    if (status.progress !== undefined) {
+      overlay.querySelector("#update-progress-bar").style.width =
+        status.progress + "%";
+    }
+
+    if (status.status) {
+      overlay.querySelector("#update-status-text").textContent = status.status;
+    }
+
+    if (status.progress === 100) {
+      overlay.querySelector("#update-restart").disabled = false;
+      overlay.querySelector("#update-cancel").style.display = "none";
+    }
+  }
+
+  window.kloakDebugUpdate = () => {
+    window.electronAPI.triggerDebugUpdate();
+  };
 
   function renderPermissionModal(data) {
     const isMedia = data.permission === "media";

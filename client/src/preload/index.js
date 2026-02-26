@@ -32,6 +32,10 @@ const api = {
   getAddonConfig: (addonId) => ipcRenderer.invoke("get-addon-config", addonId),
   saveAddonConfig: (data) => ipcRenderer.send("save-addon-config", data),
   getThemeFiles: () => ipcRenderer.invoke("get-theme-files"),
+  startUpdate: (version) => ipcRenderer.send("start-update", { version }),
+  quitAndInstall: () => ipcRenderer.send("quit-and-install"),
+  triggerDebugUpdate: () => ipcRenderer.send("debug-update-trigger"),
+  platform: process.platform,
 
   // FS API for Addons
   readAddonFile: (addonId, filePath) =>
@@ -53,6 +57,9 @@ const api = {
       "window-close",
       "terminal-log",
       "open-external-url",
+      "start-update",
+      "quit-and-install",
+      "debug-update-trigger",
     ];
 
     // Map common aliases
@@ -94,6 +101,9 @@ contextBridge.exposeInMainWorld("electronAPI", api);
 // Setup IPC Listeners that bridge to the callback
 ipcRenderer.on("update-status", (event, data) => {
   if (modalCallback) modalCallback("update-status", data);
+});
+ipcRenderer.on("update-progress", (event, data) => {
+  if (modalCallback) modalCallback("update-progress", data);
 });
 ipcRenderer.on("show-custom-permission", (event, data) => {
   if (modalCallback) modalCallback("show-custom-permission", data);

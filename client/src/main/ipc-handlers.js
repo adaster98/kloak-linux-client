@@ -14,7 +14,12 @@ const {
   addonStatesPath,
 } = require("./services/addons");
 const { handlePermissionResponse } = require("./services/permissions");
-const { checkForCustomUpdate } = require("./services/updater");
+const {
+  checkForCustomUpdate,
+  downloadUpdate,
+  installAndRestart,
+  triggerDebugUpdate,
+} = require("./services/updater");
 
 function registerIpcHandlers() {
   ipcMain.on("terminal-log", (event, msg) => {
@@ -89,9 +94,24 @@ function registerIpcHandlers() {
     checkForCustomUpdate(event);
   });
 
+  ipcMain.on("debug-update-trigger", (event) => {
+    console.log("[IPC] debug-update-trigger received");
+    triggerDebugUpdate(event);
+  });
+
   ipcMain.on("open-external-url", (event, url) => {
     console.log("[IPC] open-external-url received:", url);
     if (url) shell.openExternal(url);
+  });
+  // turbo
+  ipcMain.on("start-update", (event, { version }) => {
+    console.log("[IPC] start-update received:", { version });
+    downloadUpdate(event, { version, platform: process.platform });
+  });
+
+  ipcMain.on("quit-and-install", () => {
+    console.log("[IPC] quit-and-install received");
+    installAndRestart();
   });
 
   ipcMain.handle("get-addon-states", () => {
