@@ -114,9 +114,10 @@ if (window.electronAPI) {
   document.addEventListener("click", handleDestructiveIntercept, true);
   // End of Destructive Action Hijacker
 
-  // Modal Renderers
+  let updateBannerDismissed = false;
 
   function renderUpdateBanner(data) {
+    if (updateBannerDismissed) return;
     if (document.getElementById("kloak-update-banner")) return;
     if (data.available === false) return;
 
@@ -147,6 +148,7 @@ if (window.electronAPI) {
     };
     banner.querySelector(".update-close").onclick = (e) => {
       e.stopPropagation();
+      updateBannerDismissed = true;
       banner.classList.add("kloak-fade-out");
       setTimeout(() => banner.remove(), 300);
     };

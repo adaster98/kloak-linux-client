@@ -157,6 +157,20 @@ function createWindow() {
       };
       checkForCustomUpdate(fakeEvent);
 
+      // Re-check for updates every 5 minutes
+      setInterval(
+        () => {
+          if (mainWindow && !mainWindow.isDestroyed()) {
+            const intervalEvent = {
+              reply: (channel, data) =>
+                mainWindow.webContents.send(channel, data),
+            };
+            checkForCustomUpdate(intervalEvent);
+          }
+        },
+        5 * 60 * 1000,
+      );
+
       if (!appSettings.firstLaunchDone) {
         const permsToAsk = ["media", "notifications"];
         let currentIdx = 0;
