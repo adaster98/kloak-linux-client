@@ -189,15 +189,16 @@ function installAndRestart() {
       try {
         // The running AppImage is FUSE-mounted and can't be overwritten in-place.
         // Spawn a detached bash script that waits for us to exit, then replaces & relaunches.
+        const pid = process.pid;
         const script = `
-          sleep 2
-          cp -f "${updatePath}" "${currentAppImage}"
+          while kill -0 ${pid} 2>/dev/null; do sleep 0.5; done
+          sleep 1
+          mv -f "${updatePath}" "${currentAppImage}" || cp -f "${updatePath}" "${currentAppImage}"
           chmod +x "${currentAppImage}"
-          rm -f "${updatePath}"
           "${currentAppImage}" &
         `;
 
-        console.log("[Updater] Spawning update script...");
+        console.log("[Updater] Spawning update script for PID:", pid);
         spawn("bash", ["-c", script], {
           detached: true,
           stdio: "ignore",
