@@ -38,8 +38,8 @@
   "quick-react": {
     "name": "Quick React",
     "description": "Quickly react to messages with your most used emojis.",
-    "version": "1.0.4",
-    "url": "https://codeberg.org/adaster98/kloak-client-unofficial/raw/branch/main/addons/release/quick-react/quick-react-1.0.4.zip"
+    "version": "1.0.5",
+    "url": "https://codeberg.org/adaster98/kloak-client-unofficial/raw/branch/main/addons/release/quick-react/quick-react-1.0.5.zip"
   },
   "dm-folders": {
     "name": "DM Folders",

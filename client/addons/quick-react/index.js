@@ -21,6 +21,7 @@
   let lastKnownServerID = null;
   let pendingEmojiRequests = new Set(); // Track request origin
   let emojiImageCache = new Map(); // Emoji image cache
+  let recentEmojiMetadata = new Map(); // :name: -> { serverID, emojiID, filePath } from sniffed URLs
 
   // Helpers
 
@@ -93,6 +94,55 @@
     }
   };
 
+  // reconcile metadata for misattributed emojis
+  const reconcileMetadata = (emojiName, metadata) => {
+    let changed = false;
+    // Check all records for this emoji name
+    for (const [configKey, record] of Object.entries(config.emojis)) {
+      if (record.name === emojiName) {
+        // If it's on the wrong server or missing metadata
+        if (record.serverID !== metadata.serverID || !record.filePath) {
+          const correctKey = `${metadata.serverID}|${emojiName}`;
+
+          if (config.emojis[correctKey]) {
+            // Already exists on correct server, merge counts and delete old if needed
+            if (configKey !== correctKey) {
+              config.emojis[correctKey].count += record.count;
+              config.emojis[correctKey].date =
+                record.date > config.emojis[correctKey].date
+                  ? record.date
+                  : config.emojis[correctKey].date;
+              delete config.emojis[configKey];
+              log(
+                `Merged misattributed ${emojiName} into correct record ${metadata.serverID}`,
+              );
+              changed = true;
+            }
+          } else {
+            // New key for correct server
+            config.emojis[correctKey] = {
+              ...record,
+              serverID: metadata.serverID,
+              serverName:
+                (api &&
+                  api._serverMap &&
+                  api._serverMap.get(metadata.serverID)) ||
+                metadata.serverID,
+              emojiID: metadata.emojiID,
+              filePath: metadata.filePath,
+            };
+            delete config.emojis[configKey];
+            log(
+              `Migrated misattributed ${emojiName} to correct server ${metadata.serverID}`,
+            );
+            changed = true;
+          }
+        }
+      }
+    }
+    if (changed) saveConfig();
+  };
+
   // Emoji record management
   const recordEmoji = (rawEmoji) => {
     const isDM = api && api.currentDMStatus;
@@ -121,6 +171,37 @@
       // In a server with no suffix — use current server context
       serverID = api ? api.currentServerID : null;
       serverName = api ? api.currentServerName : null;
+    }
+
+    // Check sniffed metadata first
+    if (isCustomEmoji(baseName)) {
+      const sniffed = recentEmojiMetadata.get(baseName);
+      if (sniffed) {
+        // Proactively fix any records that might be misattributed before recording
+        reconcileMetadata(baseName, sniffed);
+
+        serverID = sniffed.serverID;
+        serverName =
+          (api && api._serverMap && api._serverMap.get(serverID)) ||
+          serverSuffix ||
+          serverName;
+        log(`Using sniffed metadata for ${baseName}: server ${serverID}`);
+      }
+    }
+
+    // Check if there's already a misattributed record for this emoji
+    if (isCustomEmoji(baseName)) {
+      for (const [key, rec] of Object.entries(config.emojis)) {
+        if (
+          rec.name === baseName &&
+          rec.filePath === null &&
+          rec.serverID !== serverID
+        ) {
+          log(
+            `Found existing misattributed record for ${baseName}, will consolidate.`,
+          );
+        }
+      }
     }
 
     // Generate config key
@@ -152,9 +233,18 @@
     // If this custom emoji is missing image data, fetch server emojis to populate it
     if (
       isCustomEmoji(baseName) &&
-      !config.emojis[configKey].filePath &&
+      (!config.emojis[configKey].filePath ||
+        !config.emojis[configKey].emojiID) &&
       serverID
     ) {
+      if (recentEmojiMetadata.has(baseName)) {
+        const sniffed = recentEmojiMetadata.get(baseName);
+        if (sniffed.serverID === serverID) {
+          config.emojis[configKey].emojiID = sniffed.emojiID;
+          config.emojis[configKey].filePath = sniffed.filePath;
+          saveConfig();
+        }
+      }
       fetchServerEmojis(serverID);
     }
   };
@@ -210,16 +300,23 @@
         }
       });
 
-      // Update config records that belong to this server
+      // Update config records using metadata list
       let updated = false;
-      for (const [configKey, record] of Object.entries(config.emojis)) {
-        if (record.serverID === serverID && serverEmojiMap.has(record.name)) {
-          const info = serverEmojiMap.get(record.name);
-          record.emojiID = info.id;
-          record.filePath = info.filePath;
+      emojiList.forEach((e) => {
+        const emojiName = `:${e.name}:`;
+        const metadata = { serverID, emojiID: e.id, filePath: e.file_path };
+
+        // Use our reconciliation helper to fix any misattributed instances of this emoji
+        reconcileMetadata(emojiName, metadata);
+
+        // Update current server record specifically
+        const currentKey = `${serverID}|${emojiName}`;
+        if (config.emojis[currentKey]) {
+          config.emojis[currentKey].emojiID = e.id;
+          config.emojis[currentKey].filePath = e.file_path;
           updated = true;
         }
-      }
+      });
       if (updated) saveConfig();
 
       // Ensure images are in browser cache
@@ -344,6 +441,29 @@
       }
 
       const response = await self_originalFetch.apply(this, args);
+
+      // Metadata sniffing for cross-server emojis used via native picker
+      if (
+        url.includes(`${SUPABASE_URL}/storage/v1/object/public/server-emojis/`)
+      ) {
+        const parts = url.split("/server-emojis/")[1];
+        if (parts) {
+          // Format: serverID/name-emojiID.png
+          const match = parts.match(/^([^/]+)\/(.+)-([a-f0-9-]{36})\.[a-z]+$/);
+          if (match) {
+            const [_, sID, eName, eID] = match;
+            const emojiName = `:${eName}:`;
+            const metadata = {
+              serverID: sID,
+              emojiID: eID,
+              filePath: parts,
+            };
+            recentEmojiMetadata.set(emojiName, metadata);
+            // Proactively fix any records that might be misattributed
+            reconcileMetadata(emojiName, metadata);
+          }
+        }
+      }
 
       // Process responses
       if (isAddReaction) {
