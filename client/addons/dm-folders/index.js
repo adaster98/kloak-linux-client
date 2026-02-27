@@ -4,7 +4,8 @@
   const MENU_ID = "dmf-context-menu";
 
   let config = { folders: [] };
-  let dmConversations = []; // Populated from intercepted RPC
+  let dmConversations = new Map(); // convId -> data
+  const userToConvMap = new Map(); // userId -> convId
   let observer = null;
   let isEnabled = false;
   let isRenaming = false;
@@ -61,6 +62,29 @@
 
   // ── Fetch intercept: capture DM conversations ──
   const originalFetch = window.fetch;
+  const mergeConversations = (data) => {
+    if (!Array.isArray(data)) return;
+    const myUserId = window.KloakAddonAPI ? window.KloakAddonAPI.userID : null;
+
+    data.forEach((conv) => {
+      if (conv.conversation && conv.conversation.id) {
+        dmConversations.set(conv.conversation.id, conv);
+        // Map other participants to this convId for faster matching
+        if (conv.participants) {
+          conv.participants.forEach((p) => {
+            if (p.user_id && p.user_id !== myUserId) {
+              userToConvMap.set(p.user_id, conv.conversation.id);
+            }
+          });
+        }
+      }
+    });
+
+    if (isEnabled) {
+      requestAnimationFrame(() => rebuildFolders());
+    }
+  };
+
   const patchedFetch = async function (...args) {
     const response = await originalFetch.apply(this, args);
     try {
@@ -68,10 +92,7 @@
       if (url && url.includes("get_user_dm_conversations")) {
         const clone = response.clone();
         const data = await clone.json();
-        if (Array.isArray(data)) {
-          dmConversations = data;
-          if (isEnabled) requestAnimationFrame(() => rebuildFolders());
-        }
+        mergeConversations(data);
       }
     } catch (_) {
       /* ignore parse errors */
@@ -100,10 +121,7 @@
       );
       if (res.ok) {
         const data = await res.json();
-        if (Array.isArray(data)) {
-          dmConversations = data;
-          if (isEnabled) rebuildFolders();
-        }
+        mergeConversations(data);
       }
     } catch (e) {
       console.error(`[${ADDON_ID}] Bootstrap fetch failed:`, e);
@@ -172,41 +190,41 @@
   // Match a DM item to a conversation by comparing the display_name shown in DOM
   // with participants from the intercepted RPC data.
   const getConversationIdForDmItem = (dmItem) => {
-    const nameEl = dmItem.querySelector("span.text-sm.truncate.font-medium");
-    if (!nameEl) return null;
-    const displayName = nameEl.textContent.trim();
+    // 0. Check for cached ID on the element
+    const cachedId = dmItem.getAttribute("data-dmf-id");
+    if (cachedId) return cachedId;
 
-    // Also try to extract user id from avatar URL
-    const avatarImg = dmItem.querySelector("img.aspect-square");
-    let avatarUserId = null;
-    if (avatarImg && avatarImg.src && avatarImg.src.includes("/avatars/")) {
-      const match = avatarImg.src.match(/\/avatars\/([a-f0-9-]{36})\//);
-      if (match) avatarUserId = match[1];
-    } else if (
-      avatarImg &&
-      avatarImg.src &&
-      avatarImg.src.includes("supabase.co")
-    ) {
-      // Handle cases where the ID might be differently formatted in the URL
-      const parts = avatarImg.src.split("/");
-      const avatarsIdx = parts.indexOf("avatars");
-      if (avatarsIdx !== -1 && parts[avatarsIdx + 1]) {
-        avatarUserId = parts[avatarsIdx + 1];
+    // 1. Identification by URL (most reliable)
+    const link =
+      dmItem.tagName === "A"
+        ? dmItem
+        : dmItem.querySelector("a[href*='/direct/']");
+    if (link && link.href) {
+      const match = link.href.match(/\/direct\/([a-f0-9-]{36})/);
+      if (match) {
+        const cid = match[1];
+        dmItem.setAttribute("data-dmf-id", cid);
+        return cid;
       }
     }
 
-    const myUserId = window.KloakAddonAPI ? window.KloakAddonAPI.userID : null;
+    // 2. Fallback: Display Name matching
+    const nameEl = dmItem.querySelector(
+      "span.truncate.font-medium, .flex-1.truncate.font-medium",
+    );
+    if (!nameEl) return null;
+    const displayName = nameEl.textContent.trim();
 
-    for (const conv of dmConversations) {
-      const otherParticipants = conv.participants.filter(
-        (p) => p.user_id !== myUserId,
-      );
-      for (const p of otherParticipants) {
+    const myUserId = window.KloakAddonAPI ? window.KloakAddonAPI.userID : null;
+    for (const conv of dmConversations.values()) {
+      const participants = conv.participants || [];
+      for (const p of participants) {
+        if (p.user_id === myUserId) continue;
         const pName = p.user.display_name || p.user.username;
-        // Match by avatar user ID (most reliable) or display name
-        if (avatarUserId && p.user_id === avatarUserId)
+        if (pName === displayName) {
+          dmItem.setAttribute("data-dmf-id", conv.conversation.id);
           return conv.conversation.id;
-        if (pName === displayName) return conv.conversation.id;
+        }
       }
     }
     return null;
@@ -244,7 +262,7 @@
         white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
       }
       .dmf-folder-count {
-        font-size: 11px; color: var(--kloak-icon-fg); flex-shrink: 0;
+        font-size: 11px; color: var(--kloak-text-sub); flex-shrink: 0;
         margin-right: 4px;
       }
       .dmf-chevron {
@@ -256,7 +274,7 @@
       /* Create folder button */
       .dmf-create-btn {
         background: transparent; border: none; cursor: pointer;
-        color: var(--kloak-icon-fg); padding: 0;
+        color: var(--kloak-text-sub); padding: 0;
         display: flex; align-items: center; justify-content: center;
         width: 24px; height: 24px; border-radius: 4px;
         transition: color 0.2s, background 0.2s;
@@ -280,13 +298,7 @@
         transform: scale(0.95);
       }
 
-      .dmf-item-unfoldered {
-        margin-left: -20px !important;
-        width: calc(100% + 20px) !important;
-      }
-      .dmf-item-unfoldered .dmf-drag-tray {
-        display: none !important;
-      }
+
 
       .dmf-drag-tray {
         position: absolute;
@@ -639,7 +651,7 @@
     const btn = document.createElement("button");
     btn.className = "dmf-create-btn";
     btn.title = "Create DM Folder";
-    btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--kloak-icon-fg);"><path d="M12 10v6"/><path d="M9 13h6"/><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>`;
+    btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 10v6"/><path d="M9 13h6"/><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>`;
     btn.addEventListener("click", (e) => {
       e.stopPropagation();
       const color = PRESET_COLORS[config.folders.length % PRESET_COLORS.length];
@@ -731,7 +743,7 @@
           activeManualDrag.ghost = ghost;
           el.classList.add(type === "dm" ? "dmf-dm-dragging" : "dmf-dragging");
 
-          if (type === "dm") {
+          if (type === "dm" && activeManualDrag.isFoldered) {
             const container = getDmContainer();
             const zone = container.querySelector(".dmf-ungroup-zone");
             if (zone) zone.classList.add("visible");
@@ -777,7 +789,7 @@
           }
           // Ungroup Zone?
           const ungroupZone = t.closest(".dmf-ungroup-zone");
-          if (ungroupZone) {
+          if (ungroupZone && activeManualDrag.isFoldered) {
             ungroupZone.classList.add("dmf-drag-over");
             lastCollisionTarget = { type: "ungroup", el: ungroupZone };
             break;
@@ -899,12 +911,6 @@
       const convId = getConversationIdForDmItem(item);
       const isFoldered = convId && folderedConvIds.has(convId);
 
-      if (isFoldered) {
-        item.classList.remove("dmf-item-unfoldered");
-      } else {
-        item.classList.add("dmf-item-unfoldered");
-      }
-
       if (!item.querySelector(".dmf-drag-tray")) {
         const tray = document.createElement("div");
         tray.className = "dmf-drag-tray";
@@ -923,6 +929,7 @@
             id: cId,
             el: item,
             ghost: null, // Deferred
+            isFoldered: isFoldered,
             startX: e.clientX,
             startY: e.clientY,
             offsetX: e.clientX - rect.left,
@@ -982,10 +989,13 @@
       container.appendChild(separator);
     }
 
-    // Show all ungrouped DMs normally
+    // Show all remaining DMs normally
+    // Every item MUST get an order to prevent it from jumping to the top (order: 0)
     allDmItems.forEach((item) => {
       const convId = getConversationIdForDmItem(item);
-      if (convId && !folderedConvIds.has(convId)) {
+      const isFoldered = convId && folderedConvIds.has(convId);
+
+      if (!isFoldered) {
         item.style.order = currentOrder++;
         item.style.display = "";
       }

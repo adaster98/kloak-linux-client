@@ -44,7 +44,7 @@
   "dm-folders": {
     "name": "DM Folders",
     "description": "Organize your DMs into folders.",
-    "version": "1.0.0",
-    "url": "https://codeberg.org/adaster98/kloak-client-unofficial/raw/branch/main/addons/release/dm-folders/dm-folders-1.0.0.zip"
+    "version": "1.0.1",
+    "url": "https://codeberg.org/adaster98/kloak-client-unofficial/raw/branch/main/addons/release/dm-folders/dm-folders-1.0.1.zip"
   }
 }
