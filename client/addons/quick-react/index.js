@@ -33,11 +33,16 @@
 
   const today = () => new Date().toISOString().split("T")[0]; // "YYYY-MM-DD"
 
+  const isCustomEmoji = (raw) => raw.startsWith(":") && raw.endsWith(":");
+
   /**
    * Parse an emoji string like ":catyes:" or ":catyes~Server B:"
    * Returns { baseName: ":catyes:", serverSuffix: "Server B" | null }
    */
   const parseEmoji = (raw) => {
+    if (!isCustomEmoji(raw)) {
+      return { baseName: raw, serverSuffix: null };
+    }
     // Match :name~Server Name: or just :name:
     const crossMatch = raw.match(/^:([^:~]+)~([^:]+):$/);
     if (crossMatch) {
@@ -51,7 +56,18 @@
    * If we're in a different server than the emoji's home, append ~ServerName.
    */
   const buildEmojiString = (baseName, emojiRecord) => {
+    if (!isCustomEmoji(baseName)) return baseName;
+
+    const isDM = api && api.currentDMStatus;
     const currentServerID = api ? api.currentServerID : null;
+
+    // In DMs, custom emojis ALWAYS need the server suffix
+    if (isDM && emojiRecord.serverName) {
+      const inner = baseName.slice(1, -1);
+      return `:${inner}~${emojiRecord.serverName}:`;
+    }
+
+    // In servers, only add suffix if the emoji is from a different server
     if (
       emojiRecord.serverID &&
       currentServerID &&
@@ -119,8 +135,11 @@
       serverName = api ? api.currentServerName : null;
     }
 
-    // Composite key: serverID|:emojiName: — distinguishes same-name emojis across servers
-    const configKey = `${serverID || "unknown"}|${baseName}`;
+    // For standard emojis (Unicode), the key is just the emoji itself.
+    // For custom emojis, use serverID|:emojiName: to distinguish between servers.
+    const configKey = isCustomEmoji(baseName)
+      ? `${serverID || "unknown"}|${baseName}`
+      : baseName;
 
     if (config.emojis[configKey]) {
       config.emojis[configKey].count += 1;
@@ -128,8 +147,8 @@
     } else {
       config.emojis[configKey] = {
         name: baseName,
-        serverID: serverID,
-        serverName: serverName,
+        serverID: isCustomEmoji(baseName) ? serverID : null,
+        serverName: isCustomEmoji(baseName) ? serverName : null,
         date: today(),
         count: 1,
         emojiID: null,
@@ -137,13 +156,18 @@
       };
     }
 
+    const locName = isCustomEmoji(baseName) ? `on ${serverName}` : "(Standard)";
     log(
-      `Recorded emoji ${baseName} on ${serverName} (count: ${config.emojis[configKey].count})`,
+      `Recorded emoji ${baseName} ${locName} (count: ${config.emojis[configKey].count})`,
     );
     saveConfig();
 
-    // If this emoji is missing image data, fetch server emojis to populate it
-    if (!config.emojis[configKey].filePath && serverID) {
+    // If this custom emoji is missing image data, fetch server emojis to populate it
+    if (
+      isCustomEmoji(baseName) &&
+      !config.emojis[configKey].filePath &&
+      serverID
+    ) {
       fetchServerEmojis(serverID);
     }
   };
@@ -336,7 +360,9 @@
         log(`[DEBUG] Intercepted RPC: ${rpcName}`);
       }
 
-      const isAddReaction = url.includes("/rpc/add_reaction");
+      const isAddReaction =
+        url.includes("/rpc/add_reaction") ||
+        url.includes("/rpc/add_dm_reaction");
 
       // Check if this is a server_emojis request we made (has our header)
       const isOurEmojiRequest =
@@ -352,20 +378,23 @@
 
       const response = await self_originalFetch.apply(this, args);
 
-      // Intercept add_reaction responses
+      // Intercept reaction responses
       if (isAddReaction) {
+        const rpcName = url.includes("add_dm_reaction")
+          ? "add_dm_reaction"
+          : "add_reaction";
         log(
-          `[DEBUG] add_reaction detected! response.ok=${response.ok}, has body=${!!options.body}`,
+          `[DEBUG] ${rpcName} detected! response.ok=${response.ok}, has body=${!!options.body}`,
         );
         if (response.ok) {
           try {
             const body = options.body ? JSON.parse(options.body) : null;
-            log(`[DEBUG] add_reaction body: ${JSON.stringify(body)}`);
+            log(`[DEBUG] ${rpcName} body: ${JSON.stringify(body)}`);
             if (body && body._emoji) {
               recordEmoji(body._emoji);
             }
           } catch (e) {
-            log(`[DEBUG] add_reaction body parse error: ${e.message}`);
+            log(`[DEBUG] ${rpcName} body parse error: ${e.message}`);
           }
         }
       }
@@ -403,10 +432,14 @@
     }
 
     const emojiString = buildEmojiString(emojiName, emojiRecord);
-    log(`Sending reaction ${emojiString} on message ${messageId}`);
+    const isDM = api && api.currentDMStatus;
+    const rpcName = isDM ? "add_dm_reaction" : "add_reaction";
+    log(
+      `Sending reaction ${emojiString} on message ${messageId} (via ${rpcName})`,
+    );
 
     try {
-      await fetch(`${SUPABASE_URL}/rest/v1/rpc/add_reaction`, {
+      await fetch(`${SUPABASE_URL}/rest/v1/rpc/${rpcName}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -451,22 +484,31 @@
       btn.type = "button";
       btn.setAttribute("aria-label", `Quick react ${emoji.name}`);
 
-      // Try to render the image, fallback to text
-      const innerName = emoji.name.slice(1, -1); // strip colons
-      const cacheKey = `${emoji.serverID}|${innerName}`;
-      const cachedUrl = emojiImageCache.get(cacheKey);
-      if (cachedUrl) {
-        const img = document.createElement("img");
-        img.src = cachedUrl;
-        img.alt = emoji.name;
-        img.className = "w-4 h-4";
-        img.style.cssText =
-          "width: 16px; height: 16px; object-fit: contain; display: block;";
-        btn.appendChild(img);
-      } else {
-        // Text fallback — show emoji name without colons
+      // Try to render the image (custom emojis), fallback to text (or standard emoji)
+      let rendered = false;
+      if (isCustomEmoji(emoji.name)) {
+        const innerName = emoji.name.slice(1, -1); // strip colons
+        const cacheKey = `${emoji.serverID}|${innerName}`;
+        const cachedUrl = emojiImageCache.get(cacheKey);
+
+        if (cachedUrl) {
+          const img = document.createElement("img");
+          img.src = cachedUrl;
+          img.alt = emoji.name;
+          img.className = "w-4 h-4";
+          img.style.cssText =
+            "width: 16px; height: 16px; object-fit: contain; display: block;";
+          btn.appendChild(img);
+          rendered = true;
+        }
+      }
+
+      if (!rendered) {
+        // Text fallback or standard emoji
         const span = document.createElement("span");
-        span.textContent = innerName;
+        span.textContent = isCustomEmoji(emoji.name)
+          ? emoji.name.slice(1, -1)
+          : emoji.name;
         span.style.cssText =
           "font-size: 11px; max-width: 40px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block;";
         btn.appendChild(span);
