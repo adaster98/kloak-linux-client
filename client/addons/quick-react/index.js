@@ -9,8 +9,8 @@
   let config = {
     memoryDurationDays: 7,
     emojis: {},
-    // emojis format:
-    // ":catyes:": { serverID: "uuid", serverName: "Server A", date: "2026-02-27", count: 5, emojiID: "uuid", filePath: "uuid/catyes-uuid.png" }
+    // Emoji data format:
+    // ":name:": { serverID: "uuid", serverName: "name", date: "date", count: 0, emojiID: "uuid", filePath: "path" }
   };
 
   let api = null;
@@ -19,10 +19,10 @@
   let maintenanceTimer = null;
   let serverPollTimer = null;
   let lastKnownServerID = null;
-  let pendingEmojiRequests = new Set(); // Track our own server_emojis requests
-  let emojiImageCache = new Map(); // name -> blob URL for rendering
+  let pendingEmojiRequests = new Set(); // Track request origin
+  let emojiImageCache = new Map(); // Emoji image cache
 
-  // ── Helpers ──────────────────────────────────────────────────────────────
+  // Helpers
 
   const log = (msg) => {
     console.log(`[${ADDON_ID}] ${msg}`);
@@ -35,15 +35,11 @@
 
   const isCustomEmoji = (raw) => raw.startsWith(":") && raw.endsWith(":");
 
-  /**
-   * Parse an emoji string like ":catyes:" or ":catyes~Server B:"
-   * Returns { baseName: ":catyes:", serverSuffix: "Server B" | null }
-   */
+  // Parse emoji string
   const parseEmoji = (raw) => {
     if (!isCustomEmoji(raw)) {
       return { baseName: raw, serverSuffix: null };
     }
-    // Match :name~Server Name: or just :name:
     const crossMatch = raw.match(/^:([^:~]+)~([^:]+):$/);
     if (crossMatch) {
       return { baseName: `:${crossMatch[1]}:`, serverSuffix: crossMatch[2] };
@@ -51,10 +47,7 @@
     return { baseName: raw, serverSuffix: null };
   };
 
-  /**
-   * Build the emoji string to send via add_reaction RPC.
-   * If we're in a different server than the emoji's home, append ~ServerName.
-   */
+  // Build emoji string for RPC
   const buildEmojiString = (baseName, emojiRecord) => {
     if (!isCustomEmoji(baseName)) return baseName;
 
@@ -80,7 +73,7 @@
     return baseName;
   };
 
-  // ── Config persistence ───────────────────────────────────────────────────
+  // Config persistence
 
   const loadConfig = async () => {
     if (!window.KloakAddonAPI) return;
@@ -100,12 +93,7 @@
     }
   };
 
-  // ── Emoji record management ──────────────────────────────────────────────
-
-  /**
-   * Record a reaction emoji usage.
-   * @param {string} rawEmoji - The raw emoji string from the RPC body, e.g. ":catyes:" or ":catyes~Server B:"
-   */
+  // Emoji record management
   const recordEmoji = (rawEmoji) => {
     const isDM = api && api.currentDMStatus;
     const { baseName, serverSuffix } = parseEmoji(rawEmoji);
@@ -135,8 +123,7 @@
       serverName = api ? api.currentServerName : null;
     }
 
-    // For standard emojis (Unicode), the key is just the emoji itself.
-    // For custom emojis, use serverID|:emojiName: to distinguish between servers.
+    // Generate config key
     const configKey = isCustomEmoji(baseName)
       ? `${serverID || "unknown"}|${baseName}`
       : baseName;
@@ -172,12 +159,7 @@
     }
   };
 
-  // ── Server emoji metadata fetching ───────────────────────────────────────
-
-  /**
-   * Fetch the emoji list for a given server and update config records.
-   * Also ensures images are loaded in the browser cache.
-   */
+  // Server emoji metadata
   const fetchServerEmojis = async (serverID) => {
     if (!api || !api.apiKey || !api.authToken) {
       log("Cannot fetch server emojis: missing credentials");
@@ -186,7 +168,7 @@
 
     const url = `${SUPABASE_URL}/rest/v1/server_emojis?select=id%2Cname%2Cfile_path&server_id=eq.${serverID}&order=created_at.asc`;
 
-    // Mark this as our request so the interceptor knows to process it
+    // Track request origin
     const requestID = `qr-${Date.now()}`;
     pendingEmojiRequests.add(requestID);
 
@@ -248,9 +230,7 @@
     }
   };
 
-  /**
-   * Fetch emoji images so they're available in the browser's network cache.
-   */
+  // Fetch emoji images
   const preloadEmojiImages = async (serverID, emojiList) => {
     for (const emoji of emojiList) {
       if (!emoji.file_path) continue;
@@ -273,10 +253,7 @@
     }
   };
 
-  /**
-   * Ensure the top displayed emojis have their images in memory.
-   * Called on startup and periodically — covers client restarts where blob URLs are lost.
-   */
+  // Ensure top emoji images are cached
   const ensureTopEmojiImages = async () => {
     const topEmojis = getTopEmojis();
     for (const emoji of topEmojis) {
@@ -303,8 +280,7 @@
     }
   };
 
-  // ── Periodic maintenance ─────────────────────────────────────────────────
-
+  // Periodic maintenance
   const runMaintenance = () => {
     let changed = false;
     const now = new Date();
@@ -339,14 +315,11 @@
     if (changed) saveConfig();
   };
 
-  // ── Fetch interceptor ───────────────────────────────────────────────────
-
+  // Fetch interceptor
   const setupInterceptor = () => {
     if (!originalFetch) originalFetch = window.fetch;
     const self_originalFetch = originalFetch;
-    log(
-      `Interceptor setup — wrapping window.fetch (type: ${typeof originalFetch})`,
-    );
+    log(`Setup interceptor`);
 
     window.fetch = async function (...args) {
       const resource = args[0];
@@ -354,31 +327,25 @@
         typeof resource === "string" ? resource : resource ? resource.url : "";
       const options = args[1] || {};
 
-      // Debug: log any Supabase RPC calls flowing through our interceptor
-      if (url.includes("supabase.co/rest/v1/rpc/")) {
-        const rpcName = url.split("/rpc/").pop()?.split("?")[0];
-        log(`[DEBUG] Intercepted RPC: ${rpcName}`);
-      }
-
       const isAddReaction =
         url.includes("/rpc/add_reaction") ||
         url.includes("/rpc/add_dm_reaction");
 
-      // Check if this is a server_emojis request we made (has our header)
+      // Check request origin
       const isOurEmojiRequest =
         url.includes("/rest/v1/server_emojis") &&
         options.headers &&
         options.headers["X-QR-Request"] &&
         pendingEmojiRequests.has(options.headers["X-QR-Request"]);
 
-      // Clean up our custom header before sending so the server doesn't reject it
+      // Clean headers
       if (isOurEmojiRequest && options.headers) {
         delete options.headers["X-QR-Request"];
       }
 
       const response = await self_originalFetch.apply(this, args);
 
-      // Intercept reaction responses
+      // Process responses
       if (isAddReaction) {
         const rpcName = url.includes("add_dm_reaction")
           ? "add_dm_reaction"
@@ -410,8 +377,7 @@
     }
   };
 
-  // ── Get top emojis sorted by count ───────────────────────────────────────
-
+  // Sorted top emojis
   const getTopEmojis = () => {
     return Object.entries(config.emojis)
       .sort((a, b) => b[1].count - a[1].count)
@@ -423,8 +389,7 @@
       }));
   };
 
-  // ── Send a reaction via RPC ──────────────────────────────────────────────
-
+  // Send reaction
   const sendReaction = async (messageId, emojiName, emojiRecord) => {
     if (!api || !api.apiKey || !api.authToken) {
       log("Cannot send reaction: missing credentials");
@@ -458,8 +423,7 @@
     }
   };
 
-  // ── Hover menu UI injection ──────────────────────────────────────────────
-
+  // UI injection
   const injectQuickReactButtons = (hoverMenu, messageNode) => {
     const topEmojis = getTopEmojis();
     if (topEmojis.length === 0) return;
@@ -536,8 +500,7 @@
     }
   };
 
-  // ── Server switch polling ────────────────────────────────────────────────
-
+  // Server switch polling
   const pollServerSwitch = () => {
     if (!api) return;
     const currentID = api.currentServerID;
@@ -548,8 +511,7 @@
     }
   };
 
-  // ── Addon lifecycle ──────────────────────────────────────────────────────
-
+  // Addon lifecycle
   const startAddon = async () => {
     await loadConfig();
     setupInterceptor();
@@ -613,8 +575,7 @@
     emojiImageCache.clear();
   };
 
-  // ── Register with addon manager ──────────────────────────────────────────
-
+  // Register addon
   window.KloakAddons.registerAddon({
     id: ADDON_ID,
     name: "Quick React",
