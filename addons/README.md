@@ -56,6 +56,9 @@ The `window.KloakAddonAPI` provides easy access to user credentials, profile dat
 - `api.userID`: Unique UUID for the logged-in user.
 - `api.xHash`: The X-Key-Hash required for many RPC requests.
 - `api.userProfile`: Full profile object (username, display name, avatar, bio, status).
+- `api.currentServerID`: The unique identifier (UUID) for the server the user is currently viewing (null if in DMs).
+- `api.currentServerName`: The display name of the server the user is currently viewing (null if in DMs).
+- `api.currentDMStatus`: A boolean indicating if the user is currently viewing direct messages.
 - `api.apiKey`: Supabase API key for RPC headers.
 - `api.authToken`: JWT Authorization token for RPC headers.
 

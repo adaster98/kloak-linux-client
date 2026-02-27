@@ -5,6 +5,10 @@ class KloakAddonAPI {
     this.apiKey = null;
     this.authToken = null;
     this.userProfile = null;
+    this.currentServerID = null; // Track current server
+    this.currentServerName = null; // Track current server name
+    this.currentDMStatus = false; // Track if user is in DMs
+    this._serverMap = new Map(); // Cache of server ID -> Name
     this._readyCallbacks = [];
     this.isReady = false;
     this._isFetching = false;
@@ -57,27 +61,52 @@ class KloakAddonAPI {
     }
   }
 
-  _fireReady() {
-    if (!this.isReady) {
-      this.isReady = true;
+  _fireReady(isFinalAttempt = false) {
+    if (this.isReady) return;
 
-      console.log("[Kloak Addon API] API Status Check (Ready):", {
-        userID: this.userID,
-        xHash: this.xHash,
-        apiKey: this.apiKey,
-        authToken: this.authToken,
-        profileLoaded: !!this.userProfile,
-      });
-
-      if (window.electronAPI && window.electronAPI.log) {
-        window.electronAPI.log("Kloak Addons API: Ready with user data");
-        window.electronAPI.log(
-          `[Kloak Addon API] API Status Check - UserID: ${this.userID}, xHash: ${this.xHash}, apiKey: ${this.apiKey}, authToken: ${this.authToken}`,
-        );
+    // Be patient: If we don't have a server ID yet, wait up to 5 seconds
+    // This allows the initial server context to be captured before addons load.
+    if (!this.currentServerID && !isFinalAttempt && this.userID) {
+      if (!this._serverWaitTimeout) {
+        if (window.electronAPI && window.electronAPI.log) {
+          window.electronAPI.log(
+            "Kloak Addons API: Waiting up to 1s for server context...",
+          );
+        }
+        this._serverWaitTimeout = setTimeout(() => {
+          this._serverWaitTimeout = null;
+          this._fireReady(true);
+        }, 1000);
       }
-      this._readyCallbacks.forEach((cb) => cb(this));
-      this._readyCallbacks = [];
+      return;
     }
+
+    if (this._serverWaitTimeout) {
+      clearTimeout(this._serverWaitTimeout);
+      this._serverWaitTimeout = null;
+    }
+
+    this.isReady = true;
+
+    console.log("[Kloak Addon API] API Status Check (Ready):", {
+      userID: this.userID,
+      xHash: this.xHash,
+      apiKey: this.apiKey,
+      authToken: this.authToken,
+      profileLoaded: !!this.userProfile,
+      currentServerID: this.currentServerID,
+      currentServerName: this.currentServerName,
+      currentDMStatus: this.currentDMStatus,
+    });
+
+    if (window.electronAPI && window.electronAPI.log) {
+      window.electronAPI.log("Kloak Addons API: Ready with user data");
+      window.electronAPI.log(
+        `[Kloak Addon API] API Status Check - UserID: ${this.userID}, xHash: ${this.xHash}, apiKey: ${this.apiKey}, authToken: ${this.authToken}, server: ${this.currentServerName} (${this.currentServerID}), dm: ${this.currentDMStatus}`,
+      );
+    }
+    this._readyCallbacks.forEach((cb) => cb(this));
+    this._readyCallbacks = [];
   }
 
   async _fetchUserProfile() {
@@ -149,6 +178,9 @@ class KloakAddonAPI {
       const isLoginUser = url.includes("login_user");
       const isPingHealth = url.includes("ping_health");
       const isUpdateProfile = url.includes("update-user-profile");
+      const isGetServerChannels = url.includes("get_server_channels");
+      const isGetUserServers = url.includes("get_user_servers");
+      const isMarkDMRead = url.includes("mark_dm_read");
 
       let currentXHash = null;
       let currentApiKey = null;
@@ -182,6 +214,46 @@ class KloakAddonAPI {
         self.authToken = currentAuthToken;
       if (currentXHash && !self.xHash) self.xHash = currentXHash;
 
+      if (isGetServerChannels && options.body) {
+        try {
+          const body = JSON.parse(options.body);
+          if (body._server_id && body._server_id !== self.currentServerID) {
+            self.currentServerID = body._server_id;
+            self.currentServerName =
+              self._serverMap.get(self.currentServerID) || "Unknown Server";
+            self.currentDMStatus = false;
+
+            console.log(
+              `[Kloak Addon API] Server Switched: ${self.currentServerName} (${self.currentServerID})`,
+            );
+            if (window.electronAPI && window.electronAPI.log) {
+              window.electronAPI.log(
+                `Kloak Addons API: Server Switched to ${self.currentServerName}`,
+              );
+            }
+
+            // Trigger ready state early if we were waiting for the server context
+            if (self.userID && !self.isReady) {
+              self._fireReady();
+            }
+          }
+        } catch (e) {
+          console.error("AddonAPI Failed to parse get_server_channels body", e);
+        }
+      }
+
+      if (isMarkDMRead) {
+        if (!self.currentDMStatus) {
+          self.currentDMStatus = true;
+          self.currentServerID = null;
+          self.currentServerName = null;
+          console.log("[Kloak Addon API] Switched to Direct Messages");
+          if (window.electronAPI && window.electronAPI.log) {
+            window.electronAPI.log("Kloak Addons API: Switched to DMs");
+          }
+        }
+      }
+
       // If we have everything and haven't fetched profile yet, do it now.
       // This covers ping_health or any other early request that might have keys.
       if (
@@ -200,6 +272,28 @@ class KloakAddonAPI {
       }
 
       const response = await originalFetch.apply(this, args);
+
+      // Refresh server list cache
+      if (isGetUserServers && response.ok) {
+        try {
+          const clone = response.clone();
+          const items = await clone.json();
+          if (Array.isArray(items)) {
+            items.forEach((srv) => {
+              if (srv.id && srv.name) self._serverMap.set(srv.id, srv.name);
+            });
+            // Update current server name if we just discovered it
+            if (
+              self.currentServerID &&
+              self._serverMap.has(self.currentServerID)
+            ) {
+              self.currentServerName = self._serverMap.get(
+                self.currentServerID,
+              );
+            }
+          }
+        } catch (e) {}
+      }
 
       // Capture results from the client's own login_user request if it happened
       if (isLoginUser && response.ok) {

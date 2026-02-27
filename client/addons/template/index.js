@@ -34,6 +34,12 @@
           console.log(`[${ADDON_ID}] API Ready!`);
           console.log(`[${ADDON_ID}] User ID:`, api.userID);
           console.log(`[${ADDON_ID}] Auth Hash:`, api.xHash);
+          console.log(`[${ADDON_ID}] In DMs:`, api.currentDMStatus);
+          console.log(
+            `[${ADDON_ID}] Current Server:`,
+            api.currentServerName,
+            `(${api.currentServerID})`,
+          );
 
           // You can also access the full user profile
           if (api.userProfile) {
