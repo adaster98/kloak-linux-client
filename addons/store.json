@@ -40,5 +40,11 @@
     "description": "Quickly react to messages with your most used emojis.",
     "version": "1.0.2",
     "url": "https://codeberg.org/adaster98/kloak-client-unofficial/raw/branch/main/addons/release/quick-react/quick-react-1.0.2.zip"
+  },
+  "dm-folders": {
+    "name": "DM Folders",
+    "description": "Organize your DMs into folders.",
+    "version": "1.0.0",
+    "url": "https://codeberg.org/adaster98/kloak-client-unofficial/raw/branch/main/addons/release/dm-folders/dm-folders-1.0.0.zip"
   }
 }
