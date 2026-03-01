@@ -109,6 +109,7 @@
       this.config = {
         targetLanguage: "eng_Latn",
         translateMode: "selected",
+        autoLoad: false,
       };
 
       this._translator = null;
@@ -245,6 +246,9 @@
           if (saved) this.config = { ...this.config, ...saved };
         }
       } catch (e) {}
+      if (this.config.autoLoad && !this._translator) {
+        this._initTranslator();
+      }
       this._setupObserver();
     }
 
@@ -343,6 +347,18 @@
             </div>
           </div>
 
+          <!-- Startup Behavior -->
+          <div class="addon-settings-item">
+            <label class="addon-label">Startup Behavior</label>
+            <label class="qt-mode-row">
+              <input type="checkbox" id="qt-autoload" ${this.config.autoLoad ? "checked" : ""} style="width:16px;height:16px;accent-color:var(--kloak-switch-on);cursor:pointer;flex-shrink:0;">
+              <div>
+                <div class="qt-mode-label">Auto-load model on startup</div>
+                <div class="qt-mode-desc">The AI engine initializes automatically when the app opens.</div>
+              </div>
+            </label>
+          </div>
+
           <!-- Target Language -->
           <div class="addon-settings-item">
             <label class="addon-label">Target Language</label>
@@ -385,6 +401,11 @@
           this.config.translateMode = radio.value;
         };
       });
+
+      // Auto-load checkbox
+      container.querySelector("#qt-autoload").onchange = (e) => {
+        this.config.autoLoad = e.target.checked;
+      };
 
       // Searchable language dropdown
       this._setupDropdown(container);
@@ -520,37 +541,41 @@
     }
 
     _setupObserver() {
+      // Observer handles "all messages" translation mode only
       const observer = new MutationObserver(() =>
         this._processVisibleMessages(),
       );
       observer.observe(document.body, { childList: true, subtree: true });
       this._processVisibleMessages();
-      this._cleanup = () => observer.disconnect();
+
+      // Hover button injection uses mouseover + setTimeout(0) so other addons
+      // (e.g. quick-react) have already injected their buttons and divider
+      // before we decide where to place the translate button.
+      const mouseoverHandler = (e) => {
+        if (this.config.translateMode !== "selected") return;
+        const group = e.target.closest(".group.relative");
+        if (!group) return;
+        setTimeout(() => this._injectHoverButton(group), 0);
+      };
+      document.addEventListener("mouseover", mouseoverHandler);
+
+      this._cleanup = () => {
+        observer.disconnect();
+        document.removeEventListener("mouseover", mouseoverHandler);
+      };
     }
 
     _processVisibleMessages() {
-      const messageDivs = document.querySelectorAll("div[data-message-id]");
-
-      messageDivs.forEach((msgDiv) => {
-        if (this.config.translateMode === "selected") {
-          this._injectHoverButton(msgDiv);
-        }
-
-        if (
-          this.config.translateMode === "all" &&
-          this._translator === "ready" &&
-          !msgDiv.querySelector(".qt-translation")
-        ) {
+      if (this.config.translateMode !== "all" || this._translator !== "ready") return;
+      document.querySelectorAll("div[data-message-id]").forEach((msgDiv) => {
+        if (!msgDiv.querySelector(".qt-translation")) {
           this._queueTranslation(msgDiv);
         }
       });
     }
 
-    _injectHoverButton(msgDiv) {
-      const messageRow = msgDiv.closest(".group.relative");
-      if (!messageRow) return;
-
-      const hoverMenu = messageRow.querySelector(
+    _injectHoverButton(group) {
+      const hoverMenu = group.querySelector(
         'div.absolute[class*="right-2"][class*="-top-4"]',
       );
       if (!hoverMenu || hoverMenu.querySelector(".qt-hover-btn")) return;
@@ -558,6 +583,10 @@
       const addReactionBtn = hoverMenu.querySelector(
         'button[aria-label="Add reaction"]',
       );
+      if (!addReactionBtn) return;
+
+      const msgDiv = group.querySelector("div[data-message-id]");
+      if (!msgDiv) return;
 
       const btn = document.createElement("button");
       btn.className =
@@ -574,13 +603,14 @@
         this._queueTranslation(msgDiv);
       };
 
-      if (addReactionBtn) {
-        const divider = document.createElement("div");
-        divider.className = "qt-hover-btn w-px h-5 bg-border mx-0.5";
-        hoverMenu.insertBefore(divider, addReactionBtn);
-        hoverMenu.insertBefore(btn, addReactionBtn);
+      // Insert to the right of any addon-injected divider (e.g. quick-react),
+      // keeping the translate button in the native-actions section.
+      const dividers = hoverMenu.querySelectorAll("div.w-px");
+      const lastDivider = dividers.length > 0 ? dividers[dividers.length - 1] : null;
+      if (lastDivider) {
+        hoverMenu.insertBefore(btn, lastDivider.nextSibling);
       } else {
-        hoverMenu.insertBefore(btn, hoverMenu.firstChild);
+        hoverMenu.insertBefore(btn, addReactionBtn);
       }
     }
 
