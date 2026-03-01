@@ -15,6 +15,16 @@
     "directories": {
       "output": "dist"
     },
+    "files": [
+      "src/**/*",
+      "package.json",
+      "splash.html",
+      "icons/**/*",
+      "!test-cache/**/*",
+      "!**/*.map",
+      "!**/node_modules/onnxruntime-node/bin/**/*",
+      "!**/node_modules/@xenova/transformers/.cache/**/*"
+    ],
     "linux": {
       "target": [
         "AppImage"
