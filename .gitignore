@@ -1,6 +1,6 @@
 client/node_modules/
 client/dist/
-PROJECT_SPEC.md
+ENGINEER_SPEC.md
 .agents/
 client/addons/addon-states.json
 client/addons/developer-toolkit/config.json
@@ -17,3 +17,10 @@ client/addons/theme-injector/themes/fix_themes.py
 client/addons/dm-folders/config.json
 client/addons/dm-folders/index.json
 client/addons/zen-mode/config.json
+client/addons/quick-translate/config.json
+client/test-cache/Xenova/nllb-200-distilled-600M/config.json
+client/test-cache/Xenova/nllb-200-distilled-600M/generation_config.json
+client/test-cache/Xenova/nllb-200-distilled-600M/tokenizer_config.json
+client/test-cache/Xenova/nllb-200-distilled-600M/tokenizer.json
+client/test-cache/Xenova/nllb-200-distilled-600M/onnx/decoder_model_merged_quantized.onnx
+client/test-cache/Xenova/nllb-200-distilled-600M/onnx/encoder_model_quantized.onnx

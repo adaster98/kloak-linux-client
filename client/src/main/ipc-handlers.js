@@ -1,4 +1,4 @@
-const { ipcMain, shell } = require("electron");
+const { app, ipcMain, shell } = require("electron");
 const path = require("path");
 const fs = require("fs");
 const {
@@ -330,6 +330,19 @@ function registerIpcHandlers() {
       return fs.existsSync(safePath);
     } catch (e) {
       return false;
+    }
+  });
+
+  // --- Addon Backend Hooks ---
+  const addons = fs.readdirSync(addonsDir);
+  addons.forEach((folder) => {
+    const backendPath = path.join(addonsDir, folder, "backend.js");
+    if (fs.existsSync(backendPath)) {
+      try {
+        require(backendPath).registerBackend();
+      } catch (err) {
+        console.error(`[IPC] Failed to load backend for ${folder}:`, err);
+      }
     }
   });
 }

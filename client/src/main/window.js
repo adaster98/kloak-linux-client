@@ -63,10 +63,12 @@ function createWindow() {
       contextIsolation: true,
       nodeIntegration: false,
       partition: "persist:kloak",
+      experimentalFeatures: true,
     },
   });
 
   const appSession = session.fromPartition("persist:kloak");
+
   const appUserAgent =
     mainWindow.webContents.getUserAgent() + " KloakClient Electron Tauri";
   mainWindow.webContents.setUserAgent(appUserAgent);

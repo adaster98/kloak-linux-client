@@ -6,11 +6,17 @@ const api = {
   minimize: () => ipcRenderer.send("window-min"),
   maximize: () => ipcRenderer.send("window-max"),
   close: () => ipcRenderer.send("window-close"),
-  log: (msg) =>
-    ipcRenderer.send(
-      "terminal-log",
-      typeof msg === "string" ? msg : JSON.stringify(msg),
-    ),
+  log: (msg) => {
+    try {
+      const sanitized = typeof msg === "string" ? msg : JSON.stringify(msg);
+      ipcRenderer.send("terminal-log", sanitized);
+    } catch (e) {
+      ipcRenderer.send(
+        "terminal-log",
+        "[Logger Error] Could not stringify msg",
+      );
+    }
+  },
   onModalEvent: (cb) => {
     modalCallback = cb;
     ipcRenderer.send("terminal-log", "Modal callback registered.");
@@ -35,6 +41,11 @@ const api = {
   startUpdate: (version) => ipcRenderer.send("start-update", { version }),
   quitAndInstall: () => ipcRenderer.send("quit-and-install"),
   triggerDebugUpdate: () => ipcRenderer.send("debug-update-trigger"),
+  initTranslator: () => ipcRenderer.invoke("init-translator"),
+  unloadTranslator: () => ipcRenderer.invoke("unload-translator"),
+  deleteTranslatorCache: () => ipcRenderer.invoke("delete-translator-cache"),
+  translateText: (text, src, tgt) =>
+    ipcRenderer.invoke("translate-text", { text, src, tgt }),
   platform: process.platform,
 
   // FS API for Addons
@@ -75,8 +86,18 @@ const api = {
       if (target.startsWith("window-")) {
         ipcRenderer.send(target);
       } else {
-        // For other allowed channels, pass arguments
-        ipcRenderer.send(target, ...args);
+        // Sanitize arguments to prevent "An object could not be cloned" errors
+        const sanitizedArgs = args.map((arg) => {
+          try {
+            // If it's a simple type or already safe, just return it
+            if (arg === null || typeof arg !== "object") return arg;
+            // Otherwise, flatten it to a clean JSON object
+            return JSON.parse(JSON.stringify(arg));
+          } catch (e) {
+            return `[Unclonable ${typeof arg}]`;
+          }
+        });
+        ipcRenderer.send(target, ...sanitizedArgs);
       }
     }
   },
@@ -89,6 +110,10 @@ const api = {
       "addon-fs-list",
       "addon-fs-delete",
       "addon-fs-exists",
+      "init-translator",
+      "unload-translator",
+      "delete-translator-cache",
+      "translate-text",
     ];
     if (allowedChannels.includes(channel)) {
       return ipcRenderer.invoke(channel, ...args);
@@ -113,4 +138,7 @@ ipcRenderer.on("show-link-warning", (event, data) => {
 });
 ipcRenderer.on("show-screen-picker", (event, data) => {
   if (modalCallback) modalCallback("show-screen-picker", data);
+});
+ipcRenderer.on("qt-status", (event, data) => {
+  document.dispatchEvent(new CustomEvent("qt-status", { detail: data }));
 });
