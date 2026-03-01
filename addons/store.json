@@ -58,5 +58,11 @@
     "description": "Translate messages on-device using FLORES-200.",
     "version": "1.0.0",
     "url": "https://codeberg.org/adaster98/kloak-client-unofficial/raw/branch/main/addons/release/quick-translate/quick-translate-1.0.0.zip"
+  },
+  "damn-it-jim": {
+    "name": "Damn It Jim",
+    "description": "Temporary addon to fix the font spacing bug",
+    "version": "1.0.0",
+    "url": "https://codeberg.org/adaster98/kloak-client-unofficial/raw/branch/main/addons/release/damn-it-jim/damn-it-jim-1.0.0.zip"
   }
 }
