@@ -72,9 +72,9 @@
   // Config persistence
 
   const loadConfig = async () => {
-    if (!window.KloakAddonAPI) return;
+    if (!window.InvisicAddonAPI) return;
     try {
-      const saved = await window.KloakAddonAPI.settings.get(ADDON_ID);
+      const saved = await window.InvisicAddonAPI.settings.get(ADDON_ID);
       if (saved) {
         config = { memoryDurationDays: 7, emojis: {}, ...saved };
       }
@@ -84,8 +84,8 @@
   };
 
   const saveConfig = () => {
-    if (window.KloakAddonAPI) {
-      window.KloakAddonAPI.settings.set(ADDON_ID, config);
+    if (window.InvisicAddonAPI) {
+      window.InvisicAddonAPI.settings.set(ADDON_ID, config);
     }
   };
 
@@ -588,15 +588,15 @@
   };
 
   // Register addon
-  window.KloakAddons.registerAddon({
+  window.InvisicAddons.registerAddon({
     id: ADDON_ID,
     name: "Quick React",
     description: "Puts the most recently used emojis in the chat hover menu.",
 
     onEnable: () => {
       log("Enabled.");
-      if (window.KloakAddonAPI) {
-        window.KloakAddonAPI.onReady((readyApi) => {
+      if (window.InvisicAddonAPI) {
+        window.InvisicAddonAPI.onReady((readyApi) => {
           api = readyApi;
           startAddon();
         });
@@ -619,19 +619,19 @@
           ? topEmojis
               .map(
                 (e) =>
-                  `<div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--kloak-bg-btn);">
-                    <span style="color: var(--kloak-text-main); font-size: 13px;">${e.name}</span>
-                    <span style="color: var(--kloak-text-sub); font-size: 12px;">${e.count}× · ${e.serverName || "Unknown"}</span>
+                  `<div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--invisic-bg-btn);">
+                    <span style="color: var(--invisic-text-main); font-size: 13px;">${e.name}</span>
+                    <span style="color: var(--invisic-text-sub); font-size: 12px;">${e.count}× · ${e.serverName || "Unknown"}</span>
                   </div>`,
               )
               .join("")
-          : '<p style="color: var(--kloak-text-sub); font-size: 13px; margin: 0;">No emojis tracked yet. React to messages to start building your quick list!</p>';
+          : '<p style="color: var(--invisic-text-sub); font-size: 13px; margin: 0;">No emojis tracked yet. React to messages to start building your quick list!</p>';
 
       container.innerHTML = `
         <div class="addon-settings-item">
-          <p style="margin: 0 0 12px 0; color: var(--kloak-text-sub); font-size: 13px;">Configure how long (in days) emojis should stay in memory.</p>
+          <p style="margin: 0 0 12px 0; color: var(--invisic-text-sub); font-size: 13px;">Configure how long (in days) emojis should stay in memory.</p>
           <label class="addon-label">Memory Duration (Days)</label>
-          <input id="qm-duration-input" type="number" min="1" max="365" value="${config.memoryDurationDays}" style="width: 100%; padding: 10px; background: var(--kloak-bg-box); border: 1px solid var(--kloak-bg-btn); border-radius: 6px; color: var(--kloak-text-main); margin-top: 6px; box-sizing: border-box; outline: none;">
+          <input id="qm-duration-input" type="number" min="1" max="365" value="${config.memoryDurationDays}" style="width: 100%; padding: 10px; background: var(--invisic-bg-box); border: 1px solid var(--invisic-bg-btn); border-radius: 6px; color: var(--invisic-text-main); margin-top: 6px; box-sizing: border-box; outline: none;">
         </div>
         <div class="addon-settings-item" style="margin-top: 16px;">
           <label class="addon-label">Tracked Emojis (Top ${MAX_DISPLAY_EMOJIS})</label>

@@ -1,5 +1,4 @@
-(() => {
-  const ADDON_ID = "dm-folders";
+(async () => {
   const STYLE_ID = "dmf-styles";
   const MENU_ID = "dmf-context-menu";
 
@@ -31,30 +30,27 @@
     "#e879f9",
   ];
 
-  // ── Persistence ──
+  // ── Persistence (feature-config.json) ──
   const loadConfig = async () => {
     try {
-      if (window.KloakAddonAPI && window.KloakAddonAPI.settings) {
-        const saved = await window.KloakAddonAPI.settings.get(ADDON_ID);
-        if (saved && saved.folders) config.folders = saved.folders;
-      } else if (window.electronAPI && window.electronAPI.getAddonConfig) {
-        const saved = await window.electronAPI.getAddonConfig(ADDON_ID);
-        if (saved && saved.folders) config.folders = saved.folders;
+      const saved = await window.electronAPI.getFeatureConfig();
+      if (saved && saved.dmFolders && saved.dmFolders.folders) {
+        config.folders = saved.dmFolders.folders;
       }
     } catch (e) {
-      console.error(`[${ADDON_ID}] Failed to load config:`, e);
+      console.error("[dm-folders] Failed to load config:", e);
     }
   };
 
-  const saveConfig = () => {
+  const saveConfig = async () => {
     try {
-      if (window.KloakAddonAPI && window.KloakAddonAPI.settings) {
-        window.KloakAddonAPI.settings.set(ADDON_ID, config);
-      } else if (window.electronAPI && window.electronAPI.saveAddonConfig) {
-        window.electronAPI.saveAddonConfig({ addonId: ADDON_ID, data: config });
-      }
+      const current = (await window.electronAPI.getFeatureConfig()) || {};
+      current.dmFolders = config;
+      window.electronAPI.saveFeatureConfig(current).catch((e) =>
+        console.error("[dm-folders] Failed to save config:", e)
+      );
     } catch (e) {
-      console.error(`[${ADDON_ID}] Failed to save config:`, e);
+      console.error("[dm-folders] Failed to save config:", e);
     }
   };
 
@@ -67,7 +63,7 @@
       ? data
       : data?.conversations || [];
     if (!Array.isArray(convArray)) return;
-    const myUserId = window.KloakAddonAPI ? window.KloakAddonAPI.userID : null;
+    const myUserId = window.InvisicAddonAPI ? window.InvisicAddonAPI.userID : null;
 
     convArray.forEach((conv) => {
       if (conv.conversation && conv.conversation.id) {
@@ -89,7 +85,7 @@
 
   // ── Bootstrap: Fetch DM conversations via centralized API ──
   const fetchConversations = async () => {
-    const api = window.KloakAddonAPI;
+    const api = window.InvisicAddonAPI;
     if (!api || !api.isReady) return;
 
     try {
@@ -103,7 +99,7 @@
       const data = await api.conversations.fetch();
       mergeConversations(data);
     } catch (e) {
-      console.error(`[${ADDON_ID}] Bootstrap fetch failed:`, e);
+      console.error("[dm-folders] Bootstrap fetch failed:", e);
     }
   };
 
@@ -194,7 +190,7 @@
     if (!nameEl) return null;
     const displayName = nameEl.textContent.trim();
 
-    const myUserId = window.KloakAddonAPI ? window.KloakAddonAPI.userID : null;
+    const myUserId = window.InvisicAddonAPI ? window.InvisicAddonAPI.userID : null;
     for (const conv of dmConversations.values()) {
       const participants = conv.participants || [];
       for (const p of participants) {
@@ -1040,102 +1036,26 @@
     sidebarObserver.observe(mainLayout, { childList: true, subtree: true });
   };
 
-  // ── Cleanup ──
-  const cleanup = () => {
-    if (observer) {
-      observer.disconnect();
-      observer = null;
-    }
-    if (sidebarObserver) {
-      sidebarObserver.disconnect();
-      sidebarObserver = null;
-    }
-    closeContextMenu();
-
-    // Remove style tag
-    const style = document.getElementById(STYLE_ID);
-    if (style) style.remove();
-
-    // Remove injected elements
-    fullCleanupDOM();
-
-    // Unsubscribe from centralized events
-    if (window.KloakAddonAPI?.events) {
-      window.KloakAddonAPI.events.off("dmConversationsLoaded", mergeConversations);
+  // ── Init ──
+  const init = async () => {
+    isEnabled = true;
+    if (window.InvisicAddonAPI) {
+      window.InvisicAddonAPI.onReady(async () => {
+        if (!isEnabled) return;
+        await loadConfig();
+        injectStyles();
+        window.InvisicAddonAPI.events.on("dmConversationsLoaded", mergeConversations);
+        await fetchConversations();
+        setupObserver();
+        setupSidebarWatcher();
+      });
+    } else {
+      await loadConfig();
+      injectStyles();
+      setupObserver();
+      setupSidebarWatcher();
     }
   };
 
-  // ── Register ──
-  window.KloakAddons.registerAddon({
-    id: ADDON_ID,
-    name: "DM Folders",
-    description: "Organise your DMs into collapsible, colour-coded folders.",
-
-    onEnable: async () => {
-      isEnabled = true;
-      if (window.KloakAddonAPI) {
-        window.KloakAddonAPI.onReady(async () => {
-          if (!isEnabled) return;
-          await loadConfig();
-          injectStyles();
-          // Listen for future conversation loads via centralized events
-          window.KloakAddonAPI.events.on("dmConversationsLoaded", mergeConversations);
-          await fetchConversations();
-          setupObserver();
-          setupSidebarWatcher();
-        });
-      } else {
-        await loadConfig();
-        injectStyles();
-        setupObserver();
-        setupSidebarWatcher();
-      }
-    },
-
-    onDisable: () => {
-      isEnabled = false;
-      cleanup();
-    },
-
-    renderSettings: (container) => {
-      const folderCount = config.folders.length;
-      const dmCount = config.folders.reduce(
-        (sum, f) => sum + f.dmIds.length,
-        0,
-      );
-
-      container.innerHTML = `
-        <div class="addon-settings-item">
-          <p style="margin: 0; color: var(--kloak-text-sub); font-size: 13px;">
-            Organise your DMs into collapsible folders. Right-click a folder header to rename, change colour, or delete.
-          </p>
-          <div style="margin-top: 12px; padding: 12px; background: var(--kloak-bg-box); border: 1px solid var(--kloak-bg-btn); border-radius: 8px;">
-            <p style="margin: 0; color: var(--kloak-text-main); font-size: 14px; font-weight: 600;">
-              ${folderCount} folder${folderCount !== 1 ? "s" : ""} · ${dmCount} DM${dmCount !== 1 ? "s" : ""} grouped
-            </p>
-          </div>
-          <button id="dmf-reset-btn" class="addon-btn-save" style="margin-top: 12px; background: var(--kloak-accent-destructive); color: var(--kloak-text-main);">
-            Reset All Folders
-          </button>
-          <span id="dmf-reset-msg" class="addon-save-msg"></span>
-        </div>
-      `;
-
-      container
-        .querySelector("#dmf-reset-btn")
-        .addEventListener("click", () => {
-          config.folders = [];
-          saveConfig();
-          rebuildFolders();
-          const msg = container.querySelector("#dmf-reset-msg");
-          msg.textContent = "All folders removed.";
-          container.querySelector("#dmf-reset-btn").textContent = "✓ Done";
-          setTimeout(() => {
-            msg.textContent = "";
-            container.querySelector("#dmf-reset-btn").textContent =
-              "Reset All Folders";
-          }, 2000);
-        });
-    },
-  });
+  await init();
 })();

@@ -21,7 +21,7 @@
   // ── Lifecycle ──────────────────────────────────────────────────────────────
 
   const enable = () => {
-    const api = window.KloakAddonAPI;
+    const api = window.InvisicAddonAPI;
     if (!api) return;
 
     /**
@@ -121,7 +121,7 @@
   };
 
   const disable = () => {
-    const api = window.KloakAddonAPI;
+    const api = window.InvisicAddonAPI;
 
     // Always remove event listeners in onDisable to avoid memory leaks and
     // stale handlers firing after the addon is toggled off.
@@ -139,11 +139,11 @@
 
   // ── Registration ───────────────────────────────────────────────────────────
 
-  window.KloakAddons.registerAddon({
+  window.InvisicAddons.registerAddon({
     id: ADDON_ID,
     name: "Developer Template",
     description:
-      "A complete boilerplate showing how to use the KloakAddonAPI: events, RPC, message cache, emojis, file system, and settings.",
+      "A complete boilerplate showing how to use the InvisicAddonAPI: events, RPC, message cache, emojis, file system, and settings.",
 
     onEnable: enable,
     onDisable: disable,
@@ -152,11 +152,11 @@
     // Return a populated `container` element. Called when the user opens your
     // addon's settings modal. Can be async.
     renderSettings: async (container) => {
-      container.innerHTML = `<p style="color: var(--kloak-text-sub); text-align: center;">Loading settings...</p>`;
+      container.innerHTML = `<p style="color: var(--invisic-text-sub); text-align: center;">Loading settings...</p>`;
 
       let config = {};
       try {
-        config = await window.KloakAddonAPI.settings.get(ADDON_ID);
+        config = await window.InvisicAddonAPI.settings.get(ADDON_ID);
       } catch (err) {
         console.error(`[${ADDON_ID}] Failed to load config:`, err);
       }
@@ -166,17 +166,17 @@
 
       container.innerHTML = `
         <div class="addon-settings-item">
-          <p style="margin: 0; color: var(--kloak-text-sub); font-size: 13px;">Modify these inputs to see how state is saved to your local folder.</p>
+          <p style="margin: 0; color: var(--invisic-text-sub); font-size: 13px;">Modify these inputs to see how state is saved to your local folder.</p>
 
           <div style="margin-top: 12px;">
             <label class="addon-label">Custom String</label>
             <input id="tpl-text-input" type="text" value="${currentText}"
-              style="width: 100%; padding: 10px; background: var(--kloak-bg-box); border: 1px solid var(--kloak-bg-btn); border-radius: 6px; color: var(--kloak-text-main); margin-top: 6px; box-sizing: border-box; outline: none; transition: border 0.2s;">
+              style="width: 100%; padding: 10px; background: var(--invisic-bg-box); border: 1px solid var(--invisic-bg-btn); border-radius: 6px; color: var(--invisic-text-main); margin-top: 6px; box-sizing: border-box; outline: none; transition: border 0.2s;">
           </div>
 
-          <label class="kloak-checkbox-label" style="user-select: none;">
+          <label class="invisic-checkbox-label" style="user-select: none;">
             <input id="tpl-checkbox" type="checkbox" ${isFeatureEnabled}
-              style="cursor: pointer; width: 16px; height: 16px; accent-color: var(--kloak-text-main);">
+              style="cursor: pointer; width: 16px; height: 16px; accent-color: var(--invisic-text-main);">
             Enable Secret Feature
           </label>
 
@@ -188,14 +188,14 @@
       const checkboxInput = container.querySelector("#tpl-checkbox");
       const saveBtn = container.querySelector("#tpl-save-btn");
 
-      textInput.addEventListener("focus", () => (textInput.style.borderColor = "var(--kloak-text-main)"));
-      textInput.addEventListener("blur", () => (textInput.style.borderColor = "var(--kloak-bg-btn)"));
+      textInput.addEventListener("focus", () => (textInput.style.borderColor = "var(--invisic-text-main)"));
+      textInput.addEventListener("blur", () => (textInput.style.borderColor = "var(--invisic-bg-btn)"));
 
       saveBtn.addEventListener("click", () => {
         config.customText = textInput.value;
         config.enableFeature = checkboxInput.checked;
 
-        window.KloakAddonAPI.settings.set(ADDON_ID, config);
+        window.InvisicAddonAPI.settings.set(ADDON_ID, config);
 
         const originalText = saveBtn.textContent;
         saveBtn.textContent = "✓ Saved to config.json";

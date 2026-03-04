@@ -38,22 +38,22 @@
     --accent-foreground: 0 0% 15% !important;
 
         /* Kloak UI Settings Elements */
-    --kloak-bg-main: hsl(0, 0%, 100%) !important;
-    --kloak-bg-box: hsl(0, 0%, 100%) !important;
-    --kloak-bg-btn: hsl(0, 0%, 90%) !important;
-    --kloak-switch-on:  hsl(0, 0%, 15%) !important;
-    --kloak-switch-off: hsl(0, 0%, 94%) !important;
-    --kloak-icon-bg: hsl(0, 0%, 90%) !important;
-    --kloak-icon-fg: hsl(0, 0%, 15%) !important;
-    --kloak-text-main: hsl(0, 0%, 15%) !important;
-    --kloak-text-sub: hsl(0, 0%, 45%) !important;
-    --kloak-accent-success: hsl(0, 0%, 20%) !important;    --kloak-text-sub: hsl(0 0% 45%) !important;
-    --kloak-slider-body: hsl(0, 0%, 15%) !important;
-    --kloak-slider-knob: hsl(0, 0%, 100%) !important;
-    --kloak-slider-track: hsl(0, 0%, 90%) !important;
-    --kloak-radiobtn-selected: hsl(0, 0%, 15%) !important;
-    --kloak-radiobtn-selected-ctr: hsl(0, 0%, 100%) !important;
-    --kloak-radiobtn-border: hsl(0, 0%, 90%) !important;
+    --invisic-bg-main: hsl(0, 0%, 100%) !important;
+    --invisic-bg-box: hsl(0, 0%, 100%) !important;
+    --invisic-bg-btn: hsl(0, 0%, 90%) !important;
+    --invisic-switch-on:  hsl(0, 0%, 15%) !important;
+    --invisic-switch-off: hsl(0, 0%, 94%) !important;
+    --invisic-icon-bg: hsl(0, 0%, 90%) !important;
+    --invisic-icon-fg: hsl(0, 0%, 15%) !important;
+    --invisic-text-main: hsl(0, 0%, 15%) !important;
+    --invisic-text-sub: hsl(0, 0%, 45%) !important;
+    --invisic-accent-success: hsl(0, 0%, 20%) !important;    --invisic-text-sub: hsl(0 0% 45%) !important;
+    --invisic-slider-body: hsl(0, 0%, 15%) !important;
+    --invisic-slider-knob: hsl(0, 0%, 100%) !important;
+    --invisic-slider-track: hsl(0, 0%, 90%) !important;
+    --invisic-radiobtn-selected: hsl(0, 0%, 15%) !important;
+    --invisic-radiobtn-selected-ctr: hsl(0, 0%, 100%) !important;
+    --invisic-radiobtn-border: hsl(0, 0%, 90%) !important;
 }
 
 /* --- 2. Layout Overrides --- */

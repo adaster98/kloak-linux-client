@@ -9,7 +9,7 @@ const MAX_MESSAGES_PER_CHANNEL = 300;
 const EMOJI_CACHE_TTL = 60000; // 60s
 const USER_CACHE_TTL = 300000; // 5min
 
-class KloakAddonAPI {
+class InvisicAddonAPI {
   constructor() {
     // Auth state
     this.userID = null;
@@ -47,7 +47,7 @@ class KloakAddonAPI {
     // Store original fetch BEFORE anything can patch it
     this._originalFetch = window.fetch.bind(window);
 
-    this._log("Initializing...");
+    this._log("Initialising...");
 
     // --- Public API namespaces ---
 
@@ -110,7 +110,7 @@ class KloakAddonAPI {
     this.rpc = async (functionName, params = {}) => {
       if (!this.apiKey || !this.authToken || !this.xHash) {
         throw new Error(
-          "KloakAddonAPI: Not authenticated. Use onReady() first.",
+          "InvisicAddonAPI: Not authenticated. Use onReady() first.",
         );
       }
       const response = await this._originalFetch(
@@ -327,7 +327,7 @@ class KloakAddonAPI {
 
   _log(msg) {
     if (window.electronAPI && window.electronAPI.log) {
-      window.electronAPI.log(`Kloak Addons API: ${msg}`);
+      window.electronAPI.log(`Invisic Addon API: ${msg}`);
     }
   }
 
@@ -340,7 +340,7 @@ class KloakAddonAPI {
       try {
         cb(data);
       } catch (e) {
-        console.error(`[Kloak Addon API] Event handler error (${event}):`, e);
+        console.error(`[Invisic Addon API] Event handler error (${event}):`, e);
       }
     }
   }
@@ -408,7 +408,7 @@ class KloakAddonAPI {
 
     this.isReady = true;
 
-    console.log("[Kloak Addon API] Ready:", {
+    console.log("[Invisic Addon API] Ready:", {
       userID: this.userID,
       profileLoaded: true,
       currentServerID: this.currentServerID,
@@ -422,7 +422,7 @@ class KloakAddonAPI {
       try {
         cb(this);
       } catch (e) {
-        console.error("[Kloak Addon API] onReady callback error:", e);
+        console.error("[Invisic Addon API] onReady callback error:", e);
       }
     });
     this._readyCallbacks = [];
@@ -459,7 +459,7 @@ class KloakAddonAPI {
           const errorText = await response
             .text()
             .catch(() => "Unknown error");
-          console.error("Kloak Addon API: Profile fetch failed", errorText);
+          console.error("Invisic Addon API: Profile fetch failed", errorText);
         }
       } catch (e) {
         this._log(`ERROR fetchUserProfile: ${e.message}`);
@@ -495,7 +495,7 @@ class KloakAddonAPI {
       }
     } catch (e) {
       console.error(
-        `[Kloak Addon API] Failed to fetch emojis for server ${serverId}:`,
+        `[Invisic Addon API] Failed to fetch emojis for server ${serverId}:`,
         e,
       );
     }
@@ -684,7 +684,7 @@ class KloakAddonAPI {
           self[matchedMutation.handler](url, requestBody, response);
         } catch (e) {
           console.error(
-            `[Kloak Addon API] Mutation handler error (${matchedMutation.match}):`,
+            `[Invisic Addon API] Mutation handler error (${matchedMutation.match}):`,
             e,
           );
         }
@@ -983,4 +983,4 @@ class KloakAddonAPI {
   }
 }
 
-window.KloakAddonAPI = new KloakAddonAPI();
+window.InvisicAddonAPI = new InvisicAddonAPI();

@@ -47,6 +47,13 @@ function registerIpcHandlers() {
     if (mainWindow) mainWindow.hide();
   });
 
+  ipcMain.on("open-user-themes-folder", () => {
+    const userThemesDir = path.join(app.getPath("userData"), "themes");
+    if (!fs.existsSync(userThemesDir))
+      fs.mkdirSync(userThemesDir, { recursive: true });
+    shell.openPath(userThemesDir);
+  });
+
   ipcMain.on("open-addons-folder", (event, subPath) => {
     console.log("[IPC] open-addons-folder received:", subPath);
     openAddonsFolder(subPath);
@@ -70,22 +77,6 @@ function registerIpcHandlers() {
       }
       setScreenShareCallback(null);
       setScreenSources([]);
-    }
-  });
-
-  ipcMain.on("link-warning-response", (event, { url, allowed, remember }) => {
-    console.log("[IPC] link-warning-response received:", {
-      url,
-      allowed,
-      remember,
-    });
-    let appSettings = loadSettings();
-    if (remember) {
-      appSettings.skipLinkWarning = true;
-      saveSettings(appSettings);
-    }
-    if (allowed) {
-      shell.openExternal(url);
     }
   });
 
@@ -173,27 +164,37 @@ function registerIpcHandlers() {
   });
 
   ipcMain.handle("get-theme-files", () => {
-    const themesDir = path.join(addonsDir, "theme-injector", "themes");
-    if (!fs.existsSync(themesDir)) {
-      fs.mkdirSync(themesDir, { recursive: true });
-      return [];
+    const bundledDir = path.join(app.getAppPath(), "themes");
+    const userDir = path.join(app.getPath("userData"), "themes");
+
+    if (!fs.existsSync(userDir)) fs.mkdirSync(userDir, { recursive: true });
+
+    function readThemesFrom(dir, bundled) {
+      if (!fs.existsSync(dir)) return [];
+      try {
+        return fs
+          .readdirSync(dir)
+          .filter((f) => f.endsWith(".css"))
+          .map((f) => ({
+            filename: f,
+            name: f.replace(".css", "").replace(/-/g, " "),
+            content: fs.readFileSync(path.join(dir, f), "utf8"),
+            bundled,
+          }));
+      } catch (e) {
+        return [];
+      }
     }
-    try {
-      const files = fs.readdirSync(themesDir).filter((f) => f.endsWith(".css"));
-      return files.map((f) => ({
-        filename: f,
-        name: f.replace(".css", "").replace(/-/g, " "),
-        content: fs.readFileSync(path.join(themesDir, f), "utf8"),
-      }));
-    } catch (e) {
-      return [];
-    }
+
+    const bundled = readThemesFrom(bundledDir, true);
+    const user = readThemesFrom(userDir, false);
+    return [...bundled, ...user];
   });
 
   ipcMain.handle("fetch-store-data", async () => {
     try {
       const dbUrl =
-        "https://codeberg.org/adaster98/kloak-client-unofficial/raw/branch/main/addons/store.json?t=" +
+        "https://codeberg.org/adaster98/invisic-client/raw/branch/main/addons/store.json?t=" +
         Date.now();
       const response = await fetch(dbUrl);
       if (!response.ok)
@@ -330,6 +331,27 @@ function registerIpcHandlers() {
       return fs.existsSync(safePath);
     } catch (e) {
       return false;
+    }
+  });
+
+  // --- Feature Config (native built-in features) ---
+  const featureConfigPath = path.join(app.getPath("userData"), "feature-config.json");
+
+  ipcMain.handle("get-feature-config", () => {
+    try {
+      if (fs.existsSync(featureConfigPath)) {
+        return JSON.parse(fs.readFileSync(featureConfigPath, "utf8"));
+      }
+    } catch (e) {}
+    return {};
+  });
+
+  ipcMain.handle("save-feature-config", (event, data) => {
+    try {
+      fs.writeFileSync(featureConfigPath, JSON.stringify(data, null, 4));
+      return { success: true };
+    } catch (e) {
+      return { success: false, error: e.message };
     }
   });
 

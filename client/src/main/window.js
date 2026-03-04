@@ -38,6 +38,10 @@ function setScreenSources(sources) {
 function createWindow() {
   let appSettings = loadSettings();
 
+  // Ensure user themes folder exists on startup
+  const userThemesDir = path.join(app.getPath("userData"), "themes");
+  if (!fs.existsSync(userThemesDir)) fs.mkdirSync(userThemesDir, { recursive: true });
+
   let splashWindow = new BrowserWindow({
     width: 350,
     height: 450,
@@ -87,6 +91,20 @@ function createWindow() {
         mainWindow.webContents.insertCSS(cssCode);
       }
 
+      // Inject Theme Engine (after CSS, before modal/addons)
+      let themeEnginePath = path.join(
+        app.getAppPath(),
+        "src",
+        "renderer",
+        "theme-engine.js",
+      );
+      if (fs.existsSync(themeEnginePath)) {
+        const themeEngineCode = fs.readFileSync(themeEnginePath, "utf8");
+        mainWindow.webContents
+          .executeJavaScript(themeEngineCode)
+          .catch(console.error);
+      }
+
       // Inject Modal Renderer
       let modalRendererPath = path.join(
         app.getAppPath(),
@@ -108,6 +126,34 @@ function createWindow() {
       if (fs.existsSync(apiPath)) {
         const apiCode = fs.readFileSync(apiPath, "utf8");
         mainWindow.webContents.executeJavaScript(apiCode).catch(console.error);
+      }
+
+      // Inject Native Features (stealth mode + quick edit)
+      let nativeFeaturesPath = path.join(
+        app.getAppPath(),
+        "src",
+        "renderer",
+        "native-features.js",
+      );
+      if (fs.existsSync(nativeFeaturesPath)) {
+        const nativeFeaturesCode = fs.readFileSync(nativeFeaturesPath, "utf8");
+        mainWindow.webContents
+          .executeJavaScript(nativeFeaturesCode)
+          .catch(console.error);
+      }
+
+      // Inject DM Folders
+      let dmFoldersPath = path.join(
+        app.getAppPath(),
+        "src",
+        "renderer",
+        "dm-folders.js",
+      );
+      if (fs.existsSync(dmFoldersPath)) {
+        const dmFoldersCode = fs.readFileSync(dmFoldersPath, "utf8");
+        mainWindow.webContents
+          .executeJavaScript(dmFoldersCode)
+          .catch(console.error);
       }
 
       let managerPath = path.join(
@@ -223,24 +269,14 @@ function createWindow() {
       !url.startsWith("http://kloak.app")
     ) {
       event.preventDefault();
-      let sets = loadSettings();
-      if (sets.skipLinkWarning) {
-        shell.openExternal(url);
-      } else {
-        mainWindow.webContents.send("show-link-warning", { url });
-      }
+      shell.openExternal(url);
     }
   });
 
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
     if (url.startsWith("file://")) return { action: "deny" };
     if (url.startsWith("http:") || url.startsWith("https:")) {
-      let sets = loadSettings();
-      if (sets.skipLinkWarning) {
-        require("electron").shell.openExternal(url);
-      } else {
-        mainWindow.webContents.send("show-link-warning", { url });
-      }
+      shell.openExternal(url);
     }
     return { action: "deny" };
   });

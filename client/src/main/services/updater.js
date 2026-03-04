@@ -19,7 +19,7 @@ function isNewerVersion(remote, local) {
 async function checkForCustomUpdate(event) {
   try {
     const currentVersion = app.getVersion();
-    const gitRepo = "adaster98/kloak-client-unofficial";
+    const gitRepo = "adaster98/invisic-client";
 
     const response = await fetch(
       `https://codeberg.org/api/v1/repos/${gitRepo}/releases/latest`,
@@ -46,7 +46,7 @@ async function checkForCustomUpdate(event) {
 
 async function triggerDebugUpdate(event) {
   try {
-    const gitRepo = "adaster98/kloak-client-unofficial";
+    const gitRepo = "adaster98/invisic-client";
     const response = await fetch(
       `https://codeberg.org/api/v1/repos/${gitRepo}/releases/latest`,
     );
@@ -70,7 +70,7 @@ async function downloadUpdate(event, { version, platform }) {
     const assetExtension = isWin ? ".exe" : ".AppImage";
 
     // Fetch release data to find the correct asset download URL
-    const gitRepo = "adaster98/kloak-client-unofficial";
+    const gitRepo = "adaster98/invisic-client";
     const releaseRes = await fetch(
       `https://codeberg.org/api/v1/repos/${gitRepo}/releases/latest`,
     );
@@ -166,11 +166,11 @@ function installAndRestart() {
         `WshShell.Run """${updatePath.replace(/\\/g, "\\\\")}""" & " /S", 0, True`,
         `Set fso = CreateObject("Scripting.FileSystemObject")`,
         `If fso.FileExists("${updatePath.replace(/\\/g, "\\\\")}") Then fso.DeleteFile "${updatePath.replace(/\\/g, "\\\\")}"`,
-        'WshShell.Run """%LOCALAPPDATA%\\Programs\\kloak-client\\Kloak.exe""", 1, False',
+        'WshShell.Run """%LOCALAPPDATA%\\Programs\\invisic-client\\Invisic.exe""", 1, False',
         "fso.DeleteFile WScript.ScriptFullName",
       ].join("\r\n");
 
-      const vbsPath = path.join(app.getPath("temp"), "kloak-update.vbs");
+      const vbsPath = path.join(app.getPath("temp"), "invisic-update.vbs");
       fs.writeFileSync(vbsPath, vbsContent);
 
       console.log("[Updater] Spawning hidden Windows update script:", vbsPath);

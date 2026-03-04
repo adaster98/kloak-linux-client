@@ -132,23 +132,23 @@
         .qt-settings { display: flex; flex-direction: column; gap: 16px; padding: 4px 0; }
 
         .qt-card {
-          background: var(--kloak-bg-box);
-          border: 1px solid var(--kloak-bg-btn);
+          background: var(--invisic-bg-box);
+          border: 1px solid var(--invisic-bg-btn);
           border-radius: 12px; padding: 16px;
         }
 
         .qt-row { display: flex; align-items: center; gap: 14px; }
 
         .qt-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-        .qt-dot-off { background: var(--kloak-accent-destructive); box-shadow: 0 0 8px rgba(235,20,20,0.4); }
-        .qt-dot-on  { background: var(--kloak-accent-success); box-shadow: 0 0 8px rgba(64,191,128,0.4); }
-        .qt-dot-load { background: var(--kloak-accent-warning); box-shadow: 0 0 8px rgba(245,158,11,0.4); }
+        .qt-dot-off { background: var(--invisic-accent-destructive); box-shadow: 0 0 8px rgba(235,20,20,0.4); }
+        .qt-dot-on  { background: var(--invisic-accent-success); box-shadow: 0 0 8px rgba(64,191,128,0.4); }
+        .qt-dot-load { background: var(--invisic-accent-warning); box-shadow: 0 0 8px rgba(245,158,11,0.4); }
 
         .qt-actions { display: flex; gap: 8px; }
         .qt-actions button { flex: 1; }
         .qt-actions .qt-btn-danger {
           flex: 0 0 auto;
-          background: rgba(235,20,20,0.08); color: var(--kloak-accent-destructive);
+          background: rgba(235,20,20,0.08); color: var(--invisic-accent-destructive);
           border-color: rgba(235,20,20,0.2);
         }
         .qt-actions .qt-btn-danger:hover { background: rgba(235,20,20,0.15); }
@@ -156,7 +156,7 @@
         .qt-error-box {
           margin-top: 10px; padding: 10px; border-radius: 8px;
           background: rgba(235,20,20,0.08); border: 1px solid rgba(235,20,20,0.2);
-          color: var(--kloak-accent-destructive); font-size: 12px; line-height: 1.4;
+          color: var(--invisic-accent-destructive); font-size: 12px; line-height: 1.4;
         }
 
         .qt-mode-row {
@@ -164,44 +164,44 @@
           padding: 10px 0; cursor: pointer;
         }
         .qt-mode-row label { cursor: pointer; }
-        .qt-mode-label { font-size: 13px; font-weight: 500; color: var(--kloak-text-main); }
-        .qt-mode-desc { font-size: 12px; color: var(--kloak-text-sub); margin-top: 2px; }
+        .qt-mode-label { font-size: 13px; font-weight: 500; color: var(--invisic-text-main); }
+        .qt-mode-desc { font-size: 12px; color: var(--invisic-text-sub); margin-top: 2px; }
 
         /* Searchable dropdown */
         .qt-dropdown { position: relative; }
         .qt-dropdown-input {
           width: 100%; box-sizing: border-box;
-          background: var(--kloak-bg-box); border: 1px solid var(--kloak-bg-btn);
-          color: var(--kloak-text-main); padding: 10px 14px; border-radius: 8px;
+          background: var(--invisic-bg-box); border: 1px solid var(--invisic-bg-btn);
+          color: var(--invisic-text-main); padding: 10px 14px; border-radius: 8px;
           font-size: 13px; font-family: inherit; outline: none;
           transition: border-color 0.2s;
         }
-        .qt-dropdown-input:focus { border-color: var(--kloak-icon-fg); }
-        .qt-dropdown-input::placeholder { color: var(--kloak-text-sub); }
+        .qt-dropdown-input:focus { border-color: var(--invisic-icon-fg); }
+        .qt-dropdown-input::placeholder { color: var(--invisic-text-sub); }
         .qt-dropdown-list {
           display: none; position: absolute; top: 100%; left: 0; right: 0;
           margin-top: 4px; max-height: 200px; overflow-y: auto;
-          background: var(--kloak-bg-box); border: 1px solid var(--kloak-bg-btn);
+          background: var(--invisic-bg-box); border: 1px solid var(--invisic-bg-btn);
           border-radius: 8px; z-index: 100;
         }
         .qt-dropdown-list.open { display: block; }
         .qt-dropdown-item {
-          padding: 8px 14px; font-size: 13px; color: var(--kloak-text-sub);
+          padding: 8px 14px; font-size: 13px; color: var(--invisic-text-sub);
           cursor: pointer; transition: background 0.1s, color 0.1s;
         }
-        .qt-dropdown-item:hover { background: var(--kloak-bg-btn); color: var(--kloak-text-main); }
-        .qt-dropdown-item.selected { color: var(--kloak-text-main); font-weight: 600; }
+        .qt-dropdown-item:hover { background: var(--invisic-bg-btn); color: var(--invisic-text-main); }
+        .qt-dropdown-item.selected { color: var(--invisic-text-main); font-weight: 600; }
         .qt-dropdown-empty {
-          padding: 12px 14px; font-size: 12px; color: var(--kloak-text-sub); text-align: center;
+          padding: 12px 14px; font-size: 12px; color: var(--invisic-text-sub); text-align: center;
         }
         .qt-dropdown-list::-webkit-scrollbar { width: 4px; }
         .qt-dropdown-list::-webkit-scrollbar-track { background: transparent; }
-        .qt-dropdown-list::-webkit-scrollbar-thumb { background: var(--kloak-bg-btn); border-radius: 2px; }
+        .qt-dropdown-list::-webkit-scrollbar-thumb { background: var(--invisic-bg-btn); border-radius: 2px; }
 
         /* Inline translation */
         .qt-translation {
           margin-top: 4px; padding: 4px 0; font-size: 13px; line-height: 1.4;
-          color: var(--kloak-text-sub);
+          color: var(--invisic-text-sub);
           display: flex; align-items: flex-start; gap: 4px;
         }
         .qt-translation-icon { flex-shrink: 0; margin-top: 2px; opacity: 0.4; }
@@ -292,16 +292,16 @@
             <div class="qt-row">
               <div class="qt-dot ${dotClass}"></div>
               <div style="flex:1;">
-                <p style="margin:0;font-size:14px;font-weight:600;color:var(--kloak-text-main);">${statusTitle}</p>
-                <p style="margin:0;font-size:12px;color:var(--kloak-text-sub);line-height:1.4;">${statusSub}</p>
+                <p style="margin:0;font-size:14px;font-weight:600;color:var(--invisic-text-main);">${statusTitle}</p>
+                <p style="margin:0;font-size:12px;color:var(--invisic-text-sub);line-height:1.4;">${statusSub}</p>
               </div>
             </div>
             ${
               isLoading && this._progress.status === "downloading"
-                ? `<div class="kloak-progress-container" style="margin-top:10px;">
-                     <div class="kloak-progress-bar" style="width:${this._progress.percent}%;background:var(--kloak-accent-warning);"></div>
+                ? `<div class="invisic-progress-container" style="margin-top:10px;">
+                     <div class="invisic-progress-bar" style="width:${this._progress.percent}%;background:var(--invisic-accent-warning);"></div>
                    </div>
-                   <p class="kloak-progress-status">${this._progress.percent}% — ${(this._progress.file || "").split("/").pop()}</p>`
+                   <p class="invisic-progress-status">${this._progress.percent}% — ${(this._progress.file || "").split("/").pop()}</p>`
                 : ""
             }
             ${
@@ -314,15 +314,15 @@
           <!-- Model -->
           <div class="addon-settings-item">
             <label class="addon-label">Model</label>
-            <div class="addon-val" style="font-size:12px;color:var(--kloak-text-sub);margin-bottom:8px;">
+            <div class="addon-val" style="font-size:12px;color:var(--invisic-text-sub);margin-bottom:8px;">
               Xenova/NLLB-200 multilingual. Covers 200+ languages. Cached locally after first download.
             </div>
             <div class="qt-actions">
-              <button id="qt-init" class="kloak-btn-primary" ${isReady || isLoading ? "disabled" : ""} style="flex:1;justify-content:center;${isReady || isLoading ? "opacity:0.4;cursor:not-allowed;" : ""}">
+              <button id="qt-init" class="invisic-btn-primary" ${isReady || isLoading ? "disabled" : ""} style="flex:1;justify-content:center;${isReady || isLoading ? "opacity:0.4;cursor:not-allowed;" : ""}">
                 ${isReady ? "Loaded" : isLoading ? "Initialising..." : "Initialize AI"}
               </button>
-              <button id="qt-unload" class="kloak-btn-primary" ${!isReady ? "disabled" : ""} style="${!isReady ? "opacity:0.4;cursor:not-allowed;" : ""}">Unload</button>
-              <button id="qt-delete" class="kloak-btn-primary qt-btn-danger" ${isLoading ? "disabled" : ""} style="${isLoading ? "opacity:0.4;cursor:not-allowed;" : ""}">Delete</button>
+              <button id="qt-unload" class="invisic-btn-primary" ${!isReady ? "disabled" : ""} style="${!isReady ? "opacity:0.4;cursor:not-allowed;" : ""}">Unload</button>
+              <button id="qt-delete" class="invisic-btn-primary qt-btn-danger" ${isLoading ? "disabled" : ""} style="${isLoading ? "opacity:0.4;cursor:not-allowed;" : ""}">Delete</button>
             </div>
           </div>
 
@@ -351,7 +351,7 @@
           <div class="addon-settings-item">
             <label class="addon-label">Startup Behavior</label>
             <label class="qt-mode-row">
-              <input type="checkbox" id="qt-autoload" ${this.config.autoLoad ? "checked" : ""} style="width:16px;height:16px;accent-color:var(--kloak-switch-on);cursor:pointer;flex-shrink:0;">
+              <input type="checkbox" id="qt-autoload" ${this.config.autoLoad ? "checked" : ""} style="width:16px;height:16px;accent-color:var(--invisic-switch-on);cursor:pointer;flex-shrink:0;">
               <div>
                 <div class="qt-mode-label">Auto-load model on startup</div>
                 <div class="qt-mode-desc">The AI engine initializes automatically when the app opens.</div>
@@ -678,5 +678,5 @@
   }
 
   const instance = new QuickTranslateAddon();
-  if (window.KloakAddons) window.KloakAddons.registerAddon(instance);
+  if (window.InvisicAddons) window.InvisicAddons.registerAddon(instance);
 })();

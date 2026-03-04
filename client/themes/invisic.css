@@ -1,0 +1,117 @@
+/**
+ * Theme Name: Midnight Gold (AMOLED Executive)
+ * Description: Absolute black backgrounds with dark gray skeleton and metallic gradient components.
+ * Author: Aster & Gemini
+ */
+
+/* --- 1. Core Variables --- */
+:root, .dark, [data-theme="dark"], body {
+    /* Main Backgrounds - Absolute Black */
+    --background: 0 0% 0% !important;
+    --layout-chat: 0 0% 0% !important;
+    --layout-sidebar: 0 0% 0% !important;
+    --layout-members: 0 0% 0% !important;
+    --layout-sidebar-secondary: 0 0% 0% !important;
+
+    /* Surfaces & Containers - Full Blackout */
+    --card: 0 0% 0% !important;
+    --popover: 0 0% 0% !important;
+    --secondary: 0 0% 0% !important;
+    --muted: 0 0% 0% !important;
+
+    /* Outlines & Dividers - Muted Dark Gray */
+    --border: 0 0% 12% !important;
+    --input: 0 0% 12% !important;
+    --ring: 45 100% 50% !important;
+
+    /* Typography - Subtle Gold Tinting */
+    --foreground: 45 20% 92% !important;
+    --card-foreground: 45 20% 92% !important;
+    --popover-foreground: 45 20% 92% !important;
+    --secondary-foreground: 45 20% 92% !important;
+    --muted-foreground: 45 10% 55% !important;
+
+    /* Accents & Buttons */
+    --primary: 45 100% 50% !important;
+    --primary-foreground: 0 0% 0% !important;
+    --accent: 0 0% 10% !important;
+    --accent-foreground: 45 100% 60% !important;
+
+    /* Kloak UI Settings Elements */
+    --invisic-bg-main: hsl(0, 0%, 0%) !important;
+    --invisic-bg-box: hsl(0, 0%, 0%) !important;
+    --invisic-bg-btn: hsl(0, 0%, 6%) !important;
+    --invisic-switch-on: hsl(45, 100%, 50%) !important;
+    --invisic-switch-off: hsl(0, 0%, 8%) !important; /* Darkened */
+    --invisic-icon-bg: hsl(0, 0%, 8%) !important;
+    --invisic-icon-fg: hsl(45, 100%, 50%) !important;
+    --invisic-text-main: hsl(45, 15%, 95%) !important;
+    --invisic-text-sub: hsl(45, 10%, 60%) !important;
+    --invisic-accent-success: hsl(45, 100%, 50%) !important;
+    --invisic-slider-body: hsl(45, 100%, 50%) !important;
+    --invisic-slider-knob: hsl(0, 0%, 100%) !important;
+    --invisic-slider-track: hsl(0, 0%, 12%) !important;
+    --invisic-radiobtn-selected: hsl(45, 100%, 50%) !important;
+    --invisic-radiobtn-selected-ctr: hsl(0, 0%, 0%) !important;
+    --invisic-radiobtn-border: hsl(0, 0%, 20%) !important;
+}
+
+/* --- 2. Metallic Gradient Overrides --- */
+
+/* Reusable Gradient Definition */
+/* Applied to Primary Buttons, Switches (On), Sliders, and Radios */
+.bg-primary,
+button[role="switch"][data-state="checked"],
+button[role="radio"][data-state="checked"],
+span[data-orientation="horizontal"] > span:first-child {
+    background: linear-gradient(145deg, hsl(48, 100%, 65%) 0%, hsl(45, 100%, 45%) 45%, hsl(35, 100%, 30%) 100%) !important;
+    border: none !important;
+    box-shadow: 0 2px 10px hsla(45, 100%, 50%, 0.15) !important;
+}
+
+/* Specific Hover States */
+.bg-primary:hover,
+button[role="switch"][data-state="checked"]:hover {
+    background: linear-gradient(145deg, hsl(48, 100%, 75%) 0%, hsl(45, 100%, 55%) 45%, hsl(35, 100%, 40%) 100%) !important;
+}
+
+/* Slider Knobs - Clean white or light gold for visibility */
+[data-orientation="horizontal"] span[role="slider"] {
+    background-color: white !important;
+    border: 2px solid hsl(45, 100%, 45%) !important;
+}
+
+/* --- 3. Layout & Skeleton --- */
+
+.bg-layout-sidebar,
+.bg-layout-members,
+.bg-layout-sidebar-secondary,
+.bg-layout-chat,
+.bg-background,
+.bg-card,
+.bg-secondary,
+.bg-muted {
+    background-color: hsl(0, 0%, 0%) !important;
+}
+
+/* Dark Gray Borders */
+.border, .border-t, .border-b, .border-l, .border-r {
+    border-color: hsl(0, 0%, 12%) !important;
+}
+
+/* Popovers & Menus */
+.bg-background\/20, .bg-muted\/60, .bg-background\/50, .bg-background\/70, .popover, .dropdown-menu {
+    background-color: hsl(0, 0%, 0%) !important;
+    border: 1px solid hsl(0, 0%, 15%) !important;
+    backdrop-filter: none !important;
+}
+
+/* --- 4. Scrollbars --- */
+::-webkit-scrollbar-thumb {
+    background-color: hsl(0, 0%, 15%) !important;
+    border: 2px solid hsl(0, 0%, 0%);
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(to bottom, hsl(48, 100%, 50%), hsl(35, 100%, 30%)) !important;
+}

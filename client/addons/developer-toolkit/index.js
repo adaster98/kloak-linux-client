@@ -13,9 +13,9 @@
 
   const STYLE_CONFIG = {
     msgId:
-      "kloak-injected-msg-id text-[10px] text-muted-foreground/40 font-mono mt-1 select-text transition-colors hover:text-muted-foreground/80 block",
+      "invisic-injected-msg-id text-[10px] text-muted-foreground/40 font-mono mt-1 select-text transition-colors hover:text-muted-foreground/80 block",
     userId:
-      "kloak-injected-user-id text-[10px] text-muted-foreground/40 font-mono ml-2 mr-1 select-text transition-colors hover:text-muted-foreground/80",
+      "invisic-injected-user-id text-[10px] text-muted-foreground/40 font-mono ml-2 mr-1 select-text transition-colors hover:text-muted-foreground/80",
   };
 
   const MESSAGE_SELECTOR = 'div[id^="message-"], div[id^="dm-message-"]';
@@ -35,7 +35,7 @@
 
   // Use the centralized event system instead of fetch interception
   const setupEventListener = () => {
-    const api = window.KloakAddonAPI;
+    const api = window.InvisicAddonAPI;
     if (!api || !api.events) return;
 
     messagesLoadedHandler = ({ messages }) => {
@@ -67,8 +67,8 @@
   };
 
   const removeEventListener = () => {
-    if (messagesLoadedHandler && window.KloakAddonAPI?.events) {
-      window.KloakAddonAPI.events.off("messagesLoaded", messagesLoadedHandler);
+    if (messagesLoadedHandler && window.InvisicAddonAPI?.events) {
+      window.InvisicAddonAPI.events.off("messagesLoaded", messagesLoadedHandler);
       messagesLoadedHandler = null;
     }
   };
@@ -78,7 +78,7 @@
 
     if (msgToUserMap.has(msgId)) return msgToUserMap.get(msgId);
 
-    const api = window.KloakAddonAPI;
+    const api = window.InvisicAddonAPI;
     if (api && api.userID && msgNode.classList.contains("flex-row-reverse")) {
       msgToUserMap.set(msgId, api.userID);
       return api.userID;
@@ -164,87 +164,87 @@
     const username = u.username ? `@${u.username}` : "n/a";
     const userId = u.id || "Unknown ID";
     const isPartial = !u.created_at && !u.bio;
-    const bannerColor = u.banner_color || "var(--kloak-bg-box)";
+    const bannerColor = u.banner_color || "var(--invisic-bg-box)";
 
-    const primaryTheme = u.profile_theme_primary || "var(--kloak-bg-main)";
-    const accentTheme = u.profile_theme_accent || "var(--kloak-icon-bg)";
+    const primaryTheme = u.profile_theme_primary || "var(--invisic-bg-main)";
+    const accentTheme = u.profile_theme_accent || "var(--invisic-icon-bg)";
 
     const bannerStyle = u.banner_url
       ? `background-image: url('${u.banner_url}'); background-size: cover; background-position: center;`
       : `background-color: ${bannerColor};`;
 
     overlay.innerHTML = `
-        <div style="background: var(--kloak-bg-main); border: 1px solid var(--kloak-bg-btn); border-radius: 12px; width: 440px; overflow: hidden; font-family: sans-serif; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7);">
+        <div style="background: var(--invisic-bg-main); border: 1px solid var(--invisic-bg-btn); border-radius: 12px; width: 440px; overflow: hidden; font-family: sans-serif; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7);">
         <div style="height: 100px; width: 100%; position: relative; ${bannerStyle}">
-          <div style="position: absolute; bottom: -36px; left: 20px; padding: 4px; background: var(--kloak-bg-main); border-radius: 50%;">
-            <img src="${avatarSrc}" style="width: 72px; height: 72px; border-radius: 50%; background: var(--kloak-bg-box); object-fit: cover; border: 1px solid var(--kloak-bg-btn);">
+          <div style="position: absolute; bottom: -36px; left: 20px; padding: 4px; background: var(--invisic-bg-main); border-radius: 50%;">
+            <img src="${avatarSrc}" style="width: 72px; height: 72px; border-radius: 50%; background: var(--invisic-bg-box); object-fit: cover; border: 1px solid var(--invisic-bg-btn);">
           </div>
         </div>
 
         <div style="padding: 48px 20px 20px 20px;">
           <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
             <div style="min-width: 0; flex: 1;">
-              <h2 style="margin: 0 0 2px 0; color: var(--kloak-text-main); font-size: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${displayName}</h2>
+              <h2 style="margin: 0 0 2px 0; color: var(--invisic-text-main); font-size: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${displayName}</h2>
               <div style="display: flex; align-items: center; gap: 8px;">
-                <span style="color: var(--kloak-text-sub); font-size: 13px;">${username}</span>
-                <span style="color: var(--kloak-text-sub); font-size: 11px; background: var(--kloak-bg-btn); padding: 1px 6px; border-radius: 4px; border: 1px solid var(--kloak-bg-btn);">${u.pronouns || "None"}</span>
+                <span style="color: var(--invisic-text-sub); font-size: 13px;">${username}</span>
+                <span style="color: var(--invisic-text-sub); font-size: 11px; background: var(--invisic-bg-btn); padding: 1px 6px; border-radius: 4px; border: 1px solid var(--invisic-bg-btn);">${u.pronouns || "None"}</span>
               </div>
             </div>
-            ${u.status === "online" ? '<span style="color: var(--kloak-text-main); font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 4px;"><span style="width: 6px; height: 6px; background: var(--kloak-text-main); border-radius: 50%;"></span> Online</span>' : ""}
+            ${u.status === "online" ? '<span style="color: var(--invisic-text-main); font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 4px;"><span style="width: 6px; height: 6px; background: var(--invisic-text-main); border-radius: 50%;"></span> Online</span>' : ""}
           </div>
 
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-            <div style="grid-column: span 2; background: var(--kloak-bg-box); border: 1px solid var(--kloak-bg-btn); border-radius: 8px; padding: 10px;">
+            <div style="grid-column: span 2; background: var(--invisic-bg-box); border: 1px solid var(--invisic-bg-btn); border-radius: 8px; padding: 10px;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                <label style="color: var(--kloak-text-sub); font-size: 10px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Message ID</label>
-                <code style="color: var(--kloak-text-main); font-size: 11px; user-select: text;">${messageId || "N/A"}</code>
+                <label style="color: var(--invisic-text-sub); font-size: 10px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Message ID</label>
+                <code style="color: var(--invisic-text-main); font-size: 11px; user-select: text;">${messageId || "N/A"}</code>
               </div>
               <div style="display: flex; justify-content: space-between; align-items: center;">
-                <label style="color: var(--kloak-text-sub); font-size: 10px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">User ID</label>
-                <code style="color: var(--kloak-text-main); font-size: 11px; user-select: text;">${userId}</code>
+                <label style="color: var(--invisic-text-sub); font-size: 10px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">User ID</label>
+                <code style="color: var(--invisic-text-main); font-size: 11px; user-select: text;">${userId}</code>
               </div>
             </div>
 
-            <div style="background: var(--kloak-bg-box); border: 1px solid var(--kloak-bg-btn); border-radius: 8px; padding: 10px;">
-              <label style="color: var(--kloak-text-sub); font-size: 10px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; display: block; margin-bottom: 6px;">Theme Primary</label>
+            <div style="background: var(--invisic-bg-box); border: 1px solid var(--invisic-bg-btn); border-radius: 8px; padding: 10px;">
+              <label style="color: var(--invisic-text-sub); font-size: 10px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; display: block; margin-bottom: 6px;">Theme Primary</label>
               <div style="display: flex; align-items: center; gap: 8px;">
-                <div style="width: 14px; height: 14px; border-radius: 3px; background: ${primaryTheme}; border: 1px solid var(--kloak-bg-btn);"></div>
-                <code style="color: var(--kloak-text-main); font-size: 11px;">${primaryTheme}</code>
+                <div style="width: 14px; height: 14px; border-radius: 3px; background: ${primaryTheme}; border: 1px solid var(--invisic-bg-btn);"></div>
+                <code style="color: var(--invisic-text-main); font-size: 11px;">${primaryTheme}</code>
               </div>
             </div>
 
-            <div style="background: var(--kloak-bg-box); border: 1px solid var(--kloak-bg-btn); border-radius: 8px; padding: 10px;">
-              <label style="color: var(--kloak-text-sub); font-size: 10px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; display: block; margin-bottom: 6px;">Theme Accent</label>
+            <div style="background: var(--invisic-bg-box); border: 1px solid var(--invisic-bg-btn); border-radius: 8px; padding: 10px;">
+              <label style="color: var(--invisic-text-sub); font-size: 10px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; display: block; margin-bottom: 6px;">Theme Accent</label>
               <div style="display: flex; align-items: center; gap: 8px;">
-                <div style="width: 14px; height: 14px; border-radius: 3px; background: ${accentTheme}; border: 1px solid var(--kloak-bg-btn);"></div>
-                <code style="color: var(--kloak-text-main); font-size: 11px;">${accentTheme}</code>
+                <div style="width: 14px; height: 14px; border-radius: 3px; background: ${accentTheme}; border: 1px solid var(--invisic-bg-btn);"></div>
+                <code style="color: var(--invisic-text-main); font-size: 11px;">${accentTheme}</code>
               </div>
             </div>
 
             <div>
-              <label style="color: var(--kloak-text-sub); font-size: 10px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; display: block;">Last Seen</label>
-              <div style="color: var(--kloak-text-main); font-size: 11px; margin-top: 4px;">${formatDate(u.last_seen)}</div>
+              <label style="color: var(--invisic-text-sub); font-size: 10px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; display: block;">Last Seen</label>
+              <div style="color: var(--invisic-text-main); font-size: 11px; margin-top: 4px;">${formatDate(u.last_seen)}</div>
             </div>
 
             <div>
-              <label style="color: var(--kloak-text-sub); font-size: 10px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; display: block;">Joined</label>
-              <div style="color: var(--kloak-text-main); font-size: 11px; margin-top: 4px;">${formatDate(u.created_at)}</div>
+              <label style="color: var(--invisic-text-sub); font-size: 10px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; display: block;">Joined</label>
+              <div style="color: var(--invisic-text-main); font-size: 11px; margin-top: 4px;">${formatDate(u.created_at)}</div>
             </div>
 
             <div style="grid-column: span 2;">
-              <label style="color: var(--kloak-text-sub); font-size: 10px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; display: block; margin-bottom: 4px;">Custom Status</label>
-              <div style="color: var(--kloak-text-main); font-size: 12px; background: var(--kloak-bg-box); padding: 8px; border-radius: 6px; border: 1px solid var(--kloak-bg-btn);">${u.custom_status || "None set"}</div>
+              <label style="color: var(--invisic-text-sub); font-size: 10px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; display: block; margin-bottom: 4px;">Custom Status</label>
+              <div style="color: var(--invisic-text-main); font-size: 12px; background: var(--invisic-bg-box); padding: 8px; border-radius: 6px; border: 1px solid var(--invisic-bg-btn);">${u.custom_status || "None set"}</div>
             </div>
 
             <div style="grid-column: span 2;">
-              <label style="color: var(--kloak-text-sub); font-size: 10px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; display: block; margin-bottom: 4px;">Bio</label>
-              <div style="color: var(--kloak-text-main); font-size: 12px; line-height: 1.4; background: var(--kloak-bg-box); padding: 10px; border-radius: 6px; border: 1px solid var(--kloak-bg-btn); max-height: 80px; overflow-y: auto; white-space: pre-wrap;">${u.bio || "No biography available."}</div>
+              <label style="color: var(--invisic-text-sub); font-size: 10px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; display: block; margin-bottom: 4px;">Bio</label>
+              <div style="color: var(--invisic-text-main); font-size: 12px; line-height: 1.4; background: var(--invisic-bg-box); padding: 10px; border-radius: 6px; border: 1px solid var(--invisic-bg-btn); max-height: 80px; overflow-y: auto; white-space: pre-wrap;">${u.bio || "No biography available."}</div>
             </div>
             
             ${
               isPartial
                 ? `
-            <div style="grid-column: span 2; background: transparent; border: 1px solid var(--kloak-accent-warning); border-radius: 6px; padding: 8px; font-size: 11px; color: var(--kloak-accent-warning); display: flex; align-items: center; gap: 8px;">
+            <div style="grid-column: span 2; background: transparent; border: 1px solid var(--invisic-accent-warning); border-radius: 6px; padding: 8px; font-size: 11px; color: var(--invisic-accent-warning); display: flex; align-items: center; gap: 8px;">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0zM12 9v4M12 17h.01"/></svg>
                 Profile fetch failed. Using cached basic user data.
             </div>
@@ -254,7 +254,7 @@
           </div>
 
           <div style="margin-top: 16px; display: flex; justify-content: flex-end;">
-            <button id="dev-modal-close" style="background: var(--kloak-bg-btn); color: var(--kloak-text-main); border: 1px solid var(--kloak-bg-btn); padding: 6px 20px; border-radius: 6px; cursor: pointer; font-weight: 500; font-size: 13px; transition: all 0.2s;">Close</button>
+            <button id="dev-modal-close" style="background: var(--invisic-bg-btn); color: var(--invisic-text-main); border: 1px solid var(--invisic-bg-btn); padding: 6px 20px; border-radius: 6px; cursor: pointer; font-weight: 500; font-size: 13px; transition: all 0.2s;">Close</button>
           </div>
         </div>
         </div>
@@ -263,9 +263,9 @@
 
     const closeBtn = overlay.querySelector("#dev-modal-close");
     closeBtn.onmouseenter = () =>
-      (closeBtn.style.background = "var(--kloak-icon-bg)");
+      (closeBtn.style.background = "var(--invisic-icon-bg)");
     closeBtn.onmouseleave = () =>
-      (closeBtn.style.background = "var(--kloak-bg-btn)");
+      (closeBtn.style.background = "var(--invisic-bg-btn)");
 
     closeBtn.onclick = () => overlay.remove();
     overlay.onclick = (e) => {
@@ -293,7 +293,7 @@
   const createContextMenuItem = (text, iconSvg, onClickAction) => {
     const item = document.createElement("div");
     item.className =
-      "relative flex cursor-default select-none items-center rounded-lg px-3 py-2 text-sm outline-none transition-colors text-popover-foreground hover:bg-white/10 hover:text-foreground focus:bg-white/15 focus:text-foreground kloak-custom-context-btn";
+      "relative flex cursor-default select-none items-center rounded-lg px-3 py-2 text-sm outline-none transition-colors text-popover-foreground hover:bg-white/10 hover:text-foreground focus:bg-white/15 focus:text-foreground invisic-custom-context-btn";
     item.setAttribute("role", "menuitem");
     item.tabIndex = -1;
     item.innerHTML = `${iconSvg}${text}`;
@@ -308,7 +308,7 @@
   };
 
   const initAddon = () => {
-    window.KloakAddons.registerAddon({
+    window.InvisicAddons.registerAddon({
       id: ADDON_ID,
       name: "Developer Toolkit",
       description:
@@ -359,7 +359,7 @@
                   node.querySelector("[data-radix-menu-content]") ||
                   (node.hasAttribute("data-radix-menu-content") ? node : null);
 
-                if (menu && !menu.querySelector(".kloak-custom-context-btn")) {
+                if (menu && !menu.querySelector(".invisic-custom-context-btn")) {
                   // Capture the ID in a local variable for the closures
                   const currentMsgId = lastRightClickedMessageId;
                   const targetUserId = msgToUserMap.get(currentMsgId);
@@ -401,7 +401,7 @@
                           return;
                         }
 
-                        const api = window.KloakAddonAPI;
+                        const api = window.InvisicAddonAPI;
                         if (!api || !api.isReady) {
                           showDeveloperModal(currentMsgId, {
                             id: targetUserId,
@@ -461,7 +461,7 @@
         document.removeEventListener("pointerdown", handleGlobalClick, true);
 
         document
-          .querySelectorAll(".kloak-injected-msg-id, .kloak-injected-user-id")
+          .querySelectorAll(".invisic-injected-msg-id, .invisic-injected-user-id")
           .forEach((el) => el.remove());
         document.querySelectorAll(MESSAGE_SELECTOR).forEach((msg) => {
           delete msg.dataset.msgIdInjected;
@@ -472,9 +472,9 @@
       renderSettings: (container) => {
         container.innerHTML = `
               <div class="addon-settings-item">
-                <p style="margin: 0; color: var(--kloak-text-sub); font-size: 13px;">Configure your Developer Toolkit preferences.</p>
-                <label class="kloak-checkbox-label">
-                  <input type="checkbox" id="dt-show-ids" ${config.showIdsInChat ? "checked" : ""} style="width: 16px; height: 16px; accent-color: var(--kloak-text-main);">
+                <p style="margin: 0; color: var(--invisic-text-sub); font-size: 13px;">Configure your Developer Toolkit preferences.</p>
+                <label class="invisic-checkbox-label">
+                  <input type="checkbox" id="dt-show-ids" ${config.showIdsInChat ? "checked" : ""} style="width: 16px; height: 16px; accent-color: var(--invisic-text-main);">
                   <span>Show Message & User IDs in Chat</span>
                 </label>
               </div>
@@ -508,7 +508,7 @@
             } else {
               document
                 .querySelectorAll(
-                  ".kloak-injected-msg-id, .kloak-injected-user-id",
+                  ".invisic-injected-msg-id, .invisic-injected-user-id",
                 )
                 .forEach((el) => el.remove());
               document.querySelectorAll(MESSAGE_SELECTOR).forEach((msg) => {
@@ -521,8 +521,8 @@
     });
   };
 
-  if (window.KloakAddonAPI) {
-    window.KloakAddonAPI.onReady(() => {
+  if (window.InvisicAddonAPI) {
+    window.InvisicAddonAPI.onReady(() => {
       initAddon();
     });
   } else {

@@ -17,7 +17,6 @@ function loadSettings() {
   return {
     firstLaunchDone: false,
     savedPermissions: {},
-    skipLinkWarning: false,
   };
 }
 

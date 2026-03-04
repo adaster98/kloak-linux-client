@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Loading Kloak...</title>
+    <title>Loading Invisic...</title>
     <style>
         body, html {
             margin: 0; padding: 0; width: 100%; height: 100%;
@@ -16,8 +16,8 @@
         }
 
         .splash-box {
-            background: linear-gradient(180deg, #1e1e1e 0%, #161616 100%);
-            border: 1px solid #2a2a2a;
+            background: linear-gradient(180deg, #0a0a0a 0%, #000000 100%);
+            border: 1px solid #1f1f1f;
             border-radius: 20px;
             width: 380px;
             height: 340px;
@@ -49,7 +49,7 @@
         /* Icon Box */
         .logo-container {
             width: 80px; height: 80px;
-            background: #262626;
+            background: #111111;
             border-radius: 20px;
             display: flex; justify-content: center; align-items: center;
             position: relative;
@@ -63,7 +63,7 @@
             width: 100px; /* Start larger than the icon */
             height: 100px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.4);
+            background: rgba(218, 165, 32, 0.45);
             z-index: 1;
             filter: blur(25px);
             animation: auraPulse 2s infinite ease-in-out;
@@ -90,12 +90,12 @@
             object-fit: cover;
         }
 
-        h2 { margin: 0 0 8px 0; font-size: 20px; font-weight: 600; color: #E0E0E0; letter-spacing: 0.5px; }
-        p { margin: 0; font-size: 13px; color: #949494; font-weight: 400; }
+        h2 { margin: 0 0 8px 0; font-size: 20px; font-weight: 600; color: #DAA520; letter-spacing: 0.5px; }
+        p { margin: 0; font-size: 13px; color: #7a7a7a; font-weight: 400; }
 
         .loading-bar {
             width: 140px; height: 2px;
-            background: #2a2a2a;
+            background: #1f1f1f;
             border-radius: 4px;
             margin-top: 36px;
             overflow: hidden;
@@ -105,7 +105,7 @@
             content: '';
             position: absolute;
             top: 0; left: 0; height: 100%; width: 50%;
-            background: #E0E0E0;
+            background: #DAA520;
             border-radius: 4px;
             animation: slide 1.5s infinite ease-in-out;
         }
@@ -121,10 +121,10 @@
         <div class="icon-wrapper">
             <div class="glow-aura"></div>
             <div class="logo-container">
-                <img src="icons/icon.png" alt="Kloak Logo">
+                <img src="icons/icon.png" alt="Invisic">
             </div>
         </div>
-        <h2>Kloak</h2>
+        <h2>Invisic</h2>
         <p>Establishing connection...</p>
         <div class="loading-bar"></div>
     </div>

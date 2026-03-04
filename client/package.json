@@ -1,7 +1,7 @@
 {
-  "name": "kloak-client",
+  "name": "invisic-client",
   "version": "1.2.3",
-  "description": "Desktop client for Kloak",
+  "description": "Invisic — enhanced desktop client for Kloak",
   "main": "src/main/index.js",
   "homepage": "https://kloak.app",
   "author": "Aster",
@@ -10,8 +10,8 @@
     "build": "electron-builder --linux --win"
   },
   "build": {
-    "appId": "com.kloak.client",
-    "productName": "Kloak",
+    "appId": "com.invisic.client",
+    "productName": "Invisic",
     "electronLanguages": [
       "en-US"
     ],
@@ -23,6 +23,7 @@
       "package.json",
       "splash.html",
       "icons/**/*",
+      "themes/**/*",
       "!addons/**/*",
       "!test-cache/**/*",
       "!**/*.map"

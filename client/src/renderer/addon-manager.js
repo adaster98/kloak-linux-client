@@ -1,11 +1,11 @@
-class KloakAddonManager {
+class InvisicAddonManager {
   constructor() {
     this.addons = [];
     this.states = {};
     this.isActive = false;
 
     if (window.electronAPI && window.electronAPI.log)
-      window.electronAPI.log("Kloak Addons: Initializing Manager...");
+      window.electronAPI.log("Invisic Addons: Initialising Manager...");
     this.init();
   }
 
@@ -40,13 +40,15 @@ class KloakAddonManager {
       }
     } catch (e) {
       if (window.electronAPI && window.electronAPI.log)
-        window.electronAPI.log(`Kloak Addons ERROR in init: ${e.message}`);
+        window.electronAPI.log(`Invisic Addons ERROR in init: ${e.message}`);
       this.states = {};
       this.localVersions = {};
     }
   }
 
   registerAddon(addon) {
+    const NATIVE_IDS = ["stealth-mode", "dm-folders", "quick-edit"];
+    if (NATIVE_IDS.includes(addon.id)) return;
     this.addons.push(addon);
     if (this.states[addon.id] === true && addon.onEnable) {
       try {
@@ -73,7 +75,7 @@ class KloakAddonManager {
         b.textContent.includes("Log Out") &&
         b.classList.contains("text-destructive"),
     );
-    const addonPane = document.getElementById("kloak-addon-pane");
+    const addonPane = document.getElementById("invisic-addon-pane");
 
     if (!logOutBtn) {
       this.isActive = false;
@@ -83,13 +85,19 @@ class KloakAddonManager {
 
     const nav = logOutBtn.closest("nav");
     if (!nav) return;
-    if (document.getElementById("kloak-nav-addons")) return;
+    if (document.getElementById("invisic-nav-addons")) return;
 
     const addonBtn = document.createElement("button");
-    addonBtn.id = "kloak-nav-addons";
+    addonBtn.id = "invisic-nav-addons";
     addonBtn.className =
       "w-full flex items-center gap-2.5 text-sm font-medium px-3 py-2 rounded-md transition-colors text-muted-foreground hover:bg-secondary/60 hover:text-foreground";
     addonBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plug w-4 h-4"><path d="M12 22v-5"/><path d="M9 8V2"/><path d="M15 8V2"/><path d="M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z"/></svg>Addons`;
+
+    const appearanceBtn = document.createElement("button");
+    appearanceBtn.id = "invisic-nav-appearance";
+    appearanceBtn.className =
+      "w-full flex items-center gap-2.5 text-sm font-medium px-3 py-2 rounded-md transition-colors text-muted-foreground hover:bg-secondary/60 hover:text-foreground";
+    appearanceBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M18.37 2.63 14 7l-1.59-1.59a2 2 0 0 0-2.82 0L8 7l9 9 1.59-1.59a2 2 0 0 0 0-2.82L17 10l4.37-4.37a2.12 2.12 0 1 0-3-3Z"/><path d="M9 8c-2 3-4 3.5-7 4l8 10c2-1 6-5 6-7"/><path d="M14.5 17.5 4.5 15"/></svg>Themes`;
 
     let settingsModal = nav.closest('[role="dialog"]') || document.body;
     if (window.getComputedStyle(settingsModal).position === "static")
@@ -97,7 +105,7 @@ class KloakAddonManager {
 
     if (!addonPane) {
       const newPane = document.createElement("div");
-      newPane.id = "kloak-addon-pane";
+      newPane.id = "invisic-addon-pane";
       settingsModal.appendChild(newPane);
     }
 
@@ -105,28 +113,167 @@ class KloakAddonManager {
     const divider = nav.querySelector('[role="none"]');
     if (divider) {
       nav.insertBefore(addonBtn, divider);
+      nav.insertBefore(appearanceBtn, divider);
     } else {
       nav.insertBefore(addonBtn, logOutBtn);
+      nav.insertBefore(appearanceBtn, logOutBtn);
     }
+
+    const NAV_INACTIVE =
+      "w-full flex items-center gap-2.5 text-sm font-medium px-3 py-2 rounded-md transition-colors text-muted-foreground hover:bg-secondary/60 hover:text-foreground";
+    const NAV_ACTIVE =
+      "w-full flex items-center gap-2.5 text-sm font-medium px-3 py-2 rounded-md transition-colors bg-primary text-primary-foreground";
 
     addonBtn.addEventListener("click", (e) => {
       e.preventDefault();
+      appearanceBtn.className = NAV_INACTIVE;
       this.activateAddonTab(
         nav,
         addonBtn,
-        document.getElementById("kloak-addon-pane"),
+        document.getElementById("invisic-addon-pane"),
       );
     });
-    nav.querySelectorAll("button:not(#kloak-nav-addons)").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        if (this.isActive) {
-          this.isActive = false;
-          document
-            .getElementById("kloak-addon-pane")
-            .classList.remove("active");
-          addonBtn.className =
-            "w-full flex items-center gap-2.5 text-sm font-medium px-3 py-2 rounded-md transition-colors text-muted-foreground hover:bg-secondary/60 hover:text-foreground";
-        }
+
+    appearanceBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      addonBtn.className = NAV_INACTIVE;
+      this.activateAppearanceTab(
+        nav,
+        appearanceBtn,
+        document.getElementById("invisic-addon-pane"),
+      );
+    });
+
+    nav
+      .querySelectorAll(
+        "button:not(#invisic-nav-addons):not(#invisic-nav-appearance)",
+      )
+      .forEach((btn) => {
+        btn.addEventListener("click", () => {
+          if (this.isActive) {
+            this.isActive = false;
+            document
+              .getElementById("invisic-addon-pane")
+              .classList.remove("active");
+            addonBtn.className = NAV_INACTIVE;
+            appearanceBtn.className = NAV_INACTIVE;
+          }
+        });
+      });
+  }
+
+  activateAppearanceTab(nav, appearanceBtn, addonPane) {
+    this.isActive = true;
+    const offset = this.getTopOffset();
+    addonPane.style.top = `${offset}px`;
+
+    nav.querySelectorAll("button").forEach((btn) => {
+      if (
+        btn.id !== "invisic-nav-appearance" &&
+        !btn.classList.contains("text-destructive")
+      ) {
+        btn.className =
+          "w-full flex items-center gap-2.5 text-sm font-medium px-3 py-2 rounded-md transition-colors text-muted-foreground hover:bg-secondary/60 hover:text-foreground";
+      }
+    });
+
+    appearanceBtn.className =
+      "w-full flex items-center gap-2.5 text-sm font-medium px-3 py-2 rounded-md transition-colors bg-primary text-primary-foreground";
+    this.renderThemeUI(addonPane);
+    addonPane.classList.add("active");
+  }
+
+  async renderThemeUI(container) {
+    container.innerHTML = `
+      <div class="invisic-esc-wrapper">
+        <button id="invisic-addon-close" aria-label="Close">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
+        <span class="invisic-esc-text">ESC</span>
+      </div>
+      <div class="addon-header-container">
+        <h2>Themes</h2>
+        <p>Choose a theme to customise the look of Invisic</p>
+        <div class="addon-header-actions">
+          <button id="theme-open-folder-btn" class="addon-card addon-action-btn" style="flex:0 0 auto;">
+            <div class="addon-action-content">
+              <div class="addon-action-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>
+              </div>
+              <div class="addon-action-text-group">
+                <h3 class="addon-action-title">Open Folder</h3>
+                <p class="addon-action-subtitle">Add user themes</p>
+              </div>
+            </div>
+          </button>
+        </div>
+      </div>
+      <div id="theme-list-area" style="padding: 0 20px 20px; max-width: 480px;">
+        <p style="color: var(--invisic-text-sub); font-size: 13px;">Loading themes...</p>
+      </div>
+    `;
+
+    container.querySelector("#invisic-addon-close")?.addEventListener("click", () =>
+      document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }))
+    );
+
+    container.querySelector("#theme-open-folder-btn")?.addEventListener("click", () => {
+      window.electronAPI?.openUserThemesFolder?.();
+    });
+
+    let themes = [];
+    try {
+      themes = await window.electronAPI.getThemeFiles();
+    } catch (e) {
+      console.error("[Themes UI] Failed to load themes:", e);
+    }
+
+    const saved = localStorage.getItem("invisic-theme-selected") ?? "invisic.css";
+
+    // Pinned entries: None first, then Invisic, then remaining bundled, then user
+    const invisicTheme = themes.find((t) => t.bundled && t.filename === "invisic.css");
+    const otherBundled = themes.filter((t) => t.bundled && t.filename !== "invisic.css");
+    const user = themes.filter((t) => !t.bundled);
+
+    function themeCard(filename, label, sublabel, isSelected) {
+      return `
+        <label class="theme-option" style="display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--invisic-bg-box);border:1px solid ${isSelected ? "var(--invisic-radiobtn-selected)" : "var(--invisic-radiobtn-border)"};border-radius:8px;cursor:pointer;transition:border-color 0.15s;">
+          <input type="radio" name="theme-select" value="${filename}" ${isSelected ? "checked" : ""} style="accent-color:var(--invisic-radiobtn-selected);flex-shrink:0;">
+          <div>
+            <div style="font-weight:600;font-size:13px;color:var(--invisic-text-main);text-transform:capitalize;">${label}</div>
+            ${sublabel ? `<div style="font-size:11px;color:var(--invisic-text-sub);">${sublabel}</div>` : ""}
+          </div>
+        </label>`;
+    }
+
+    let html = `<div style="display:flex;flex-direction:column;gap:6px;">`;
+
+    html += themeCard("", "None (Kloak Default)", "", saved === "");
+    if (invisicTheme) {
+      html += themeCard("invisic.css", "Invisic", "invisic.css", saved === "invisic.css");
+    }
+    otherBundled.forEach((t) => {
+      html += themeCard(t.filename, t.name, t.filename, saved === t.filename);
+    });
+    if (user.length > 0) {
+      html += `<p style="font-size:11px;color:var(--invisic-text-sub);margin:8px 0 2px;padding-left:2px;">User Themes</p>`;
+      user.forEach((t) => {
+        html += themeCard(t.filename, t.name, t.filename, saved === t.filename);
+      });
+    }
+
+    html += `</div>`;
+
+    const listArea = container.querySelector("#theme-list-area");
+    listArea.innerHTML = html;
+
+    listArea.querySelectorAll('input[name="theme-select"]').forEach((radio) => {
+      radio.addEventListener("change", () => {
+        listArea.querySelectorAll(".theme-option").forEach((l) => {
+          l.style.borderColor = "var(--invisic-radiobtn-border)";
+        });
+        radio.closest(".theme-option").style.borderColor = "var(--invisic-radiobtn-selected)";
+        document.dispatchEvent(new CustomEvent("invisic-apply-theme", { detail: radio.value }));
       });
     });
   }
@@ -138,7 +285,7 @@ class KloakAddonManager {
 
     nav.querySelectorAll("button").forEach((btn) => {
       if (
-        btn.id !== "kloak-nav-addons" &&
+        btn.id !== "invisic-nav-addons" &&
         !btn.classList.contains("text-destructive")
       ) {
         btn.className =
@@ -154,23 +301,23 @@ class KloakAddonManager {
 
   openSettingsModal(addon) {
     // Ensure Modal HTML exists
-    let modal = document.getElementById("kloak-addon-settings-modal");
+    let modal = document.getElementById("invisic-addon-settings-modal");
     if (!modal) {
       modal = document.createElement("div");
-      modal.id = "kloak-addon-settings-modal";
+      modal.id = "invisic-addon-settings-modal";
       modal.innerHTML = `
-            <div class="kloak-modal-container modal-neutral">
-                <div class="kloak-modal-header">
-                    <div class="kloak-modal-icon">
+            <div class="invisic-modal-container modal-neutral">
+                <div class="invisic-modal-header">
+                    <div class="invisic-modal-icon">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
                     </div>
-                    <div class="kloak-modal-title-group">
-                        <h3 id="addon-settings-title" class="kloak-modal-title">Addon Info</h3>
-                        <p class="kloak-modal-subtitle">Configuration & Details</p>
+                    <div class="invisic-modal-title-group">
+                        <h3 id="addon-settings-title" class="invisic-modal-title">Addon Info</h3>
+                        <p class="invisic-modal-subtitle">Configuration & Details</p>
                     </div>
-                    <button id="addon-settings-close" class="kloak-btn-secondary kloak-modal-close-icon-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+                    <button id="addon-settings-close" class="invisic-btn-secondary invisic-modal-close-icon-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
                 </div>
-                <div id="addon-settings-content" class="kloak-modal-body mb-0"></div>
+                <div id="addon-settings-content" class="invisic-modal-body mb-0"></div>
             </div>
             `;
       document.body.appendChild(modal);
@@ -203,11 +350,11 @@ class KloakAddonManager {
 
   renderAddonUI(container) {
     let html = `
-        <div class="kloak-esc-wrapper">
-        <button id="kloak-addon-close" aria-label="Close">
+        <div class="invisic-esc-wrapper">
+        <button id="invisic-addon-close" aria-label="Close">
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
         </button>
-        <span class="kloak-esc-text">ESC</span>
+        <span class="invisic-esc-text">ESC</span>
         </div>
 
         <div class="addon-header-container">
@@ -215,7 +362,7 @@ class KloakAddonManager {
         <p>Manage custom addons and client modifications</p>
 
         <div class="addon-header-actions">
-        <button id="kloak-open-folder" class="addon-card addon-action-btn">
+        <button id="invisic-open-folder" class="addon-card addon-action-btn">
         <div class="addon-action-content">
         <div class="addon-action-icon">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>
@@ -227,7 +374,7 @@ class KloakAddonManager {
         </div>
         </button>
 
-        <button id="kloak-get-addons" class="addon-card addon-action-btn">
+        <button id="invisic-get-addons" class="addon-card addon-action-btn">
         <div class="addon-action-content">
         <div class="addon-action-icon">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
@@ -277,13 +424,13 @@ class KloakAddonManager {
     container.innerHTML = html;
 
     container
-      .querySelector("#kloak-open-folder")
+      .querySelector("#invisic-open-folder")
       ?.addEventListener("click", () => window.electronAPI.openAddonsFolder());
     container
-      .querySelector("#kloak-get-addons")
+      .querySelector("#invisic-get-addons")
       ?.addEventListener("click", () => this.openAppStore());
     container
-      .querySelector("#kloak-addon-close")
+      .querySelector("#invisic-addon-close")
       ?.addEventListener("click", () =>
         document.dispatchEvent(
           new KeyboardEvent("keydown", { key: "Escape", bubbles: true }),
@@ -311,7 +458,7 @@ class KloakAddonManager {
         this.states[addonId] = isNowEnabled;
         if (window.electronAPI.log)
           window.electronAPI.log(
-            `Kloak Addons: Toggling ${addonId} to ${isNowEnabled}`,
+            `Invisic Addons: Toggling ${addonId} to ${isNowEnabled}`,
           );
         window.electronAPI.saveAddonState({ addonId, enabled: isNowEnabled });
 
@@ -321,7 +468,7 @@ class KloakAddonManager {
         } catch (err) {
           if (window.electronAPI.log)
             window.electronAPI.log(
-              `Kloak Addons ERROR toggling: ${err.message}`,
+              `Invisic Addons ERROR toggling: ${err.message}`,
             );
         }
       });
@@ -329,24 +476,24 @@ class KloakAddonManager {
   }
 
   async openAppStore() {
-    let storeModal = document.getElementById("kloak-addon-store-modal");
+    let storeModal = document.getElementById("invisic-addon-store-modal");
     if (!storeModal) {
       storeModal = document.createElement("div");
-      storeModal.id = "kloak-addon-store-modal";
-      storeModal.className = "kloak-modal-overlay";
+      storeModal.id = "invisic-addon-store-modal";
+      storeModal.className = "invisic-modal-overlay";
       storeModal.innerHTML = `
-            <div class="kloak-modal-container modal-neutral store-modal-container">
-                <div class="kloak-modal-header">
-                    <div class="kloak-modal-icon">
+            <div class="invisic-modal-container modal-neutral store-modal-container">
+                <div class="invisic-modal-header">
+                    <div class="invisic-modal-icon">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
                     </div>
-                    <div class="kloak-modal-title-group">
-                        <h3 class="kloak-modal-title">Addon Store</h3>
-                        <p class="kloak-modal-subtitle">Download from Codeberg</p>
+                    <div class="invisic-modal-title-group">
+                        <h3 class="invisic-modal-title">Addon Store</h3>
+                        <p class="invisic-modal-subtitle">Download from Codeberg</p>
                     </div>
-                    <button id="store-close-btn" class="kloak-btn-secondary kloak-modal-close-icon-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+                    <button id="store-close-btn" class="invisic-btn-secondary invisic-modal-close-icon-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
                 </div>
-                <div id="store-content" class="kloak-modal-body store-modal-content">
+                <div id="store-content" class="invisic-modal-body store-modal-content">
                 </div>
             </div>
             `;
@@ -379,7 +526,7 @@ class KloakAddonManager {
         let btnHtml = "";
 
         if (!localVer) {
-          btnHtml = `<button class="store-install-btn kloak-btn-primary store-btn-install" data-id="${id}" data-url="${addon.url}" data-ver="${addon.version}">Install</button>`;
+          btnHtml = `<button class="store-install-btn invisic-btn-primary store-btn-install" data-id="${id}" data-url="${addon.url}" data-ver="${addon.version}">Install</button>`;
         } else if (localVer === "9999") {
           btnHtml = `<button disabled class="store-btn-custom">Custom</button>`;
         } else if (localVer !== addon.version) {
@@ -414,10 +561,10 @@ class KloakAddonManager {
           });
           if (result.success) {
             e.target.textContent = "Installed! Restart App";
-            e.target.style.color = "var(--kloak-accent-success)";
+            e.target.style.color = "var(--invisic-accent-success)";
           } else {
             e.target.textContent = "Failed";
-            e.target.style.background = "var(--kloak-accent-destructive)";
+            e.target.style.background = "var(--invisic-accent-destructive)";
           }
         });
       });
@@ -426,4 +573,4 @@ class KloakAddonManager {
     }
   }
 }
-window.KloakAddons = new KloakAddonManager();
+window.InvisicAddons = new InvisicAddonManager();

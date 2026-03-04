@@ -33,22 +33,22 @@
     --accent-foreground: 338 46% 20% !important;
 
         /* Kloak UI Settings Elements */
-    --kloak-bg-main: hsl(330, 67%, 96%) !important;
-    --kloak-bg-box: hsl(330, 67%, 96%) !important;
-    --kloak-bg-btn: hsl(337, 72%, 88%) !important;
-    --kloak-switch-on: hsl(341, 60%, 58%) !important;
-    --kloak-switch-off: hsl(338, 65%, 85%) !important;
-    --kloak-icon-bg: hsl(337, 72%, 88%) !important;
-    --kloak-icon-fg: hsl(338, 46%, 20%) !important;
-    --kloak-text-main: hsl(338, 46%, 20%) !important;
-    --kloak-text-sub: hsl(338, 30%, 45%) !important;
-    --kloak-accent-success: hsl(341, 60%, 58%) !important;    --kloak-text-sub: hsl(338 30% 45%) !important;
-    --kloak-slider-body: hsl(338, 46%, 20%) !important;
-    --kloak-slider-knob: hsl(330, 67%, 96%) !important;
-    --kloak-slider-track: hsl(337, 72%, 88%) !important;
-    --kloak-radiobtn-selected: hsl(338, 46%, 20%) !important;
-    --kloak-radiobtn-selected-ctr: hsl(330, 67%, 96%) !important;
-    --kloak-radiobtn-border: hsl(337, 72%, 88%) !important;
+    --invisic-bg-main: hsl(330, 67%, 96%) !important;
+    --invisic-bg-box: hsl(330, 67%, 96%) !important;
+    --invisic-bg-btn: hsl(337, 72%, 88%) !important;
+    --invisic-switch-on: hsl(341, 60%, 58%) !important;
+    --invisic-switch-off: hsl(338, 65%, 85%) !important;
+    --invisic-icon-bg: hsl(337, 72%, 88%) !important;
+    --invisic-icon-fg: hsl(338, 46%, 20%) !important;
+    --invisic-text-main: hsl(338, 46%, 20%) !important;
+    --invisic-text-sub: hsl(338, 30%, 45%) !important;
+    --invisic-accent-success: hsl(341, 60%, 58%) !important;    --invisic-text-sub: hsl(338 30% 45%) !important;
+    --invisic-slider-body: hsl(338, 46%, 20%) !important;
+    --invisic-slider-knob: hsl(330, 67%, 96%) !important;
+    --invisic-slider-track: hsl(337, 72%, 88%) !important;
+    --invisic-radiobtn-selected: hsl(338, 46%, 20%) !important;
+    --invisic-radiobtn-selected-ctr: hsl(330, 67%, 96%) !important;
+    --invisic-radiobtn-border: hsl(337, 72%, 88%) !important;
 }
 
 /* --- 2. Layout Overrides --- */

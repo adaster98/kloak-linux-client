@@ -23,8 +23,6 @@ const api = {
   },
   permissionResponse: (id, allowed) =>
     ipcRenderer.send("permission-response", { id, allowed }),
-  linkWarningResponse: (url, allowed, remember) =>
-    ipcRenderer.send("link-warning-response", { url, allowed, remember }),
   screenShareSelected: (sourceId) =>
     ipcRenderer.send("screen-share-selected", sourceId),
   openExternalUrl: (url) => ipcRenderer.send("open-external-url", url),
@@ -37,7 +35,10 @@ const api = {
   fetchStoreData: () => ipcRenderer.invoke("fetch-store-data"),
   getAddonConfig: (addonId) => ipcRenderer.invoke("get-addon-config", addonId),
   saveAddonConfig: (data) => ipcRenderer.send("save-addon-config", data),
+  getFeatureConfig: () => ipcRenderer.invoke("get-feature-config"),
+  saveFeatureConfig: (data) => ipcRenderer.invoke("save-feature-config", data),
   getThemeFiles: () => ipcRenderer.invoke("get-theme-files"),
+  openUserThemesFolder: () => ipcRenderer.send("open-user-themes-folder"),
   startUpdate: (version) => ipcRenderer.send("start-update", { version }),
   quitAndInstall: () => ipcRenderer.send("quit-and-install"),
   triggerDebugUpdate: () => ipcRenderer.send("debug-update-trigger"),
@@ -132,9 +133,6 @@ ipcRenderer.on("update-progress", (event, data) => {
 });
 ipcRenderer.on("show-custom-permission", (event, data) => {
   if (modalCallback) modalCallback("show-custom-permission", data);
-});
-ipcRenderer.on("show-link-warning", (event, data) => {
-  if (modalCallback) modalCallback("show-link-warning", data);
 });
 ipcRenderer.on("show-screen-picker", (event, data) => {
   if (modalCallback) modalCallback("show-screen-picker", data);
