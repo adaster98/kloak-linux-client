@@ -619,19 +619,19 @@
           ? topEmojis
               .map(
                 (e) =>
-                  `<div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--invisic-bg-btn);">
-                    <span style="color: var(--invisic-text-main); font-size: 13px;">${e.name}</span>
-                    <span style="color: var(--invisic-text-sub); font-size: 12px;">${e.count}× · ${e.serverName || "Unknown"}</span>
+                  `<div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid hsl(var(--secondary));">
+                    <span style="color: hsl(var(--foreground)); font-size: 13px;">${e.name}</span>
+                    <span style="color: hsl(var(--muted-foreground)); font-size: 12px;">${e.count}× · ${e.serverName || "Unknown"}</span>
                   </div>`,
               )
               .join("")
-          : '<p style="color: var(--invisic-text-sub); font-size: 13px; margin: 0;">No emojis tracked yet. React to messages to start building your quick list!</p>';
+          : '<p style="color: hsl(var(--muted-foreground)); font-size: 13px; margin: 0;">No emojis tracked yet. React to messages to start building your quick list!</p>';
 
       container.innerHTML = `
         <div class="addon-settings-item">
-          <p style="margin: 0 0 12px 0; color: var(--invisic-text-sub); font-size: 13px;">Configure how long (in days) emojis should stay in memory.</p>
+          <p style="margin: 0 0 12px 0; color: hsl(var(--muted-foreground)); font-size: 13px;">Configure how long (in days) emojis should stay in memory.</p>
           <label class="addon-label">Memory Duration (Days)</label>
-          <input id="qm-duration-input" type="number" min="1" max="365" value="${config.memoryDurationDays}" style="width: 100%; padding: 10px; background: var(--invisic-bg-box); border: 1px solid var(--invisic-bg-btn); border-radius: 6px; color: var(--invisic-text-main); margin-top: 6px; box-sizing: border-box; outline: none;">
+          <input id="qm-duration-input" type="number" min="1" max="365" value="${config.memoryDurationDays}" style="width: 100%; padding: 10px; background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: 6px; color: hsl(var(--foreground)); margin-top: 6px; box-sizing: border-box; outline: none;">
         </div>
         <div class="addon-settings-item" style="margin-top: 16px;">
           <label class="addon-label">Tracked Emojis (Top ${MAX_DISPLAY_EMOJIS})</label>

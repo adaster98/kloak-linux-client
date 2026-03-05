@@ -202,7 +202,7 @@ if (window.electronAPI) {
       overlay.querySelector("#update-status-text").textContent =
         "Error: " + status.error;
       overlay.querySelector("#update-status-text").style.color =
-        "var(--invisic-accent-destructive)";
+        "#EB1414";
       const cancelBtn = overlay.querySelector("#update-cancel");
       cancelBtn.style.display = "";
       cancelBtn.textContent = "Dismiss";

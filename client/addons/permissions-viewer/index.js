@@ -264,14 +264,14 @@
   const renderModalSkeleton = () => {
     return `
       <div class="addon-role-modal-overlay" style="position:fixed; inset:0; background:rgba(0,0,0,0.8); backdrop-filter:blur(12px); display:flex; align-items:center; justify-content:center; z-index:999999; animation: addonFadeIn 0.2s ease-out;">
-        <div class="addon-role-panel" style="width:min(580px, 95vw); max-height:85vh; background:var(--invisic-bg-main); border:1px solid var(--invisic-bg-btn); border-radius:16px; display:flex; flex-direction:column; box-shadow:0 24px 64px rgba(0,0,0,0.6); overflow:hidden; animation: addonPopIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
+        <div class="addon-role-panel" style="width:min(580px, 95vw); max-height:85vh; background:hsl(var(--background)); border:1px solid hsl(var(--secondary)); border-radius:16px; display:flex; flex-direction:column; box-shadow:0 24px 64px rgba(0,0,0,0.6); overflow:hidden; animation: addonPopIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
           
-          <div style="padding:16px 20px; border-bottom:1px solid var(--invisic-bg-btn); display:flex; justify-content:space-between; align-items:center; background:var(--invisic-bg-box);">
+          <div style="padding:16px 20px; border-bottom:1px solid hsl(var(--secondary)); display:flex; justify-content:space-between; align-items:center; background:hsl(var(--card));">
             <div>
-              <h2 style="color:var(--invisic-text-main); font-size:16px; font-weight:700; margin:0;">Server Permissions</h2>
-              <p style="color:var(--invisic-text-sub); font-size:12px; margin:2px 0 0 0;">Inspect role-based access across categories.</p>
+              <h2 style="color:hsl(var(--foreground)); font-size:16px; font-weight:700; margin:0;">Server Permissions</h2>
+              <p style="color:hsl(var(--muted-foreground)); font-size:12px; margin:2px 0 0 0;">Inspect role-based access across categories.</p>
             </div>
-            <button class="addon-close-btn" style="background:var(--invisic-bg-btn); border:none; width:30px; height:30px; border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition: all 0.2s;">
+            <button class="addon-close-btn" style="background:hsl(var(--secondary)); border:none; width:30px; height:30px; border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition: all 0.2s;">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-muted-foreground"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
             </button>
           </div>
@@ -283,20 +283,20 @@
         @keyframes addonFadeIn { from { opacity:0; } to { opacity:1; } }
         @keyframes addonPopIn { from { transform:scale(0.96); opacity:0; } to { transform:scale(1); opacity:1; } }
         .addon-dropdown-wrapper { position: relative; width: 100%; }
-        .addon-dropdown-trigger { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background-color: var(--invisic-bg-box); border: 1px solid var(--invisic-bg-btn); color: var(--invisic-text-main); border-radius: 10px; cursor: pointer; font-size: 13px; font-weight: 500; transition: border-color 0.2s; }
-        .addon-dropdown-trigger:hover { border-color: var(--invisic-text-sub); }
-        .addon-dropdown-menu { display: none; position: absolute; top: calc(100% + 6px); left: 0; width: 100%; background-color: var(--invisic-bg-box); border: 1px solid var(--invisic-bg-btn); border-radius: 10px; z-index: 100; box-shadow: 0 10px 30px rgba(0,0,0,0.5); max-height: 250px; overflow-y: auto; animation: dropdownFade 0.15s ease-out; }
+        .addon-dropdown-trigger { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background-color: hsl(var(--card)); border: 1px solid hsl(var(--secondary)); color: hsl(var(--foreground)); border-radius: 10px; cursor: pointer; font-size: 13px; font-weight: 500; transition: border-color 0.2s; }
+        .addon-dropdown-trigger:hover { border-color: hsl(var(--muted-foreground)); }
+        .addon-dropdown-menu { display: none; position: absolute; top: calc(100% + 6px); left: 0; width: 100%; background-color: hsl(var(--card)); border: 1px solid hsl(var(--secondary)); border-radius: 10px; z-index: 100; box-shadow: 0 10px 30px rgba(0,0,0,0.5); max-height: 250px; overflow-y: auto; animation: dropdownFade 0.15s ease-out; }
         @keyframes dropdownFade { from { opacity:0; transform: translateY(-10px); } to { opacity:1; transform: translateY(0); } }
-        .addon-dropdown-item { display: flex; align-items: center; padding: 10px 14px; font-size: 13px; color: var(--invisic-text-main); cursor: pointer; transition: background-color 0.15s; }
-        .addon-dropdown-item:hover { background-color: var(--invisic-bg-btn); }
+        .addon-dropdown-item { display: flex; align-items: center; padding: 10px 14px; font-size: 13px; color: hsl(var(--foreground)); cursor: pointer; transition: background-color 0.15s; }
+        .addon-dropdown-item:hover { background-color: hsl(var(--secondary)); }
         .addon-role-dot { width: 10px; height: 10px; border-radius: 50%; margin-right: 10px; flex-shrink: 0; }
-        .addon-close-btn:hover { background: var(--invisic-icon-bg) !important; color: var(--invisic-text-main); }
-        .permission-row:hover { background-color: var(--invisic-bg-box); }
-        .coming-soon-badge { display: inline-flex; align-items: center; border-radius: 9999px; border-width: 1px; font-size: 9px; padding-left: 6px; padding-right: 6px; height: 16px; font-weight: 500; color: var(--invisic-text-sub); border-color: rgba(148, 148, 148, 0.3); margin-left: 8px; }
+        .addon-close-btn:hover { background: hsl(var(--secondary)) !important; color: hsl(var(--foreground)); }
+        .permission-row:hover { background-color: hsl(var(--card)); }
+        .coming-soon-badge { display: inline-flex; align-items: center; border-radius: 9999px; border-width: 1px; font-size: 9px; padding-left: 6px; padding-right: 6px; height: 16px; font-weight: 500; color: hsl(var(--muted-foreground)); border-color: rgba(148, 148, 148, 0.3); margin-left: 8px; }
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--invisic-bg-btn); border-radius: 10px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--invisic-text-sub); }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: hsl(var(--secondary)); border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: hsl(var(--muted-foreground)); }
       </style>`;
   };
 
@@ -322,15 +322,15 @@
       const everyone = roles.find((r) => r.name === "@everyone") || roles[0];
 
       dynamicContent.innerHTML = `
-        <div style="padding:16px 20px; border-bottom:1px solid var(--invisic-bg-btn);">
-          <label style="color:var(--invisic-text-sub); font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; display:block; margin-bottom:8px;">Current Role</label>
+        <div style="padding:16px 20px; border-bottom:1px solid hsl(var(--secondary));">
+          <label style="color:hsl(var(--muted-foreground)); font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; display:block; margin-bottom:8px;">Current Role</label>
           <div class="addon-dropdown-wrapper">
              <div id="snazzy-trigger" class="addon-dropdown-trigger">
                 <div style="display:flex; align-items:center;">
                    <div class="addon-role-dot" style="background:${everyone.color || "#949494"}" id="trigger-dot"></div>
                    <span id="trigger-label">${escapeHtml(everyone.name === "@everyone" ? "Everyone" : everyone.name)}</span>
                 </div>
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--invisic-text-sub)"><path d="m6 9 6 6 6-6"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:hsl(var(--muted-foreground))"><path d="m6 9 6 6 6-6"/></svg>
              </div>
              <div id="snazzy-menu" class="addon-dropdown-menu custom-scrollbar">
                 ${roles
@@ -360,8 +360,8 @@
         CATEGORIES.forEach((cat) => {
           html += `<div style="margin-bottom: 24px;">
               <div style="margin-bottom: 10px; padding: 0 10px;">
-                <h4 style="font-size:11px; font-family:monospace; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--invisic-text-sub); margin:0;">${cat.name}</h4>
-                <p style="font-size:11px; color:var(--invisic-text-sub); margin:2px 0 0 0; opacity:0.8;">${cat.subtext}</p>
+                <h4 style="font-size:11px; font-family:monospace; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:hsl(var(--muted-foreground)); margin:0;">${cat.name}</h4>
+                <p style="font-size:11px; color:hsl(var(--muted-foreground)); margin:2px 0 0 0; opacity:0.8;">${cat.subtext}</p>
               </div>
               <div style="display: flex; flex-direction: column; gap: 2px;">
                 ${cat.permissions
@@ -370,10 +370,10 @@
                     <div class="permission-row" style="display:flex; align-items:center; justify-content:space-between; padding:10px; border-radius:10px; transition: background-color 0.15s;">
                       <div style="flex:1; min-width:0; margin-right:12px;">
                         <div style="display:flex; align-items:center;">
-                          <span style="font-size:14px; font-weight:550; color:var(--invisic-text-main);">${perm.name}</span>
+                          <span style="font-size:14px; font-weight:550; color:hsl(var(--foreground));">${perm.name}</span>
                           ${perm.comingSoon ? `<span class="coming-soon-badge">Coming soon</span>` : ""}
                         </div>
-                        <p style="font-size:12px; color:var(--invisic-text-sub); margin:2px 0 0 0; line-height:1.4;">${perm.description}</p>
+                        <p style="font-size:12px; color:hsl(var(--muted-foreground)); margin:2px 0 0 0; line-height:1.4;">${perm.description}</p>
                       </div>
                       ${generateTriState(perm.id, roleId, roles, permissions)}
                     </div>
@@ -412,9 +412,9 @@
     };
 
     dynamicContent.innerHTML = `
-      <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; color:var(--invisic-text-sub); padding:40px; text-align:center;">
-        <div class="loader-spinner" style="width:24px; height:24px; border:2px solid var(--invisic-bg-btn); border-top-color:var(--invisic-text-main); border-radius:50%; animation: spin 1s linear infinite;"></div>
-        <p style="color:var(--invisic-text-main); font-weight:600; margin:0;">Loading permissions...</p>
+      <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; color:hsl(var(--muted-foreground)); padding:40px; text-align:center;">
+        <div class="loader-spinner" style="width:24px; height:24px; border:2px solid hsl(var(--secondary)); border-top-color:hsl(var(--foreground)); border-radius:50%; animation: spin 1s linear infinite;"></div>
+        <p style="color:hsl(var(--foreground)); font-weight:600; margin:0;">Loading permissions...</p>
       </div>
       <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
     `;
@@ -430,11 +430,11 @@
       renderDataView(roles, permissions);
     } catch (e) {
       dynamicContent.innerHTML = `
-        <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; color:var(--invisic-text-sub); padding:40px; text-align:center;">
-           <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--invisic-accent-destructive)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-           <p style="color:var(--invisic-text-main); font-weight:600;">Request Failed</p>
+        <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; color:hsl(var(--muted-foreground)); padding:40px; text-align:center;">
+           <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#EB1414" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+           <p style="color:hsl(var(--foreground)); font-weight:600;">Request Failed</p>
            <p style="font-size:12px;">${e.message}</p>
-           <button onclick="window.location.reload()" style="background:var(--invisic-bg-btn); color:var(--invisic-text-main); border:1px solid var(--invisic-bg-btn); padding:8px 20px; border-radius:8px; cursor:pointer; font-weight:600;">Manual Refresh</button>
+           <button onclick="window.location.reload()" style="background:hsl(var(--secondary)); color:hsl(var(--foreground)); border:1px solid hsl(var(--secondary)); padding:8px 20px; border-radius:8px; cursor:pointer; font-weight:600;">Manual Refresh</button>
         </div>
       `;
     }

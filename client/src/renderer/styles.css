@@ -1,26 +1,3 @@
-:root {
-    --invisic-bg-main: #0F0F0F;
-    --invisic-bg-box: #1D1D1D;
-    --invisic-bg-btn: #2B2B2B;
-    --invisic-switch-on: #ECECEC;
-    --invisic-switch-off: #2B2B2B;
-    --invisic-btn-white: #ECECEC;
-    --invisic-btn-gray: #2B2B2B;
-    --invisic-icon-bg: #252525;
-    --invisic-icon-fg: #949494;
-    --invisic-text-main: #ECECEC;
-    --invisic-text-sub: #949494;
-    --invisic-accent-warning: #F59E0B;
-    --invisic-accent-destructive: #EB1414;
-    --invisic-accent-success: #40BF80;
-    --invisic-slider-body: #ECECEC;
-    --invisic-slider-knob: #0F0F0F;
-    --invisic-slider-track: #2B2B2B;
-    --invisic-radiobtn-selected: #ECECEC;
-    --invisic-radiobtn-selected-ctr: #0F0F0F;
-    --invisic-radiobtn-border: #2B2B2B;
-}
-
 /* Maximized window — square corners */
 html.invisic-maximized,
 body.invisic-maximized { border-radius: 0 !important; }
@@ -31,46 +8,46 @@ body.invisic-maximized #invisic-addon-settings-modal { border-radius: 0; }
     display: none;
     position: absolute;
     right: 0; bottom: 0; left: 224px;
-    background: var(--invisic-bg-main);
+    background: hsl(var(--background));
     z-index: 999; padding: 40px; overflow-y: auto;
     border-bottom-right-radius: inherit;
 }
 #invisic-addon-pane.active { display: block; }
 
-.invisic-esc-wrapper { position: absolute; top: 40px; right: 40px; display: flex; flex-direction: column; align-items: center; gap: 6px; }
-#invisic-addon-close { background: #18181b; border: 1px solid var(--invisic-bg-btn); color: var(--invisic-text-sub); cursor: pointer; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
-#invisic-addon-close:hover { background: var(--invisic-bg-btn); color: var(--invisic-text-main); }
-.invisic-esc-text { font-size: 11px; font-weight: 600; color: var(--invisic-text-sub); letter-spacing: 0.5px; }
+.invisic-esc-wrapper { position: absolute; top: 40px; right: 40px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.invisic-esc-button { background: transparent; border: none; cursor: pointer; padding: 0; display: flex; flex-direction: column; align-items: center; gap: 8px; transition: all 0.2s; }
+.invisic-esc-icon-wrapper { width: 36px; height: 36px; border-radius: 50%; border: 1px solid hsl(var(--border)); background: hsl(var(--secondary) / 0.5); display: flex; align-items: center; justify-content: center; color: hsl(var(--muted-foreground)); transition: all 0.2s; }
+.invisic-esc-button:hover .invisic-esc-icon-wrapper { background: hsl(var(--secondary)); border-color: hsl(var(--muted-foreground) / 0.5); color: hsl(var(--foreground)); }
+.invisic-esc-icon { width: 16px; height: 16px; }
+.invisic-esc-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: hsl(var(--muted-foreground)); transition: color 0.2s; }
+.invisic-esc-button:hover .invisic-esc-label { color: hsl(var(--foreground)); }
 
-.addon-header-container { margin-bottom: 32px; padding-bottom: 16px; border-bottom: 1px solid var(--invisic-bg-btn); padding-right: 60px; }
-.addon-header-container h2 { font-size: 20px; font-weight: 600; color: var(--invisic-text-main); margin: 0 0 4px 0; }
-.addon-header-container p { font-size: 14px; color: var(--invisic-text-sub); margin: 0; }
+.addon-header-container { margin-bottom: 32px; padding-bottom: 16px; border-bottom: 1px solid hsl(var(--border)); padding-right: 60px; }
+.addon-header-container h2 { font-size: 20px; font-weight: 600; color: hsl(var(--foreground)); margin: 0 0 4px 0; }
+.addon-header-container p { font-size: 14px; color: hsl(var(--muted-foreground)); margin: 0; }
 
 .addon-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-.addon-card { 
-    background: var(--invisic-bg-box); border: 1px solid var(--invisic-bg-btn); border-radius: 12px; 
-    padding: 16px; display: flex; align-items: center; 
+.addon-card {
+    background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: 12px;
+    padding: 16px; display: flex; align-items: center;
     justify-content: space-between; gap: 16px; transition: all 0.2s;
 }
-.addon-card:hover { background: var(--invisic-bg-box); border-color: var(--invisic-icon-bg); }
+.addon-card:hover { background: hsl(var(--card)); }
 .addon-info { flex: 1; min-width: 0; text-align: left; }
-.addon-info h3 { margin: 0 0 4px 0; font-size: 15px; color: var(--invisic-text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; }
-.addon-info p { margin: 0; font-size: 13px; color: var(--invisic-icon-fg); display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.2; }
+.addon-info h3 { margin: 0 0 4px 0; font-size: 15px; color: hsl(var(--foreground)); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; }
+.addon-info p { margin: 0; font-size: 13px; color: hsl(var(--muted-foreground)); display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.2; }
 .addon-controls { display: flex; align-items: center; gap: 12px; }
 
-.addon-btn-icon { background: var(--invisic-icon-bg); border: 1px solid transparent; color: var(--invisic-icon-fg); padding: 6px; border-radius: 6px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
-.addon-btn-icon:hover { background: var(--invisic-icon-bg); color: var(--invisic-text-main); }
-.addon-toggle { position: relative; width: 44px; height: 24px; background: var(--invisic-switch-off); border-radius: 24px; cursor: pointer; transition: background 0.3s; flex-shrink: 0; }
-.addon-toggle.enabled { background: var(--invisic-switch-on); }
-.addon-toggle::after { content: ''; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; background: var(--invisic-bg-main); border-radius: 50%; transition: transform 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-.addon-toggle.enabled::after { transform: translateX(20px); }
+.addon-btn-icon { background: hsl(var(--secondary)); border: 1px solid transparent; color: hsl(var(--muted-foreground)); padding: 6px; border-radius: 6px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
+.addon-btn-icon:hover { background: hsl(var(--secondary)); color: hsl(var(--foreground)); }
+.addon-toggle { flex-shrink: 0; }
 
 /* Settings Modal */
 #invisic-addon-settings-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999999; justify-content: center; align-items: center; border-radius: 20px; overflow: hidden; }
 
-.addon-settings-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--invisic-bg-btn); padding-bottom: 16px; margin-bottom: 16px; }
-.addon-settings-header h3 { margin: 0; color: var(--invisic-text-main); font-size: 18px; display: flex; align-items: center; gap: 8px; }
-.addon-settings-content { color: var(--invisic-icon-fg); font-size: 14px; line-height: 1.5; }
+.addon-settings-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid hsl(var(--border)); padding-bottom: 16px; margin-bottom: 16px; }
+.addon-settings-header h3 { margin: 0; color: hsl(var(--foreground)); font-size: 18px; display: flex; align-items: center; gap: 8px; }
+.addon-settings-content { color: hsl(var(--muted-foreground)); font-size: 14px; line-height: 1.5; }
 
 /* Modal Bridged UI */
 .invisic-modal-overlay {
@@ -80,17 +57,17 @@ body.invisic-maximized #invisic-addon-settings-modal { border-radius: 0; }
 }
 
 .invisic-modal-container {
-    background: var(--invisic-bg-main); border: 1px solid var(--invisic-bg-btn); border-radius: 14px;
-    padding: 32px 32px 32px 32px; width: 460px; color: var(--invisic-text-main);
+    background: hsl(var(--background)); border: 1px solid hsl(var(--border)); border-radius: 14px;
+    padding: 32px 32px 32px 32px; width: 460px; color: hsl(var(--foreground));
     box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8);
     position: relative;
 }
 
 /* Modal Categories */
-.invisic-modal-container.modal-warning { border-color: var(--invisic-accent-warning); background-color: #13110a; }
-.invisic-modal-container.modal-destructive { border-color: var(--invisic-accent-destructive); background-color: #130a0a; }
-.invisic-modal-container.modal-success { border-color: var(--invisic-accent-success); background-color: #0a130a; }
-.modal-neutral { border-color: var(--invisic-icon-bg); background-color: var(--invisic-bg-main); }
+.invisic-modal-container.modal-warning { border-color: #F59E0B; background-color: #13110a; }
+.invisic-modal-container.modal-destructive { border-color: #EB1414; background-color: #130a0a; }
+.invisic-modal-container.modal-success { border-color: hsl(var(--primary)); }
+.modal-neutral { border-color: hsl(var(--secondary)); background-color: hsl(var(--background)); }
 
 .invisic-modal-header { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
 .invisic-modal-icon {
@@ -99,21 +76,21 @@ body.invisic-maximized #invisic-addon-settings-modal { border-radius: 0; }
     flex-shrink: 0;
 }
 
-.modal-warning .invisic-modal-icon { background: rgba(212, 149, 36, 0.15); color: var(--invisic-accent-warning); }
-.modal-destructive .invisic-modal-icon { background: rgba(239, 68, 68, 0.15); color: var(--invisic-accent-destructive); }
-.modal-success .invisic-modal-icon { background: rgba(16, 185, 129, 0.15); color: var(--invisic-accent-success); }
-.modal-neutral .invisic-modal-icon { background: rgba(113, 113, 122, 0.15); color: var(--invisic-text-sub); }
+.modal-warning .invisic-modal-icon { background: rgba(212, 149, 36, 0.15); color: #F59E0B; }
+.modal-destructive .invisic-modal-icon { background: rgba(239, 68, 68, 0.15); color: #EB1414; }
+.modal-success .invisic-modal-icon { background: hsl(var(--primary) / 0.15); color: hsl(var(--primary)); }
+.modal-neutral .invisic-modal-icon { background: rgba(113, 113, 122, 0.15); color: hsl(var(--muted-foreground)); }
 
 .invisic-modal-title-group { flex: 1; }
 .invisic-modal-title { margin: 0; font-size: 18px; font-weight: 600; }
-.modal-warning .invisic-modal-title { color: var(--invisic-accent-warning); }
-.modal-destructive .invisic-modal-title { color: var(--invisic-accent-destructive); }
-.modal-success .invisic-modal-title { color: var(--invisic-accent-success); }
-.modal-neutral .invisic-modal-title { color: var(--invisic-text-main); }
+.modal-warning .invisic-modal-title { color: #F59E0B; }
+.modal-destructive .invisic-modal-title { color: #EB1414; }
+.modal-success .invisic-modal-title { color: hsl(var(--primary)); }
+.modal-neutral .invisic-modal-title { color: hsl(var(--foreground)); }
 
-.invisic-modal-subtitle { margin: 4px 0 0 0; font-size: 14px; color: var(--invisic-text-sub); }
+.invisic-modal-subtitle { margin: 4px 0 0 0; font-size: 14px; color: hsl(var(--muted-foreground)); }
 
-.invisic-modal-body { margin-bottom: 24px; font-size: 14px; color: var(--invisic-text-sub); line-height: 1.6; }
+.invisic-modal-body { margin-bottom: 24px; font-size: 14px; color: hsl(var(--muted-foreground)); line-height: 1.6; }
 .invisic-modal-body > *:last-child { margin-bottom: 0 !important; }
 
 
@@ -121,18 +98,18 @@ body.invisic-maximized #invisic-addon-settings-modal { border-radius: 0; }
 .invisic-modal-footer button { flex: 1; }
 
 .invisic-link-preview {
-    margin: 16px 0; font-size: 12px; color: var(--invisic-accent-warning);
-    word-break: break-all; background: var(--invisic-bg-box); padding: 10px 12px;
-    border: 1px solid var(--invisic-bg-btn); border-radius: 8px; font-family: monospace;
+    margin: 16px 0; font-size: 12px; color: #F59E0B;
+    word-break: break-all; background: hsl(var(--card)); padding: 10px 12px;
+    border: 1px solid hsl(var(--border)); border-radius: 8px; font-family: monospace;
 }
 
 .invisic-btn-primary, .invisic-btn-secondary {
-    padding: 12px 20px; border-radius: 8px; border: 1px solid var(--invisic-bg-btn);
-    background: var(--invisic-bg-box); color: var(--invisic-text-main); cursor: pointer;
+    padding: 12px 20px; border-radius: 8px; border: 1px solid hsl(var(--border));
+    background: hsl(var(--card)); color: hsl(var(--foreground)); cursor: pointer;
     font-size: 14px; font-weight: 500; transition: all 0.2s;
     display: flex; align-items: center; justify-content: center; gap: 8px;
 }
-.invisic-btn-primary:hover, .invisic-btn-secondary:hover { background: var(--invisic-icon-bg); border-color: var(--invisic-icon-bg); }
+.invisic-btn-primary:hover, .invisic-btn-secondary:hover { background: hsl(var(--secondary)); border-color: hsl(var(--secondary)); }
 
 /* Animation: Shake */
 @keyframes invisic-shake {
@@ -144,7 +121,7 @@ body.invisic-maximized #invisic-addon-settings-modal { border-radius: 0; }
 
 #invisic-update-banner {
     position: fixed; top: 40px; right: 16px; z-index: 9999999;
-    background: var(--invisic-accent-success); color: #000; padding: 0;
+    background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); padding: 0;
     border-radius: 8px; font-size: 13px; font-weight: 600;
     box-shadow: 0 4px 20px rgba(0,0,0,0.4);
     display: flex; align-items: stretch; overflow: hidden;
@@ -164,58 +141,73 @@ body.invisic-maximized #invisic-addon-settings-modal { border-radius: 0; }
 
 /* Screen Picker */
 .screen-source-card {
-    background: var(--invisic-bg-box); border: 1px solid var(--invisic-bg-btn); border-radius: 8px;
+    background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: 8px;
     padding: 8px; cursor: pointer; text-align: center;
     transition: border-color 0.2s;
 }
-.screen-source-card:hover { border-color: var(--invisic-accent-success); }
+.screen-source-card:hover { border-color: hsl(var(--primary)); }
 .screen-source-card img { width: 100%; border-radius: 4px; display: block; }
 .screen-source-card p {
-    margin: 6px 0 0 0; font-size: 12px; color: var(--invisic-text-sub);
+    margin: 6px 0 0 0; font-size: 12px; color: hsl(var(--muted-foreground));
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 
 
 /* Utility Classes for JS Inline Styles Replacement */
 .invisic-modal-close-icon-btn {
-    padding: 8px; border-radius: 50%; width: 32px; height: 32px; border: none; background: transparent; cursor: pointer; color: var(--invisic-text-sub); transition: color 0.2s, background 0.2s;
+    padding: 8px; border-radius: 50%; width: 32px; height: 32px; border: none; background: transparent; cursor: pointer; color: hsl(var(--muted-foreground)); transition: color 0.2s, background 0.2s;
 }
 .invisic-modal-close-icon-btn:hover {
-    color: var(--invisic-text-main); background: var(--invisic-bg-btn);
+    color: hsl(var(--foreground)); background: hsl(var(--secondary));
 }
 .addon-no-settings { text-align: center; padding: 20px; }
-.addon-no-settings-icon { background: var(--invisic-icon-bg); display: inline-block; padding: 16px; border-radius: 50%; margin-bottom: 16px; color: var(--invisic-icon-fg); }
-.addon-no-settings-title { color: var(--invisic-text-main); margin-bottom: 8px; }
-.addon-no-settings-desc { margin-top: 16px; font-size: 12px; color: var(--invisic-text-sub); }
+.addon-no-settings-icon { background: hsl(var(--secondary)); display: inline-block; padding: 16px; border-radius: 50%; margin-bottom: 16px; color: hsl(var(--muted-foreground)); }
+.addon-no-settings-title { color: hsl(var(--foreground)); margin-bottom: 8px; }
+.addon-no-settings-desc { margin-top: 16px; font-size: 12px; color: hsl(var(--muted-foreground)); }
 .addon-header-actions { display: flex; gap: 16px; margin-top: 16px; max-width: 600px; }
 .addon-action-btn { flex: 1; cursor: pointer; text-align: left; }
 .addon-action-content { display: flex; align-items: center; gap: 14px; }
-.addon-action-icon { color: var(--invisic-text-sub); display: flex; flex-shrink: 0; }
+.addon-action-icon { color: hsl(var(--muted-foreground)); display: flex; flex-shrink: 0; }
 .addon-action-text-group { display: flex; flex-direction: column; justify-content: center; }
 .addon-action-title { margin: 0; font-size: 14px; line-height: 1.2; }
-.addon-action-subtitle { margin: 2px 0 0 0; font-size: 12px; color: var(--invisic-text-sub); line-height: 1.2; }
-.addon-empty-state { color: var(--invisic-text-sub); text-align: center; margin-top: 40px; }
-.addon-version-badge { color: var(--invisic-text-sub); font-size: 10px; background: #000; padding: 1px 5px; border-radius: 4px; border: 1px solid var(--invisic-bg-btn); font-weight: normal; margin-left: 6px; }
+.addon-action-subtitle { margin: 2px 0 0 0; font-size: 12px; color: hsl(var(--muted-foreground)); line-height: 1.2; }
+.addon-empty-state { color: hsl(var(--muted-foreground)); text-align: center; margin-top: 40px; }
+
+/* Theme Grid */
+.theme-grid-area { padding: 0 20px 20px; overflow-y: auto; }
+.theme-section-label { font-size: 11px; font-weight: 600; color: hsl(var(--muted-foreground)); text-transform: uppercase; letter-spacing: 0.06em; margin: 20px 0 10px; padding-left: 2px; }
+.theme-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+.theme-tile { display: flex; flex-direction: column; overflow: hidden; border-radius: 12px; border: 2px solid hsl(var(--border)); cursor: pointer; text-align: left; padding: 0; background: transparent; transition: border-color 0.15s; }
+.theme-tile:hover { border-color: hsl(var(--primary) / 0.5); }
+.theme-tile-selected { border-color: hsl(var(--primary)) !important; }
+.theme-tile-preview { height: 64px; width: 100%; display: flex; flex-shrink: 0; }
+.theme-tile-sidebar { width: 25%; flex-shrink: 0; }
+.theme-tile-content { flex: 1; padding: 10px; display: flex; align-items: flex-end; }
+.theme-tile-bar { height: 12px; border-radius: 4px; width: 75%; }
+.theme-tile-footer { padding: 8px 12px; background: hsl(var(--card)); display: flex; flex-direction: column; }
+.theme-tile-name { font-size: 13px; font-weight: 500; color: hsl(var(--foreground)); display: block; }
+.theme-tile-filename { font-size: 11px; color: hsl(var(--muted-foreground)); display: block; margin-top: 1px; }
+.addon-version-badge { color: hsl(var(--muted-foreground)); font-size: 10px; background: hsl(var(--background)); padding: 1px 5px; border-radius: 4px; border: 1px solid hsl(var(--border)); font-weight: normal; margin-left: 6px; }
 .store-modal-container { width: 640px; max-height: 85vh; display: flex; flex-direction: column; }
 .store-modal-content { overflow-y: auto; padding-right: 8px; display: flex; flex-direction: column; gap: 12px; }
-.store-loading-msg { text-align: center; color: var(--invisic-text-sub); padding: 20px; }
-.store-error-msg { text-align: center; color: var(--invisic-accent-destructive); padding: 20px; }
-.store-addon-card { background: var(--invisic-bg-box); border: 1px solid var(--invisic-bg-btn); border-radius: 10px; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; gap: 16px; transition: border-color 0.2s; }
+.store-loading-msg { text-align: center; color: hsl(var(--muted-foreground)); padding: 20px; }
+.store-error-msg { text-align: center; color: #EB1414; padding: 20px; }
+.store-addon-card { background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: 10px; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; gap: 16px; transition: border-color 0.2s; }
 .store-addon-info { flex: 1; min-width: 0; }
-.store-addon-title { margin: 0 0 2px 0; color: var(--invisic-text-main); font-size: 14px; font-weight: 600; }
-.store-addon-desc { margin: 0; color: var(--invisic-text-sub); font-size: 12px; line-height: 1.4; }
+.store-addon-title { margin: 0 0 2px 0; color: hsl(var(--foreground)); font-size: 14px; font-weight: 600; }
+.store-addon-desc { margin: 0; color: hsl(var(--muted-foreground)); font-size: 12px; line-height: 1.4; }
 .store-addon-action { flex-shrink: 0; }
-.store-btn-custom { background: transparent; color: var(--invisic-text-sub); border: 1px solid var(--invisic-bg-btn); padding: 6px 12px; border-radius: 8px; font-weight: 600; font-size: 12px; cursor: default; opacity: 0.6; }
-.store-btn-update { background: #3b82f6; color: var(--invisic-text-main); border: 1px solid #3b82f6; padding: 6px 12px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 12px; transition: all 0.2s; }
-.store-btn-installed { background: transparent; color: var(--invisic-accent-success); border: 1px solid var(--invisic-accent-success); padding: 6px 12px; border-radius: 8px; font-weight: 600; font-size: 12px; cursor: default; opacity: 0.6; }
+.store-btn-custom { background: transparent; color: hsl(var(--muted-foreground)); border: 1px solid hsl(var(--border)); padding: 6px 12px; border-radius: 8px; font-weight: 600; font-size: 12px; cursor: default; opacity: 0.6; }
+.store-btn-update { background: #3b82f6; color: #fff; border: 1px solid #3b82f6; padding: 6px 12px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 12px; transition: all 0.2s; }
+.store-btn-installed { background: transparent; color: hsl(var(--primary)); border: 1px solid hsl(var(--primary)); padding: 6px 12px; border-radius: 8px; font-weight: 600; font-size: 12px; cursor: default; opacity: 0.6; }
 
 /* Utility Classes for modal-renderer.js */
 .invisic-fade-out { opacity: 0; transform: translateX(20px); }
-.invisic-text-warning { color: var(--invisic-accent-warning) !important; }
-.invisic-text-destructive { color: var(--invisic-accent-destructive) !important; border-color: rgba(235, 20, 20, 0.4) !important; }
-.invisic-checkbox-warning { accent-color: var(--invisic-accent-warning); }
-.invisic-checkbox-label { display: flex; align-items: center; gap: 8px; margin-top: 16px; font-size: 13px; cursor: pointer; color: var(--invisic-text-sub); }
-.invisic-screen-picker-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; overflow-y: auto; padding: 12px; border: 1px solid var(--invisic-bg-btn); border-radius: 10px; background: #0c0c0c; }
+.invisic-text-warning { color: #F59E0B !important; }
+.invisic-text-destructive { color: #EB1414 !important; border-color: rgba(235, 20, 20, 0.4) !important; }
+.invisic-checkbox-warning { accent-color: #F59E0B; }
+.invisic-checkbox-label { display: flex; align-items: center; gap: 8px; margin-top: 16px; font-size: 13px; cursor: pointer; color: hsl(var(--muted-foreground)); }
+.invisic-screen-picker-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; overflow-y: auto; padding: 12px; border: 1px solid hsl(var(--border)); border-radius: 10px; background: hsl(var(--background)); }
 .mt-24 { margin-top: 24px; }
 .pointer-events-auto { pointer-events: auto !important; }
 .mb-0 { margin-bottom: 0 !important; }
@@ -225,8 +217,8 @@ body.invisic-maximized #invisic-addon-settings-modal { border-radius: 0; }
 
 /* Addon Utility Classes */
 .addon-settings-item { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
-.addon-label { font-size: 11px; color: var(--invisic-text-sub); text-transform: uppercase; font-weight: 700; display: flex; justify-content: space-between; }
-.addon-val { color: var(--invisic-text-main); }
+.addon-label { font-size: 11px; color: hsl(var(--muted-foreground)); text-transform: uppercase; font-weight: 700; display: flex; justify-content: space-between; }
+.addon-val { color: hsl(var(--foreground)); }
 
 /* Standardized Slider (Electron/WebKit) */
 .invisic-slider {
@@ -234,7 +226,7 @@ body.invisic-maximized #invisic-addon-settings-modal { border-radius: 0; }
     appearance: none;
     width: 100%;
     height: 4px;
-    background: linear-gradient(to right, var(--invisic-text-main) 0%, var(--invisic-text-main) var(--range-percent, 0%), var(--invisic-bg-btn) var(--range-percent, 0%), var(--invisic-bg-btn) 100%);
+    background: linear-gradient(to right, hsl(var(--primary)) 0%, hsl(var(--primary)) var(--range-percent, 0%), hsl(var(--input)) var(--range-percent, 0%), hsl(var(--input)) 100%);
     border-radius: 4px;
     outline: none;
     margin: 12px 0;
@@ -245,8 +237,8 @@ body.invisic-maximized #invisic-addon-settings-modal { border-radius: 0; }
     appearance: none;
     width: 16px;
     height: 16px;
-    background: var(--invisic-bg-main);
-    border: 2px solid var(--invisic-text-main);
+    background: hsl(var(--foreground));
+    border: 2px solid hsl(var(--primary));
     border-radius: 50%;
     cursor: pointer;
     transition: transform 0.1s ease;
@@ -258,8 +250,8 @@ body.invisic-maximized #invisic-addon-settings-modal { border-radius: 0; }
 
 /* Success/Action button for Addons */
 .addon-btn-save {
-    background: var(--invisic-text-main);
-    color: var(--invisic-bg-main);
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
     border: none;
     padding: 10px 16px;
     border-radius: 6px;
@@ -276,9 +268,9 @@ input[type="radio"] {
     appearance: none;
     width: 20px;
     height: 20px;
-    border: 2px solid var(--invisic-bg-btn);
+    border: 2px solid hsl(var(--border));
     border-radius: 50%;
-    background: var(--invisic-bg-box);
+    background: hsl(var(--card));
     cursor: pointer;
     position: relative;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -286,11 +278,33 @@ input[type="radio"] {
     margin: 0;
 }
 input[type="radio"]:hover {
-    border-color: var(--invisic-icon-fg);
+    border-color: hsl(var(--muted-foreground));
 }
 input[type="radio"]:checked {
-    border-color: var(--invisic-text-main);
-    background: var(--invisic-text-main);
+    border-color: hsl(var(--primary));
+    background: hsl(var(--primary));
+}
+
+/* Custom Checkboxes */
+input[type="checkbox"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border: 2px solid hsl(var(--border));
+    border-radius: 3px;
+    background: hsl(var(--card));
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    flex-shrink: 0;
+    margin: 0;
+}
+input[type="checkbox"]:hover {
+    border-color: hsl(var(--muted-foreground));
+}
+input[type="checkbox"]:checked {
+    border-color: hsl(var(--primary));
+    background: hsl(var(--primary));
 }
 input[type="radio"]:checked::after {
     content: '';
@@ -300,7 +314,7 @@ input[type="radio"]:checked::after {
     transform: translate(-50%, -50%);
     width: 8px;
     height: 8px;
-    background: var(--invisic-bg-main);
+    background: hsl(var(--background));
     border-radius: 50%;
 }
 
@@ -308,7 +322,7 @@ input[type="radio"]:checked::after {
 .addon-btn-save:active { transform: scale(0.98); }
 
 .addon-save-msg {
-    color: var(--invisic-text-sub);
+    color: hsl(var(--muted-foreground));
     font-size: 12px;
     font-weight: 500;
     text-align: center;
@@ -337,18 +351,18 @@ input[type="radio"]:checked::after {
 .invisic-progress-container {
     width: 100%;
     height: 8px;
-    background: var(--invisic-bg-btn);
+    background: hsl(var(--secondary));
     border-radius: 4px;
     margin: 16px 0 8px 0;
     overflow: hidden;
 }
 .invisic-progress-bar {
     height: 100%;
-    background: var(--invisic-accent-success);
+    background: hsl(var(--primary));
     transition: width 0.3s ease;
 }
 .invisic-progress-status {
     font-size: 12px;
-    color: var(--invisic-text-sub);
+    color: hsl(var(--muted-foreground));
     text-align: right;
 }

@@ -1,9 +1,24 @@
 (() => {
   const STYLE_TAG_ID = "invisic-theme-style";
-  const PREF_KEY = "invisic-theme-selected";
 
-  function getSavedTheme() {
-    return localStorage.getItem(PREF_KEY) || "invisic.css";
+  async function getSavedTheme() {
+    try {
+      const config = await window.electronAPI.getFeatureConfig();
+      return config.selectedTheme ?? "";
+    } catch (e) {
+      console.error("[Theme Engine] Failed to load theme preference:", e);
+      return "";
+    }
+  }
+
+  async function saveThemePreference(filename) {
+    try {
+      const config = await window.electronAPI.getFeatureConfig();
+      config.selectedTheme = filename;
+      await window.electronAPI.saveFeatureConfig(config);
+    } catch (e) {
+      console.error("[Theme Engine] Failed to save theme preference:", e);
+    }
   }
 
   async function applyTheme(filename) {
@@ -11,7 +26,7 @@
     if (existing) existing.remove();
 
     if (!filename) {
-      localStorage.setItem(PREF_KEY, "");
+      await saveThemePreference("");
       return;
     }
 
@@ -24,14 +39,17 @@
       styleTag.id = STYLE_TAG_ID;
       styleTag.textContent = theme.content;
       document.head.appendChild(styleTag);
-      localStorage.setItem(PREF_KEY, filename);
+      await saveThemePreference(filename);
     } catch (e) {
       console.error("[Theme Engine] Failed to apply theme:", e);
     }
   }
 
   // Auto-apply saved theme on load
-  applyTheme(getSavedTheme());
+  (async () => {
+    const saved = await getSavedTheme();
+    applyTheme(saved);
+  })();
 
   // Listen for theme change requests from the settings UI
   document.addEventListener("invisic-apply-theme", (e) => {

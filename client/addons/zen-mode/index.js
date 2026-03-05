@@ -66,7 +66,7 @@
     const text = document.createElement("div");
     text.textContent = "Zen Mode";
     Object.assign(text.style, {
-      color: "var(--invisic-text-main)",
+      color: "hsl(var(--foreground))",
       fontSize: "2.5rem",
       fontWeight: "300",
       letterSpacing: "8px",
@@ -186,16 +186,16 @@
 
       container.innerHTML = `
             <style>
-            .zen-kbd { background: var(--invisic-bg-btn); padding: 4px 8px; border-radius: 4px; border-bottom: 2px solid var(--invisic-bg-main); font-family: monospace; color: var(--invisic-text-main); font-size: 13px; }
-            .hotkey-box { position: relative; background: var(--invisic-bg-box); border: 1px solid var(--invisic-bg-btn); padding: 24px; border-radius: 12px; margin-bottom: 8px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
-            .hotkey-box:hover { border-color: var(--invisic-text-main); background: var(--invisic-icon-bg); }
-            .hotkey-box.listening { border-color: var(--invisic-accent-warning); box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2); animation: pulse-border 1.5s infinite; }
-            .zen-reset-btn { position: absolute; bottom: 8px; right: 8px; background: transparent; border: none; color: var(--invisic-text-sub); cursor: pointer; border-radius: 4px; padding: 4px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
-            .zen-reset-btn:hover { color: var(--invisic-text-main); background: var(--invisic-bg-btn); }
+            .zen-kbd { background: hsl(var(--secondary)); padding: 4px 8px; border-radius: 4px; border-bottom: 2px solid hsl(var(--background)); font-family: monospace; color: hsl(var(--foreground)); font-size: 13px; }
+            .hotkey-box { position: relative; background: hsl(var(--card)); border: 1px solid hsl(var(--border)); padding: 24px; border-radius: 12px; margin-bottom: 8px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+            .hotkey-box:hover { background: hsl(var(--card)); }
+            .hotkey-box.listening { border-color: #F59E0B; box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2); animation: pulse-border 1.5s infinite; }
+            .zen-reset-btn { position: absolute; bottom: 8px; right: 8px; background: transparent; border: none; color: hsl(var(--muted-foreground)); cursor: pointer; border-radius: 4px; padding: 4px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+            .zen-reset-btn:hover { color: hsl(var(--foreground)); background: hsl(var(--secondary)); }
             @keyframes pulse-border { 0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); } 70% { box-shadow: 0 0 0 6px rgba(245, 158, 11, 0); } 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); } }
             </style>
-            <div style="color: var(--invisic-text-main); text-align: center; padding: 10px;">
-            <p id="zen-helper-text" style="font-size: 13px; color: var(--invisic-text-sub); margin-bottom: 12px; transition: color 0.2s;">Click the box below to map a new hotkey.</p>
+            <div style="color: hsl(var(--foreground)); text-align: center; padding: 10px;">
+            <p id="zen-helper-text" style="font-size: 13px; color: hsl(var(--muted-foreground)); margin-bottom: 12px; transition: color 0.2s;">Click the box below to map a new hotkey.</p>
 
             <div id="zen-hotkey-box" class="hotkey-box" title="Click to bind a new hotkey">
             <div id="zen-hotkey-content">${renderHotkeyHTML(config.hotkey)}</div>
@@ -245,7 +245,7 @@
         isListeningForHotkey = false;
         box.classList.remove("listening");
         helperText.textContent = "Click the box below to map a new hotkey.";
-        helperText.style.color = "var(--invisic-text-sub)";
+        helperText.style.color = "hsl(var(--muted-foreground))";
         document.removeEventListener("keydown", recordKey, true);
       };
 
@@ -253,8 +253,8 @@
         isListeningForHotkey = true;
         box.classList.add("listening");
         helperText.textContent = "Listening... Press any key combination.";
-        helperText.style.color = "var(--invisic-accent-warning)";
-        content.innerHTML = `<span style="color: var(--invisic-accent-warning); font-size: 14px; font-weight: 600;">...</span>`;
+        helperText.style.color = "#F59E0B";
+        content.innerHTML = `<span style="color: #F59E0B; font-size: 14px; font-weight: 600;">...</span>`;
         document.addEventListener("keydown", recordKey, true);
       };
 

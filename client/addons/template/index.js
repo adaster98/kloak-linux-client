@@ -152,7 +152,7 @@
     // Return a populated `container` element. Called when the user opens your
     // addon's settings modal. Can be async.
     renderSettings: async (container) => {
-      container.innerHTML = `<p style="color: var(--invisic-text-sub); text-align: center;">Loading settings...</p>`;
+      container.innerHTML = `<p style="color: hsl(var(--muted-foreground)); text-align: center;">Loading settings...</p>`;
 
       let config = {};
       try {
@@ -166,17 +166,17 @@
 
       container.innerHTML = `
         <div class="addon-settings-item">
-          <p style="margin: 0; color: var(--invisic-text-sub); font-size: 13px;">Modify these inputs to see how state is saved to your local folder.</p>
+          <p style="margin: 0; color: hsl(var(--muted-foreground)); font-size: 13px;">Modify these inputs to see how state is saved to your local folder.</p>
 
           <div style="margin-top: 12px;">
             <label class="addon-label">Custom String</label>
             <input id="tpl-text-input" type="text" value="${currentText}"
-              style="width: 100%; padding: 10px; background: var(--invisic-bg-box); border: 1px solid var(--invisic-bg-btn); border-radius: 6px; color: var(--invisic-text-main); margin-top: 6px; box-sizing: border-box; outline: none; transition: border 0.2s;">
+              style="width: 100%; padding: 10px; background: hsl(var(--card)); border: 1px solid hsl(var(--secondary)); border-radius: 6px; color: hsl(var(--foreground)); margin-top: 6px; box-sizing: border-box; outline: none; transition: border 0.2s;">
           </div>
 
           <label class="invisic-checkbox-label" style="user-select: none;">
             <input id="tpl-checkbox" type="checkbox" ${isFeatureEnabled}
-              style="cursor: pointer; width: 16px; height: 16px; accent-color: var(--invisic-text-main);">
+              style="cursor: pointer; width: 16px; height: 16px; accent-color: hsl(var(--foreground));">
             Enable Secret Feature
           </label>
 
@@ -188,8 +188,8 @@
       const checkboxInput = container.querySelector("#tpl-checkbox");
       const saveBtn = container.querySelector("#tpl-save-btn");
 
-      textInput.addEventListener("focus", () => (textInput.style.borderColor = "var(--invisic-text-main)"));
-      textInput.addEventListener("blur", () => (textInput.style.borderColor = "var(--invisic-bg-btn)"));
+      textInput.addEventListener("focus", () => (textInput.style.borderColor = "hsl(var(--foreground))"));
+      textInput.addEventListener("blur", () => (textInput.style.borderColor = "hsl(var(--secondary))"));
 
       saveBtn.addEventListener("click", () => {
         config.customText = textInput.value;

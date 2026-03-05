@@ -30,7 +30,7 @@
     const updateButtonIcon = (btn) => {
       btn.innerHTML = featureConfig.stealthEnabled ? eyeClosed : eyeOpen;
       btn.style.color = featureConfig.stealthEnabled
-        ? "var(--invisic-accent-destructive)"
+        ? "#EB1414"
         : "";
     };
 

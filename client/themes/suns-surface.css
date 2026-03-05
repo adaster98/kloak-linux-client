@@ -37,23 +37,6 @@
     --accent: 0 0% 90% !important;
     --accent-foreground: 0 0% 15% !important;
 
-        /* Kloak UI Settings Elements */
-    --invisic-bg-main: hsl(0, 0%, 100%) !important;
-    --invisic-bg-box: hsl(0, 0%, 100%) !important;
-    --invisic-bg-btn: hsl(0, 0%, 90%) !important;
-    --invisic-switch-on:  hsl(0, 0%, 15%) !important;
-    --invisic-switch-off: hsl(0, 0%, 94%) !important;
-    --invisic-icon-bg: hsl(0, 0%, 90%) !important;
-    --invisic-icon-fg: hsl(0, 0%, 15%) !important;
-    --invisic-text-main: hsl(0, 0%, 15%) !important;
-    --invisic-text-sub: hsl(0, 0%, 45%) !important;
-    --invisic-accent-success: hsl(0, 0%, 20%) !important;    --invisic-text-sub: hsl(0 0% 45%) !important;
-    --invisic-slider-body: hsl(0, 0%, 15%) !important;
-    --invisic-slider-knob: hsl(0, 0%, 100%) !important;
-    --invisic-slider-track: hsl(0, 0%, 90%) !important;
-    --invisic-radiobtn-selected: hsl(0, 0%, 15%) !important;
-    --invisic-radiobtn-selected-ctr: hsl(0, 0%, 100%) !important;
-    --invisic-radiobtn-border: hsl(0, 0%, 90%) !important;
 }
 
 /* --- 2. Layout Overrides --- */
@@ -82,6 +65,21 @@
 [data-resize-handle]:hover,
 [data-resize-handle][data-resize-handle-state="drag"] {
     background-color: hsl(0, 0%, 20%, 0.3) !important;
+}
+
+/* --- 3. Native Kloak Slider (Radix) --- */
+/* Track background */
+span[data-orientation="horizontal"]:not([dir]):not([role]) {
+    background-color: hsl(var(--secondary)) !important;
+}
+/* Range fill — has inline gradient style, needs !important to override */
+span[data-orientation="horizontal"]:not([dir]):not([role]) > span[data-orientation="horizontal"] {
+    background: hsl(var(--primary)) !important;
+}
+/* Thumb */
+span[role="slider"][data-orientation="horizontal"] {
+    background-color: hsl(var(--background)) !important;
+    border-color: hsl(var(--primary)) !important;
 }
 
 /* --- 5. Scrollbars --- */

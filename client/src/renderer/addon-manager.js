@@ -186,16 +186,18 @@ class InvisicAddonManager {
   async renderThemeUI(container) {
     container.innerHTML = `
       <div class="invisic-esc-wrapper">
-        <button id="invisic-addon-close" aria-label="Close">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        <button id="invisic-addon-close" aria-label="Close" class="invisic-esc-button">
+          <div class="invisic-esc-icon-wrapper">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="invisic-esc-icon"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+          </div>
+          <span class="invisic-esc-label">ESC</span>
         </button>
-        <span class="invisic-esc-text">ESC</span>
       </div>
       <div class="addon-header-container">
         <h2>Themes</h2>
         <p>Choose a theme to customise the look of Invisic</p>
         <div class="addon-header-actions">
-          <button id="theme-open-folder-btn" class="addon-card addon-action-btn" style="flex:0 0 auto;">
+          <button id="theme-open-folder-btn" class="addon-card addon-action-btn" style="flex:0 0 calc(50% - 8px);">
             <div class="addon-action-content">
               <div class="addon-action-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>
@@ -208,8 +210,8 @@ class InvisicAddonManager {
           </button>
         </div>
       </div>
-      <div id="theme-list-area" style="padding: 0 20px 20px; max-width: 480px;">
-        <p style="color: var(--invisic-text-sub); font-size: 13px;">Loading themes...</p>
+      <div id="theme-list-area" class="theme-grid-area">
+        <p style="color: hsl(var(--muted-foreground)); font-size: 13px;">Loading themes...</p>
       </div>
     `;
 
@@ -228,52 +230,83 @@ class InvisicAddonManager {
       console.error("[Themes UI] Failed to load themes:", e);
     }
 
-    const saved = localStorage.getItem("invisic-theme-selected") ?? "invisic.css";
+    const saved = localStorage.getItem("invisic-theme-selected") ?? "";
+
+    // Parse HSL values from CSS content
+    function parseCSSVar(css, varName) {
+      const match = css.match(new RegExp(`--${varName}:\\s*([^;!]+)`));
+      return match ? `hsl(${match[1].trim()})` : null;
+    }
+
+    function themePreviewColors(css) {
+      if (!css) return { bg: "#1a1a1a", card: "#242424", primary: "#6366f1", secondary: "#2a2a2a" };
+      return {
+        bg: parseCSSVar(css, "background") || "#1a1a1a",
+        card: parseCSSVar(css, "card") || "#242424",
+        primary: parseCSSVar(css, "primary") || "#6366f1",
+        secondary: parseCSSVar(css, "secondary") || "#2a2a2a",
+        foreground: parseCSSVar(css, "foreground") || "#ffffff",
+      };
+    }
+
+    // Default (Kloak) preview uses current page's computed variables
+    const defaultColors = {
+      bg: `hsl(var(--background))`,
+      card: `hsl(var(--card))`,
+      primary: `hsl(var(--primary))`,
+      secondary: `hsl(var(--secondary))`,
+      foreground: `hsl(var(--foreground))`,
+    };
+
+    function themeCard(filename, label, sublabel, colors, isSelected) {
+      return `
+        <button type="button" class="theme-tile${isSelected ? " theme-tile-selected" : ""}" data-value="${filename}">
+          <div class="theme-tile-preview" style="background:${colors.bg};">
+            <div class="theme-tile-sidebar" style="background:${colors.card};"></div>
+            <div class="theme-tile-content">
+              <div class="theme-tile-bar" style="background:${colors.primary};"></div>
+            </div>
+          </div>
+          <div class="theme-tile-footer">
+            <span class="theme-tile-name">${label}</span>
+            ${sublabel ? `<span class="theme-tile-filename">${sublabel}</span>` : ""}
+          </div>
+        </button>`;
+    }
 
     // Pinned entries: None first, then Invisic, then remaining bundled, then user
     const invisicTheme = themes.find((t) => t.bundled && t.filename === "invisic.css");
     const otherBundled = themes.filter((t) => t.bundled && t.filename !== "invisic.css");
     const user = themes.filter((t) => !t.bundled);
 
-    function themeCard(filename, label, sublabel, isSelected) {
-      return `
-        <label class="theme-option" style="display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--invisic-bg-box);border:1px solid ${isSelected ? "var(--invisic-radiobtn-selected)" : "var(--invisic-radiobtn-border)"};border-radius:8px;cursor:pointer;transition:border-color 0.15s;">
-          <input type="radio" name="theme-select" value="${filename}" ${isSelected ? "checked" : ""} style="accent-color:var(--invisic-radiobtn-selected);flex-shrink:0;">
-          <div>
-            <div style="font-weight:600;font-size:13px;color:var(--invisic-text-main);text-transform:capitalize;">${label}</div>
-            ${sublabel ? `<div style="font-size:11px;color:var(--invisic-text-sub);">${sublabel}</div>` : ""}
-          </div>
-        </label>`;
-    }
-
-    let html = `<div style="display:flex;flex-direction:column;gap:6px;">`;
-
-    html += themeCard("", "None (Kloak Default)", "", saved === "");
+    let html = `<div class="theme-grid">`;
+    html += themeCard("", "Kloak Default", "", defaultColors, saved === "");
     if (invisicTheme) {
-      html += themeCard("invisic.css", "Invisic", "invisic.css", saved === "invisic.css");
+      html += themeCard("invisic.css", "Invisic", "invisic.css", themePreviewColors(invisicTheme.content), saved === "invisic.css");
     }
     otherBundled.forEach((t) => {
-      html += themeCard(t.filename, t.name, t.filename, saved === t.filename);
+      html += themeCard(t.filename, t.name, t.filename, themePreviewColors(t.content), saved === t.filename);
     });
-    if (user.length > 0) {
-      html += `<p style="font-size:11px;color:var(--invisic-text-sub);margin:8px 0 2px;padding-left:2px;">User Themes</p>`;
-      user.forEach((t) => {
-        html += themeCard(t.filename, t.name, t.filename, saved === t.filename);
-      });
-    }
-
     html += `</div>`;
+
+    if (user.length > 0) {
+      html += `<p class="theme-section-label">User Themes</p><div class="theme-grid">`;
+      user.forEach((t) => {
+        html += themeCard(t.filename, t.name, t.filename, themePreviewColors(t.content), saved === t.filename);
+      });
+      html += `</div>`;
+    }
 
     const listArea = container.querySelector("#theme-list-area");
     listArea.innerHTML = html;
 
-    listArea.querySelectorAll('input[name="theme-select"]').forEach((radio) => {
-      radio.addEventListener("change", () => {
-        listArea.querySelectorAll(".theme-option").forEach((l) => {
-          l.style.borderColor = "var(--invisic-radiobtn-border)";
+    listArea.querySelectorAll(".theme-tile").forEach((tile) => {
+      tile.addEventListener("click", () => {
+        listArea.querySelectorAll(".theme-tile").forEach((t) => {
+          t.classList.remove("theme-tile-selected");
         });
-        radio.closest(".theme-option").style.borderColor = "var(--invisic-radiobtn-selected)";
-        document.dispatchEvent(new CustomEvent("invisic-apply-theme", { detail: radio.value }));
+        tile.classList.add("theme-tile-selected");
+        document.dispatchEvent(new CustomEvent("invisic-apply-theme", { detail: tile.dataset.value }));
       });
     });
   }
@@ -351,10 +384,12 @@ class InvisicAddonManager {
   renderAddonUI(container) {
     let html = `
         <div class="invisic-esc-wrapper">
-        <button id="invisic-addon-close" aria-label="Close">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        <button id="invisic-addon-close" aria-label="Close" class="invisic-esc-button">
+          <div class="invisic-esc-icon-wrapper">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="invisic-esc-icon"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+          </div>
+          <span class="invisic-esc-label">ESC</span>
         </button>
-        <span class="invisic-esc-text">ESC</span>
         </div>
 
         <div class="addon-header-container">
@@ -413,7 +448,7 @@ class InvisicAddonManager {
                 </div>
                 <div class="addon-controls">
                 <button class="addon-btn-icon" data-modal="${addon.id}">${iconSVG}</button>
-                <div class="addon-toggle ${isEnabled ? "enabled" : ""}" data-id="${addon.id}"></div>
+                <button type="button" role="switch" aria-checked="${isEnabled}" data-state="${isEnabled ? "checked" : "unchecked"}" class="addon-toggle peer inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors data-[state=checked]:bg-primary data-[state=unchecked]:bg-input focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50" data-id="${addon.id}"><span data-state="${isEnabled ? "checked" : "unchecked"}" class="pointer-events-none block h-5 w-5 rounded-full bg-background shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0"></span></button>
                 </div>
                 </div>
                 `;
@@ -451,9 +486,12 @@ class InvisicAddonManager {
         const addon = this.addons.find((a) => a.id === addonId);
         if (!addon) return;
 
-        const isNowEnabled = !e.currentTarget.classList.contains("enabled");
-        if (isNowEnabled) e.currentTarget.classList.add("enabled");
-        else e.currentTarget.classList.remove("enabled");
+        const isNowEnabled = e.currentTarget.getAttribute("aria-checked") !== "true";
+        const state = isNowEnabled ? "checked" : "unchecked";
+        e.currentTarget.setAttribute("aria-checked", isNowEnabled);
+        e.currentTarget.setAttribute("data-state", state);
+        const knob = e.currentTarget.querySelector("span");
+        if (knob) knob.setAttribute("data-state", state);
 
         this.states[addonId] = isNowEnabled;
         if (window.electronAPI.log)
@@ -561,10 +599,10 @@ class InvisicAddonManager {
           });
           if (result.success) {
             e.target.textContent = "Installed! Restart App";
-            e.target.style.color = "var(--invisic-accent-success)";
+            e.target.style.color = "hsl(var(--primary))";
           } else {
             e.target.textContent = "Failed";
-            e.target.style.background = "var(--invisic-accent-destructive)";
+            e.target.style.background = "#EB1414";
           }
         });
       });

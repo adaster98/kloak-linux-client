@@ -164,87 +164,87 @@
     const username = u.username ? `@${u.username}` : "n/a";
     const userId = u.id || "Unknown ID";
     const isPartial = !u.created_at && !u.bio;
-    const bannerColor = u.banner_color || "var(--invisic-bg-box)";
+    const bannerColor = u.banner_color || "hsl(var(--card))";
 
-    const primaryTheme = u.profile_theme_primary || "var(--invisic-bg-main)";
-    const accentTheme = u.profile_theme_accent || "var(--invisic-icon-bg)";
+    const primaryTheme = u.profile_theme_primary || "hsl(var(--background))";
+    const accentTheme = u.profile_theme_accent || "hsl(var(--secondary))";
 
     const bannerStyle = u.banner_url
       ? `background-image: url('${u.banner_url}'); background-size: cover; background-position: center;`
       : `background-color: ${bannerColor};`;
 
     overlay.innerHTML = `
-        <div style="background: var(--invisic-bg-main); border: 1px solid var(--invisic-bg-btn); border-radius: 12px; width: 440px; overflow: hidden; font-family: sans-serif; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7);">
+        <div style="background: hsl(var(--background)); border: 1px solid hsl(var(--border)); border-radius: 12px; width: 440px; overflow: hidden; font-family: sans-serif; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7);">
         <div style="height: 100px; width: 100%; position: relative; ${bannerStyle}">
-          <div style="position: absolute; bottom: -36px; left: 20px; padding: 4px; background: var(--invisic-bg-main); border-radius: 50%;">
-            <img src="${avatarSrc}" style="width: 72px; height: 72px; border-radius: 50%; background: var(--invisic-bg-box); object-fit: cover; border: 1px solid var(--invisic-bg-btn);">
+          <div style="position: absolute; bottom: -36px; left: 20px; padding: 4px; background: hsl(var(--background)); border-radius: 50%;">
+            <img src="${avatarSrc}" style="width: 72px; height: 72px; border-radius: 50%; background: hsl(var(--card)); object-fit: cover; border: 1px solid hsl(var(--border));">
           </div>
         </div>
 
         <div style="padding: 48px 20px 20px 20px;">
           <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
             <div style="min-width: 0; flex: 1;">
-              <h2 style="margin: 0 0 2px 0; color: var(--invisic-text-main); font-size: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${displayName}</h2>
+              <h2 style="margin: 0 0 2px 0; color: hsl(var(--foreground)); font-size: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${displayName}</h2>
               <div style="display: flex; align-items: center; gap: 8px;">
-                <span style="color: var(--invisic-text-sub); font-size: 13px;">${username}</span>
-                <span style="color: var(--invisic-text-sub); font-size: 11px; background: var(--invisic-bg-btn); padding: 1px 6px; border-radius: 4px; border: 1px solid var(--invisic-bg-btn);">${u.pronouns || "None"}</span>
+                <span style="color: hsl(var(--muted-foreground)); font-size: 13px;">${username}</span>
+                <span style="color: hsl(var(--muted-foreground)); font-size: 11px; background: hsl(var(--secondary)); padding: 1px 6px; border-radius: 4px; border: 1px solid hsl(var(--secondary));">${u.pronouns || "None"}</span>
               </div>
             </div>
-            ${u.status === "online" ? '<span style="color: var(--invisic-text-main); font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 4px;"><span style="width: 6px; height: 6px; background: var(--invisic-text-main); border-radius: 50%;"></span> Online</span>' : ""}
+            ${u.status === "online" ? '<span style="color: hsl(var(--foreground)); font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 4px;"><span style="width: 6px; height: 6px; background: hsl(var(--foreground)); border-radius: 50%;"></span> Online</span>' : ""}
           </div>
 
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-            <div style="grid-column: span 2; background: var(--invisic-bg-box); border: 1px solid var(--invisic-bg-btn); border-radius: 8px; padding: 10px;">
+            <div style="grid-column: span 2; background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: 8px; padding: 10px;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                <label style="color: var(--invisic-text-sub); font-size: 10px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Message ID</label>
-                <code style="color: var(--invisic-text-main); font-size: 11px; user-select: text;">${messageId || "N/A"}</code>
+                <label style="color: hsl(var(--muted-foreground)); font-size: 10px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Message ID</label>
+                <code style="color: hsl(var(--foreground)); font-size: 11px; user-select: text;">${messageId || "N/A"}</code>
               </div>
               <div style="display: flex; justify-content: space-between; align-items: center;">
-                <label style="color: var(--invisic-text-sub); font-size: 10px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">User ID</label>
-                <code style="color: var(--invisic-text-main); font-size: 11px; user-select: text;">${userId}</code>
+                <label style="color: hsl(var(--muted-foreground)); font-size: 10px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">User ID</label>
+                <code style="color: hsl(var(--foreground)); font-size: 11px; user-select: text;">${userId}</code>
               </div>
             </div>
 
-            <div style="background: var(--invisic-bg-box); border: 1px solid var(--invisic-bg-btn); border-radius: 8px; padding: 10px;">
-              <label style="color: var(--invisic-text-sub); font-size: 10px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; display: block; margin-bottom: 6px;">Theme Primary</label>
+            <div style="background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: 8px; padding: 10px;">
+              <label style="color: hsl(var(--muted-foreground)); font-size: 10px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; display: block; margin-bottom: 6px;">Theme Primary</label>
               <div style="display: flex; align-items: center; gap: 8px;">
-                <div style="width: 14px; height: 14px; border-radius: 3px; background: ${primaryTheme}; border: 1px solid var(--invisic-bg-btn);"></div>
-                <code style="color: var(--invisic-text-main); font-size: 11px;">${primaryTheme}</code>
+                <div style="width: 14px; height: 14px; border-radius: 3px; background: ${primaryTheme}; border: 1px solid hsl(var(--border));"></div>
+                <code style="color: hsl(var(--foreground)); font-size: 11px;">${primaryTheme}</code>
               </div>
             </div>
 
-            <div style="background: var(--invisic-bg-box); border: 1px solid var(--invisic-bg-btn); border-radius: 8px; padding: 10px;">
-              <label style="color: var(--invisic-text-sub); font-size: 10px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; display: block; margin-bottom: 6px;">Theme Accent</label>
+            <div style="background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: 8px; padding: 10px;">
+              <label style="color: hsl(var(--muted-foreground)); font-size: 10px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; display: block; margin-bottom: 6px;">Theme Accent</label>
               <div style="display: flex; align-items: center; gap: 8px;">
-                <div style="width: 14px; height: 14px; border-radius: 3px; background: ${accentTheme}; border: 1px solid var(--invisic-bg-btn);"></div>
-                <code style="color: var(--invisic-text-main); font-size: 11px;">${accentTheme}</code>
+                <div style="width: 14px; height: 14px; border-radius: 3px; background: ${accentTheme}; border: 1px solid hsl(var(--border));"></div>
+                <code style="color: hsl(var(--foreground)); font-size: 11px;">${accentTheme}</code>
               </div>
             </div>
 
             <div>
-              <label style="color: var(--invisic-text-sub); font-size: 10px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; display: block;">Last Seen</label>
-              <div style="color: var(--invisic-text-main); font-size: 11px; margin-top: 4px;">${formatDate(u.last_seen)}</div>
+              <label style="color: hsl(var(--muted-foreground)); font-size: 10px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; display: block;">Last Seen</label>
+              <div style="color: hsl(var(--foreground)); font-size: 11px; margin-top: 4px;">${formatDate(u.last_seen)}</div>
             </div>
 
             <div>
-              <label style="color: var(--invisic-text-sub); font-size: 10px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; display: block;">Joined</label>
-              <div style="color: var(--invisic-text-main); font-size: 11px; margin-top: 4px;">${formatDate(u.created_at)}</div>
+              <label style="color: hsl(var(--muted-foreground)); font-size: 10px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; display: block;">Joined</label>
+              <div style="color: hsl(var(--foreground)); font-size: 11px; margin-top: 4px;">${formatDate(u.created_at)}</div>
             </div>
 
             <div style="grid-column: span 2;">
-              <label style="color: var(--invisic-text-sub); font-size: 10px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; display: block; margin-bottom: 4px;">Custom Status</label>
-              <div style="color: var(--invisic-text-main); font-size: 12px; background: var(--invisic-bg-box); padding: 8px; border-radius: 6px; border: 1px solid var(--invisic-bg-btn);">${u.custom_status || "None set"}</div>
+              <label style="color: hsl(var(--muted-foreground)); font-size: 10px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; display: block; margin-bottom: 4px;">Custom Status</label>
+              <div style="color: hsl(var(--foreground)); font-size: 12px; background: hsl(var(--card)); padding: 8px; border-radius: 6px; border: 1px solid hsl(var(--border));">${u.custom_status || "None set"}</div>
             </div>
 
             <div style="grid-column: span 2;">
-              <label style="color: var(--invisic-text-sub); font-size: 10px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; display: block; margin-bottom: 4px;">Bio</label>
-              <div style="color: var(--invisic-text-main); font-size: 12px; line-height: 1.4; background: var(--invisic-bg-box); padding: 10px; border-radius: 6px; border: 1px solid var(--invisic-bg-btn); max-height: 80px; overflow-y: auto; white-space: pre-wrap;">${u.bio || "No biography available."}</div>
+              <label style="color: hsl(var(--muted-foreground)); font-size: 10px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; display: block; margin-bottom: 4px;">Bio</label>
+              <div style="color: hsl(var(--foreground)); font-size: 12px; line-height: 1.4; background: hsl(var(--card)); padding: 10px; border-radius: 6px; border: 1px solid hsl(var(--border)); max-height: 80px; overflow-y: auto; white-space: pre-wrap;">${u.bio || "No biography available."}</div>
             </div>
             
             ${
               isPartial
                 ? `
-            <div style="grid-column: span 2; background: transparent; border: 1px solid var(--invisic-accent-warning); border-radius: 6px; padding: 8px; font-size: 11px; color: var(--invisic-accent-warning); display: flex; align-items: center; gap: 8px;">
+            <div style="grid-column: span 2; background: transparent; border: 1px solid #F59E0B; border-radius: 6px; padding: 8px; font-size: 11px; color: #F59E0B; display: flex; align-items: center; gap: 8px;">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0zM12 9v4M12 17h.01"/></svg>
                 Profile fetch failed. Using cached basic user data.
             </div>
@@ -254,7 +254,7 @@
           </div>
 
           <div style="margin-top: 16px; display: flex; justify-content: flex-end;">
-            <button id="dev-modal-close" style="background: var(--invisic-bg-btn); color: var(--invisic-text-main); border: 1px solid var(--invisic-bg-btn); padding: 6px 20px; border-radius: 6px; cursor: pointer; font-weight: 500; font-size: 13px; transition: all 0.2s;">Close</button>
+            <button id="dev-modal-close" style="background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); border: 1px solid hsl(var(--primary)); padding: 6px 20px; border-radius: 6px; cursor: pointer; font-weight: 500; font-size: 13px; transition: all 0.2s;">Close</button>
           </div>
         </div>
         </div>
@@ -263,9 +263,9 @@
 
     const closeBtn = overlay.querySelector("#dev-modal-close");
     closeBtn.onmouseenter = () =>
-      (closeBtn.style.background = "var(--invisic-icon-bg)");
+      (closeBtn.style.opacity = "0.9");
     closeBtn.onmouseleave = () =>
-      (closeBtn.style.background = "var(--invisic-bg-btn)");
+      (closeBtn.style.opacity = "1");
 
     closeBtn.onclick = () => overlay.remove();
     overlay.onclick = (e) => {
@@ -472,9 +472,9 @@
       renderSettings: (container) => {
         container.innerHTML = `
               <div class="addon-settings-item">
-                <p style="margin: 0; color: var(--invisic-text-sub); font-size: 13px;">Configure your Developer Toolkit preferences.</p>
+                <p style="margin: 0; color: hsl(var(--muted-foreground)); font-size: 13px;">Configure your Developer Toolkit preferences.</p>
                 <label class="invisic-checkbox-label">
-                  <input type="checkbox" id="dt-show-ids" ${config.showIdsInChat ? "checked" : ""} style="width: 16px; height: 16px; accent-color: var(--invisic-text-main);">
+                  <input type="checkbox" id="dt-show-ids" ${config.showIdsInChat ? "checked" : ""} style="width: 16px; height: 16px; accent-color: hsl(var(--primary));">
                   <span>Show Message & User IDs in Chat</span>
                 </label>
               </div>
