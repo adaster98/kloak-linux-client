@@ -1,13 +1,7 @@
 ## Pre-made addons:
 
-**- quick-edit:**<br>
-Enables using the up arrow to exit your last sent message.
-
 **- stealth-mode:**<br>
 Disabled others from seeing "User is typing..." when your writing your chat essay!
-
-**- theme-injector:**<br>
-Stylise the UI with your own .css file. Example provided. Make sure your on the latest version of the client.
 
 **- hover-zoom:**<br>
 Hold shift and hover over any image to bring up a magnifying glass! No more tiny unreadable memes.
@@ -21,9 +15,6 @@ A powerful multitool for developers. View hidden user info and copy raw database
 **- quick-react:**<br>
 Puts your most recently used emojis in the message hover menu for fast access.
 
-**- dm-folders:**<br>
-Organise your DMs into collapsible, colour-coded folders.
-
 **- permissions-viewer:**<br>
 Reveal the inner workings of any server — inspect role permissions and inheritance.
 
@@ -33,8 +24,8 @@ Choose one of the pre-made addons. <br>
 <img width="675" height="624" alt="image" src="https://github.com/user-attachments/assets/d9cd5736-8e5f-4a7c-8ac1-a0054e9fc37d" /> <br>
 
 **Addon Folder Locations<br>**
-Linux - `/home/<YourUsername>/.config/kloak-client/addons` <br>
-Windows - `C:\Users\<YourUsername>\AppData\Roaming\kloak-client\addons`<br>
+Linux - `/home/<YourUsername>/.config/invisic-client/addons` <br>
+Windows - `C:\Users\<YourUsername>\AppData\Roaming\invisic-client\addons`<br>
 
 **NOTE: The addon folders must not be renamed!!**
 
@@ -53,14 +44,14 @@ Windows - `C:\Users\<YourUsername>\AppData\Roaming\kloak-client\addons`<br>
 Each addon gets a card in the menu with a toggle, tile and description.<br>
 You can also choose to have a settings menu, else it will fall back to an information menu.
 
-### Using the KloakAddonAPI
+### Using the InvisicAddonAPI
 
-The `window.KloakAddonAPI` provides easy access to user credentials, profile data, cached messages, server/channel context, and a unified event system. All network interception is handled centrally — addons never need to patch `window.fetch`.
+The `window.InvisicAddonAPI` provides easy access to user credentials, profile data, cached messages, server/channel context, and a unified event system. All network interception is handled centrally — addons never need to patch `window.fetch`.
 
 **Always use `onReady` before accessing auth-dependent data:**
 
 ```javascript
-window.KloakAddonAPI.onReady((api) => {
+window.InvisicAddonAPI.onReady((api) => {
   console.log("Logged in as:", api.userProfile.username);
 });
 ```
@@ -89,32 +80,32 @@ window.KloakAddonAPI.onReady((api) => {
 Subscribe to app-level events without any fetch patching.
 
 ```javascript
-api.events.on(eventName, callback)   // subscribe
-api.events.off(eventName, callback)  // unsubscribe
-api.events.once(eventName, callback) // subscribe for one delivery
+api.events.on(eventName, callback); // subscribe
+api.events.off(eventName, callback); // unsubscribe
+api.events.once(eventName, callback); // subscribe for one delivery
 ```
 
 **Available events:**
 
-| Event | Payload |
-|---|---|
-| `ready` | `api` instance |
-| `serverChange` | `{ serverID, serverName, previousServerID }` |
-| `channelChange` | `{ channelID, previousChannelID }` |
-| `dmStatusChange` | `{ isDM, dmID }` |
-| `dmChange` | `{ dmID, previousDMID }` |
-| `messagesLoaded` | `{ channelId, messages[] }` |
-| `messageReceived` | `{ channelId, userId, content, replyToId }` |
-| `messageEdited` | `{ messageId, previousContent, newContent, editedBy, timestamp }` |
-| `messageDeleted` | `{ messageId, message (snapshot), deletedBy, timestamp }` |
-| `reactionAdded` | `{ messageId, emoji, userId }` |
-| `reactionRemoved` | `{ messageId, emoji, userId }` |
-| `dmConversationsLoaded` | `{ conversations[] }` |
-| `serverEmojisLoaded` | `{ serverId, emojis[] }` |
-| `membersLoaded` | `{ serverId, members[] }` |
-| `rolesLoaded` | `{ serverId, roles[] }` |
-| `userProfileFetched` | `{ userId, user }` |
-| `themeChange` | `{ theme }` |
+| Event                   | Payload                                                           |
+| ----------------------- | ----------------------------------------------------------------- |
+| `ready`                 | `api` instance                                                    |
+| `serverChange`          | `{ serverID, serverName, previousServerID }`                      |
+| `channelChange`         | `{ channelID, previousChannelID }`                                |
+| `dmStatusChange`        | `{ isDM, dmID }`                                                  |
+| `dmChange`              | `{ dmID, previousDMID }`                                          |
+| `messagesLoaded`        | `{ channelId, messages[] }`                                       |
+| `messageReceived`       | `{ channelId, userId, content, replyToId }`                       |
+| `messageEdited`         | `{ messageId, previousContent, newContent, editedBy, timestamp }` |
+| `messageDeleted`        | `{ messageId, message (snapshot), deletedBy, timestamp }`         |
+| `reactionAdded`         | `{ messageId, emoji, userId }`                                    |
+| `reactionRemoved`       | `{ messageId, emoji, userId }`                                    |
+| `dmConversationsLoaded` | `{ conversations[] }`                                             |
+| `serverEmojisLoaded`    | `{ serverId, emojis[] }`                                          |
+| `membersLoaded`         | `{ serverId, members[] }`                                         |
+| `rolesLoaded`           | `{ serverId, roles[] }`                                           |
+| `userProfileFetched`    | `{ userId, user }`                                                |
+| `themeChange`           | `{ theme }`                                                       |
 
 ---
 
