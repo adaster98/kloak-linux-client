@@ -1,6 +1,6 @@
 # Invisic Client
 
-Free and open source. <br>
+A highly customizable desktop client for Kloak.app, free and open source. <br>
 
 ![kloak-client](assets/images/kloak-client.png) <br>
 
