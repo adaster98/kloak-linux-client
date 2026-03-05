@@ -230,7 +230,13 @@ class InvisicAddonManager {
       console.error("[Themes UI] Failed to load themes:", e);
     }
 
-    const saved = localStorage.getItem("invisic-theme-selected") ?? "";
+    let saved = "";
+    try {
+      const config = await window.electronAPI.getFeatureConfig();
+      saved = config.selectedTheme ?? "";
+    } catch (e) {
+      console.error("[Themes UI] Failed to load saved theme:", e);
+    }
 
     // Parse HSL values from CSS content
     function parseCSSVar(css, varName) {
@@ -245,18 +251,32 @@ class InvisicAddonManager {
         card: parseCSSVar(css, "card") || "#242424",
         primary: parseCSSVar(css, "primary") || "#6366f1",
         secondary: parseCSSVar(css, "secondary") || "#2a2a2a",
-        foreground: parseCSSVar(css, "foreground") || "#ffffff",
       };
     }
 
-    // Default (Kloak) preview uses current page's computed variables
+    // Snapshot Kloak default colors from computed styles before any theme overrides them.
+    // If a theme is active its CSS vars will be overriding these, so we read the raw
+    // computed RGB values and use those as fixed inline colors for the Default tile.
+    const cs = getComputedStyle(document.documentElement);
     const defaultColors = {
-      bg: `hsl(var(--background))`,
-      card: `hsl(var(--card))`,
-      primary: `hsl(var(--primary))`,
-      secondary: `hsl(var(--secondary))`,
-      foreground: `hsl(var(--foreground))`,
+      bg: cs.getPropertyValue("--background").trim()
+        ? `hsl(${cs.getPropertyValue("--background").trim()})` : "#0a0a0a",
+      card: cs.getPropertyValue("--card").trim()
+        ? `hsl(${cs.getPropertyValue("--card").trim()})` : "#171717",
+      primary: cs.getPropertyValue("--primary").trim()
+        ? `hsl(${cs.getPropertyValue("--primary").trim()})` : "#f97316",
+      secondary: cs.getPropertyValue("--secondary").trim()
+        ? `hsl(${cs.getPropertyValue("--secondary").trim()})` : "#262626",
     };
+    // If a non-default theme is active, the computed vars reflect that theme.
+    // In that case, read the Kloak defaults from the theme file for the default tile
+    // by using hardcoded Kloak palette values (dark neutral, orange primary).
+    if (saved !== "") {
+      defaultColors.bg = "#0a0a0a";
+      defaultColors.card = "#171717";
+      defaultColors.primary = "#f97316";
+      defaultColors.secondary = "#262626";
+    }
 
     function themeCard(filename, label, sublabel, colors, isSelected) {
       return `
