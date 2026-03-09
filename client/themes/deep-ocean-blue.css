@@ -38,6 +38,24 @@
     --accent-foreground: 220 20% 90% !important;
 }
 
+/* Buttons & Switches */
+.bg-primary,
+button[role="switch"][data-state="checked"],
+button[role="radio"][data-state="checked"] {
+    background: linear-gradient(145deg, hsl(215, 85%, 75%) 0%, hsl(215, 85%, 55%) 45%, hsl(225, 80%, 40%) 100%) !important;
+    border: none !important;
+    box-shadow: 0 2px 10px hsla(215, 85%, 60%, 0.2) !important;
+}
+
+.bg-primary:hover,
+button[role="switch"][data-state="checked"]:hover {
+    background: linear-gradient(145deg, hsl(215, 85%, 82%) 0%, hsl(215, 85%, 65%) 45%, hsl(225, 80%, 50%) 100%) !important;
+}
+
+button[role="switch"][data-state="unchecked"] {
+    background-color: hsl(220, 40%, 20%) !important;
+}
+
 /* Layout Overrides */
 .bg-layout-sidebar, .bg-layout-members {
     background-color: hsl(220, 45%, 5%) !important;
@@ -49,12 +67,23 @@
     background-color: hsl(220, 45%, 5%) !important;
 }
 
+.bg-card, .bg-secondary, .bg-muted {
+    background-color: hsl(var(--card)) !important;
+}
+
+.border, .border-t, .border-b, .border-l, .border-r {
+    border-color: hsl(var(--border)) !important;
+}
+
 .bg-background\/20,
 .bg-muted\/60,
 .bg-background\/50,
-.bg-background\/70 {
+.bg-background\/70,
+.popover,
+.dropdown-menu {
     background-color: hsl(220, 45%, 5%) !important;
-    border-color: hsl(220, 40%, 18%) !important;
+    border: 1px solid hsl(220, 40%, 18%) !important;
+    backdrop-filter: none !important;
 }
 
 /* Resize Handles */
@@ -71,22 +100,23 @@ span[data-orientation="horizontal"]:not([dir]):not([role]) {
     background-color: hsl(var(--secondary)) !important;
 }
 span[data-orientation="horizontal"]:not([dir]):not([role]) > span[data-orientation="horizontal"] {
-    background: hsl(var(--primary)) !important;
+    background: linear-gradient(to right, hsl(215, 85%, 75%), hsl(215, 85%, 45%)) !important;
 }
 
 /* Slider Thumb */
 span[role="slider"][data-orientation="horizontal"] {
     background-color: hsl(var(--background)) !important;
     border-color: hsl(var(--primary)) !important;
+    box-shadow: none !important;
 }
 
 /* Scrollbars */
 ::-webkit-scrollbar-thumb {
-    background-color: hsl(220, 40%, 19%) !important;
+    background-color: hsl(220, 40%, 20%) !important;
     border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
-    background-color: hsl(220, 40%, 25%) !important;
+    background: linear-gradient(to bottom, hsl(215, 85%, 65%), hsl(215, 85%, 40%)) !important;
 }
 ::-webkit-scrollbar-track {
     background-color: transparent !important;

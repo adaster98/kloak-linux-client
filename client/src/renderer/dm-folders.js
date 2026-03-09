@@ -225,10 +225,10 @@
         user-select: none; position: relative;
         margin-left: -20px; /* Pull header back into the gutter space */
       }
-      .dmf-folder-header:hover { background: var(--kloak-bg-btn); }
+      .dmf-folder-header:hover { background: hsl(var(--secondary)); }
       .dmf-folder-header.dmf-drag-over {
-        background: var(--kloak-bg-btn);
-        outline: 2px dashed var(--kloak-icon-fg);
+        background: hsl(var(--secondary));
+        outline: 2px dashed hsl(var(--muted-foreground));
         outline-offset: -2px;
       }
       .dmf-folder-header.dmf-dragging { opacity: 0.4; }
@@ -237,16 +237,16 @@
         width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
       }
       .dmf-folder-name {
-        flex: 1; font-size: 12px; font-weight: 600; color: var(--kloak-text-sub);
+        flex: 1; font-size: 12px; font-weight: 600; color: hsl(var(--muted-foreground));
         text-transform: uppercase; letter-spacing: 0.04em;
         white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
       }
       .dmf-folder-count {
-        font-size: 11px; color: var(--kloak-text-sub); flex-shrink: 0;
+        font-size: 11px; color: hsl(var(--muted-foreground)); flex-shrink: 0;
         margin-right: 4px;
       }
       .dmf-chevron {
-        flex-shrink: 0; color: var(--kloak-icon-fg);
+        flex-shrink: 0; color: hsl(var(--muted-foreground));
         transition: transform 0.2s;
       }
       .dmf-chevron.collapsed { transform: rotate(-90deg); }
@@ -254,14 +254,14 @@
       /* Create folder button */
       .dmf-create-btn {
         background: transparent; border: none; cursor: pointer;
-        color: var(--kloak-text-sub); padding: 0;
+        color: hsl(var(--muted-foreground)); padding: 0;
         display: flex; align-items: center; justify-content: center;
         width: 24px; height: 24px; border-radius: 4px;
         transition: color 0.2s, background 0.2s;
         margin-left: auto;
         margin-right: 4px;
       }
-      .dmf-create-btn:hover { color: var(--kloak-text-main); background: var(--kloak-bg-btn); }
+      .dmf-create-btn:hover { color: hsl(var(--foreground)); background: hsl(var(--secondary)); }
 
       /* Drag visuals */
       .dmf-dm-container {
@@ -289,7 +289,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        color: var(--kloak-icon-fg);
+        color: hsl(var(--muted-foreground));
         opacity: 0.2;
         cursor: grab;
         transition: all 0.2s;
@@ -299,15 +299,15 @@
         border: 2px solid transparent;
       }
       .dmf-dm-dragging .dmf-drag-tray {
-        border: 2px dotted var(--kloak-icon-fg);
+        border: 2px dotted hsl(var(--muted-foreground));
         opacity: 1;
-        background: var(--kloak-bg-btn);
+        background: hsl(var(--secondary));
       }
       .dmf-drag-tray svg { width: 16px; height: 22px; pointer-events: none; }
       .dmf-drag-tray:hover {
         opacity: 0.9;
-        background: var(--kloak-bg-btn);
-        color: var(--kloak-text-main);
+        background: hsl(var(--secondary));
+        color: hsl(var(--foreground));
       }
       .dmf-drag-tray:active { cursor: grabbing; }
 
@@ -318,15 +318,15 @@
         z-index: 10000 !important;
         opacity: 0.8;
         box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        background: var(--kloak-bg-secondary) !important;
-        border: 1px solid var(--kloak-bg-btn);
+        background: hsl(var(--card)) !important;
+        border: 1px solid hsl(var(--border));
         transform: scale(1.02);
         transition: none !important;
       }
 
       .dmf-drag-over {
-        background: var(--kloak-bg-btn) !important;
-        outline: 2px dashed var(--kloak-icon-fg) !important;
+        background: hsl(var(--secondary)) !important;
+        outline: 2px dashed hsl(var(--muted-foreground)) !important;
         outline-offset: -2px !important;
       }
 
@@ -336,12 +336,12 @@
         bottom: 12px;
         left: 12px;
         right: 12px;
-        background: var(--kloak-bg-secondary);
-        border: 2px dashed var(--kloak-icon-fg);
+        background: hsl(var(--card));
+        border: 2px dashed hsl(var(--muted-foreground));
         border-radius: 8px;
         padding: 14px 8px;
         text-align: center;
-        color: var(--kloak-icon-fg);
+        color: hsl(var(--muted-foreground));
         font-weight: 700;
         font-size: 10px;
         text-transform: uppercase;
@@ -361,9 +361,9 @@
         transform: translateY(0);
       }
       .dmf-ungroup-zone.dmf-drag-over {
-        background: var(--kloak-bg-btn);
-        border-color: var(--kloak-text-main);
-        color: var(--kloak-text-main);
+        background: hsl(var(--secondary));
+        border-color: hsl(var(--foreground));
+        color: hsl(var(--foreground));
         transform: scale(1.02);
         box-shadow: 0 12px 32px rgba(0,0,0,0.5);
       }
@@ -374,8 +374,8 @@
         bottom: 0; left: 0; right: 0;
         height: 160px;
         background: linear-gradient(to top,
-          var(--kloak-bg-main) 0%,
-          var(--kloak-bg-main) 45%,
+          hsl(var(--background)) 0%,
+          hsl(var(--background)) 45%,
           rgba(0,0,0,0) 100%
         );
         z-index: 10000;
@@ -392,22 +392,22 @@
       /* Context menu */
       #${MENU_ID} {
         position: fixed; z-index: 99999;
-        background: var(--kloak-bg-main); border: 1px solid var(--kloak-bg-btn);
+        background: hsl(var(--background)); border: 1px solid hsl(var(--border));
         border-radius: 8px; padding: 4px; min-width: 160px;
         box-shadow: 0 8px 24px rgba(0,0,0,0.6);
       }
       .dmf-ctx-item {
         display: flex; align-items: center; gap: 8px;
         padding: 8px 10px; border-radius: 4px;
-        font-size: 13px; color: var(--kloak-text-main);
+        font-size: 13px; color: hsl(var(--foreground));
         cursor: pointer; transition: background 0.1s;
         border: none; background: transparent; width: 100%;
         text-align: left;
       }
-      .dmf-ctx-item:hover { background: var(--kloak-bg-btn); }
-      .dmf-ctx-item.destructive { color: var(--kloak-accent-destructive); }
-      .dmf-ctx-item.destructive:hover { background: rgba(235,20,20,0.1); }
-      .dmf-ctx-sep { height: 1px; background: var(--kloak-bg-btn); margin: 4px 0; }
+      .dmf-ctx-item:hover { background: hsl(var(--secondary)); }
+      .dmf-ctx-item.destructive { color: hsl(var(--destructive)); }
+      .dmf-ctx-item.destructive:hover { background: hsl(var(--destructive) / 0.1); }
+      .dmf-ctx-sep { height: 1px; background: hsl(var(--border)); margin: 4px 0; }
 
       /* Color picker inside context menu */
       .dmf-color-grid {
@@ -420,17 +420,17 @@
         transition: border-color 0.15s, transform 0.1s;
       }
       .dmf-color-swatch:hover { transform: scale(1.15); }
-      .dmf-color-swatch.selected { border-color: var(--kloak-text-main); }
+      .dmf-color-swatch.selected { border-color: hsl(var(--foreground)); }
 
       /* Rename input */
       .dmf-rename-input {
-        background: var(--kloak-bg-box); border: 1px solid var(--kloak-bg-btn);
-        color: var(--kloak-text-main); font-size: 12px; font-weight: 600;
+        background: hsl(var(--card)); border: 1px solid hsl(var(--border));
+        color: hsl(var(--foreground)); font-size: 12px; font-weight: 600;
         padding: 4px 6px; border-radius: 4px; outline: none;
         text-transform: uppercase; letter-spacing: 0.04em;
         width: 100%;
       }
-      .dmf-rename-input:focus { border-color: var(--kloak-text-main); }
+      .dmf-rename-input:focus { border-color: hsl(var(--foreground)); }
     `;
     document.head.appendChild(style);
   };
@@ -464,7 +464,7 @@
     // Colour header
     const colorLabel = document.createElement("div");
     colorLabel.style.cssText =
-      "padding: 6px 10px 2px; font-size: 11px; color: var(--kloak-icon-fg); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;";
+      "padding: 6px 10px 2px; font-size: 11px; color: hsl(var(--muted-foreground)); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;";
     colorLabel.textContent = "Colour";
     menu.appendChild(colorLabel);
 
@@ -960,7 +960,7 @@
       const separator = document.createElement("div");
       separator.className = "dmf-divider";
       separator.style.height = "1px";
-      separator.style.backgroundColor = "var(--kloak-icon-fg)";
+      separator.style.backgroundColor = "hsl(var(--muted-foreground))";
       separator.style.margin = "12px 16px 12px -6px"; // Symmetrical 16px gap on both sides
       separator.style.pointerEvents = "none";
       separator.style.opacity = "0.1";

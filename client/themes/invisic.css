@@ -9,19 +9,19 @@
     /* Backgrounds */
     --background: 0 0% 0% !important;
     --layout-chat: 0 0% 0% !important;
-    --layout-sidebar: 0 0% 0% !important;
-    --layout-members: 0 0% 0% !important;
-    --layout-sidebar-secondary: 0 0% 0% !important;
+    --layout-sidebar: 0 0% 3% !important;
+    --layout-members: 0 0% 3% !important;
+    --layout-sidebar-secondary: 0 0% 2% !important;
 
     /* Surfaces & Containers */
-    --card: 0 0% 0% !important;
-    --popover: 0 0% 0% !important;
-    --secondary: 0 0% 0% !important;
-    --muted: 0 0% 0% !important;
+    --card: 0 0% 3% !important;
+    --popover: 0 0% 3% !important;
+    --secondary: 0 0% 5% !important;
+    --muted: 0 0% 4% !important;
 
     /* Borders & Inputs */
-    --border: 0 0% 12% !important;
-    --input: 0 0% 12% !important;
+    --border: 0 0% 8% !important;
+    --input: 0 0% 8% !important;
     --ring: 45 100% 50% !important;
 
     /* Text */
@@ -58,21 +58,21 @@ button[role="switch"][data-state="unchecked"] {
 
 /* Layout Overrides */
 .bg-layout-sidebar, .bg-layout-members {
-    background-color: hsl(0, 0%, 0%) !important;
+    background: linear-gradient(to bottom, hsl(0, 0%, 3%) 0%, hsl(0, 0%, 1%) 100%) !important;
 }
 .bg-layout-chat, .bg-background {
     background-color: hsl(0, 0%, 0%) !important;
 }
 .bg-layout-sidebar-secondary {
-    background-color: hsl(0, 0%, 0%) !important;
+    background: linear-gradient(to bottom, hsl(0, 0%, 4%) 0%, hsl(0, 0%, 1%) 100%) !important;
 }
 
 .bg-card, .bg-secondary, .bg-muted {
-    background-color: hsl(0, 0%, 0%) !important;
+    background-color: hsl(var(--card)) !important;
 }
 
 .border, .border-t, .border-b, .border-l, .border-r {
-    border-color: hsl(0, 0%, 12%) !important;
+    border-color: hsl(0, 0%, 8%) !important;
 }
 
 .bg-background\/20,
@@ -81,14 +81,14 @@ button[role="switch"][data-state="unchecked"] {
 .bg-background\/70,
 .popover,
 .dropdown-menu {
-    background-color: hsl(0, 0%, 0%) !important;
-    border: 1px solid hsl(0, 0%, 15%) !important;
+    background-color: hsl(0, 0%, 3%) !important;
+    border: 1px solid hsl(0, 0%, 10%) !important;
     backdrop-filter: none !important;
 }
 
 /* Resize Handles */
 [data-resize-handle]::after {
-    background-color: hsl(0, 0%, 12%) !important;
+    background-color: hsl(0, 0%, 6%) !important;
 }
 [data-resize-handle]:hover,
 [data-resize-handle][data-resize-handle-state="drag"] {

@@ -504,7 +504,8 @@
     _updateSettingsUI() {
       if (
         this._settingsContainer &&
-        document.body.contains(this._settingsContainer)
+        document.body.contains(this._settingsContainer) &&
+        this._settingsContainer.querySelector(".qt-settings")
       ) {
         this.renderSettings(this._settingsContainer);
       }

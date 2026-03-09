@@ -191,14 +191,14 @@ body.invisic-maximized #invisic-addon-settings-modal { border-radius: 0; }
 .store-modal-container { width: 640px; max-height: 85vh; display: flex; flex-direction: column; }
 .store-modal-content { overflow-y: auto; padding-right: 8px; display: flex; flex-direction: column; gap: 12px; }
 .store-loading-msg { text-align: center; color: hsl(var(--muted-foreground)); padding: 20px; }
-.store-error-msg { text-align: center; color: #EB1414; padding: 20px; }
+.store-error-msg { text-align: center; color: hsl(var(--destructive)); padding: 20px; }
 .store-addon-card { background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: 10px; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; gap: 16px; transition: border-color 0.2s; }
 .store-addon-info { flex: 1; min-width: 0; }
 .store-addon-title { margin: 0 0 2px 0; color: hsl(var(--foreground)); font-size: 14px; font-weight: 600; }
 .store-addon-desc { margin: 0; color: hsl(var(--muted-foreground)); font-size: 12px; line-height: 1.4; }
 .store-addon-action { flex-shrink: 0; }
 .store-btn-custom { background: transparent; color: hsl(var(--muted-foreground)); border: 1px solid hsl(var(--border)); padding: 6px 12px; border-radius: 8px; font-weight: 600; font-size: 12px; cursor: default; opacity: 0.6; }
-.store-btn-update { background: #3b82f6; color: #fff; border: 1px solid #3b82f6; padding: 6px 12px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 12px; transition: all 0.2s; }
+.store-btn-update { background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); border: 1px solid hsl(var(--primary)); padding: 6px 12px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 12px; transition: all 0.2s; }
 .store-btn-installed { background: transparent; color: hsl(var(--primary)); border: 1px solid hsl(var(--primary)); padding: 6px 12px; border-radius: 8px; font-weight: 600; font-size: 12px; cursor: default; opacity: 0.6; }
 
 /* Utility Classes for modal-renderer.js */
@@ -435,9 +435,9 @@ input[type="radio"]:checked::after {
 
 /* Validation error */
 .ias-add-error {
-    color: #EB1414; font-size: 12px; padding: 6px 10px;
-    background: rgba(235,20,20,0.08); border-radius: 6px;
-    border: 1px solid rgba(235,20,20,0.2);
+    color: hsl(var(--destructive)); font-size: 12px; padding: 6px 10px;
+    background: hsl(var(--destructive) / 0.08); border-radius: 6px;
+    border: 1px solid hsl(var(--destructive) / 0.2);
 }
 
 /* Toast entrance animation */
@@ -459,8 +459,8 @@ input[type="radio"]:checked::after {
 .isettings-section-card {
     padding: 16px;
     border-radius: 12px;
-    background: hsl(var(--secondary) / 0.3);
-    border: 1px solid hsl(var(--border) / 0.5);
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
     display: flex;
     flex-direction: column;
     gap: 4px;
@@ -483,8 +483,8 @@ input[type="radio"]:checked::after {
     gap: 16px;
     padding: 10px 12px;
     border-radius: 10px;
-    background: hsl(var(--background) / 0.3);
-    border: 1px solid hsl(var(--border) / 0.4);
+    background: hsl(var(--secondary) / 0.3);
+    border: 1px solid hsl(var(--border));
     transition: opacity 0.2s;
 }
 

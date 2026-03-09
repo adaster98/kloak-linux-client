@@ -38,6 +38,24 @@
     --accent-foreground: 0 0% 15% !important;
 }
 
+/* Buttons & Switches */
+.bg-primary,
+button[role="switch"][data-state="checked"],
+button[role="radio"][data-state="checked"] {
+    background: linear-gradient(145deg, hsl(0, 0%, 35%) 0%, hsl(0, 0%, 20%) 45%, hsl(0, 0%, 10%) 100%) !important;
+    border: none !important;
+    box-shadow: 0 2px 10px hsla(0, 0%, 15%, 0.15) !important;
+}
+
+.bg-primary:hover,
+button[role="switch"][data-state="checked"]:hover {
+    background: linear-gradient(145deg, hsl(0, 0%, 45%) 0%, hsl(0, 0%, 30%) 45%, hsl(0, 0%, 18%) 100%) !important;
+}
+
+button[role="switch"][data-state="unchecked"] {
+    background-color: hsl(0, 0%, 80%) !important;
+}
+
 /* Layout Overrides */
 .bg-layout-sidebar, .bg-layout-members {
     background-color: hsl(0, 0%, 96%) !important;
@@ -49,12 +67,23 @@
     background-color: hsl(0, 0%, 96%) !important;
 }
 
+.bg-card, .bg-secondary, .bg-muted {
+    background-color: hsl(var(--card)) !important;
+}
+
+.border, .border-t, .border-b, .border-l, .border-r {
+    border-color: hsl(var(--border)) !important;
+}
+
 .bg-background\/20,
 .bg-muted\/60,
 .bg-background\/50,
-.bg-background\/70 {
+.bg-background\/70,
+.popover,
+.dropdown-menu {
     background-color: hsl(0, 0%, 96%) !important;
-    border-color: hsl(0, 0%, 85%) !important;
+    border: 1px solid hsl(0, 0%, 85%) !important;
+    backdrop-filter: none !important;
     color: hsl(0, 0%, 15%) !important;
 }
 
@@ -72,13 +101,14 @@ span[data-orientation="horizontal"]:not([dir]):not([role]) {
     background-color: hsl(var(--secondary)) !important;
 }
 span[data-orientation="horizontal"]:not([dir]):not([role]) > span[data-orientation="horizontal"] {
-    background: hsl(var(--primary)) !important;
+    background: linear-gradient(to right, hsl(0, 0%, 50%), hsl(0, 0%, 15%)) !important;
 }
 
 /* Slider Thumb */
 span[role="slider"][data-orientation="horizontal"] {
     background-color: hsl(var(--background)) !important;
     border-color: hsl(var(--primary)) !important;
+    box-shadow: none !important;
 }
 
 /* Scrollbars */
@@ -87,7 +117,7 @@ span[role="slider"][data-orientation="horizontal"] {
     border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
-    background-color: hsl(0, 0%, 65%) !important;
+    background: linear-gradient(to bottom, hsl(0, 0%, 55%), hsl(0, 0%, 30%)) !important;
 }
 ::-webkit-scrollbar-track {
     background-color: transparent !important;

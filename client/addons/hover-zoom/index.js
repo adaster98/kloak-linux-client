@@ -151,7 +151,7 @@
       container.innerHTML = `
             <style>
             .hz-slider { background: linear-gradient(to right, hsl(var(--primary)) 0%, hsl(var(--primary)) var(--range-percent, 0%), hsl(var(--input)) var(--range-percent, 0%), hsl(var(--input)) 100%) !important; }
-            .hz-slider::-webkit-slider-thumb { background: hsl(0, 0%, 0%) !important; border: 2px solid hsl(var(--primary)) !important; }
+            .hz-slider::-webkit-slider-thumb { background: hsl(var(--background)) !important; border: 2px solid hsl(var(--primary)) !important; }
             </style>
             <div class="addon-settings-item">
                 <label class="addon-label">Lens Size <span class="addon-val"><span id="hz-size-val">${config.lensSize}</span>px</span></label>
