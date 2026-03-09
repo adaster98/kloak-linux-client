@@ -10,6 +10,8 @@ A highly customizable desktop client for Kloak.app, free and open source. <br>
 
 #### - Choose from over 5 additional addons to enhance your experience <br>
 
+Join the Invisic community server: https://kloak.app/invite/TDBS7JTK
+
 ## Installation:
 
 **Linux:**<br>
