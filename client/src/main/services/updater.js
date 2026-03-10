@@ -22,7 +22,8 @@ async function checkForCustomUpdate(event) {
     const gitRepo = "adaster98/invisic-client";
 
     const response = await fetch(
-      `https://codeberg.org/api/v1/repos/${gitRepo}/releases/latest`,
+      `https://api.github.com/repos/${gitRepo}/releases/latest`,
+      { headers: { "User-Agent": "invisic-client-updater" } }
     );
     const data = await response.json();
 
@@ -48,7 +49,8 @@ async function triggerDebugUpdate(event) {
   try {
     const gitRepo = "adaster98/invisic-client";
     const response = await fetch(
-      `https://codeberg.org/api/v1/repos/${gitRepo}/releases/latest`,
+      `https://api.github.com/repos/${gitRepo}/releases/latest`,
+      { headers: { "User-Agent": "invisic-client-updater" } }
     );
     const data = await response.json();
 
@@ -72,7 +74,8 @@ async function downloadUpdate(event, { version, platform }) {
     // Fetch release data to find the correct asset download URL
     const gitRepo = "adaster98/invisic-client";
     const releaseRes = await fetch(
-      `https://codeberg.org/api/v1/repos/${gitRepo}/releases/latest`,
+      `https://api.github.com/repos/${gitRepo}/releases/latest`,
+      { headers: { "User-Agent": "invisic-client-updater" } }
     );
     const releaseData = await releaseRes.json();
 

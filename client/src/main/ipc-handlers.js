@@ -383,11 +383,11 @@ function registerIpcHandlers() {
   ipcMain.handle("fetch-store-data", async () => {
     try {
       const dbUrl =
-        "https://codeberg.org/adaster98/invisic-client/raw/branch/main/addons/store.json?t=" +
+        "https://raw.githubusercontent.com/adaster98/invisic-client/main/addons/store.json?t=" +
         Date.now();
       const response = await fetch(dbUrl);
       if (!response.ok)
-        throw new Error(`Codeberg returned status: ${response.status}`);
+        throw new Error(`GitHub returned status: ${response.status}`);
       const data = await response.json();
       return { success: true, data };
     } catch (err) {

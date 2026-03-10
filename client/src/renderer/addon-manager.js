@@ -434,7 +434,7 @@ class InvisicAddonManager {
           <div class="isettings-inner-row">
             <div>
               <p class="text-sm font-medium">Updates</p>
-              <p class="text-xs text-muted-foreground" style="margin-top:2px;">Check Codeberg for a newer release</p>
+              <p class="text-xs text-muted-foreground" style="margin-top:2px;">Check GitHub for a newer release</p>
             </div>
             <div class="isettings-ctrl-group">
               <button id="invisic-check-update-btn" class="isettings-update-btn">
@@ -692,7 +692,7 @@ class InvisicAddonManager {
         </div>
         <div class="addon-action-text-group">
         <h3 class="addon-action-title">Get More Addons</h3>
-        <p class="addon-action-subtitle">Download from Codeberg</p>
+        <p class="addon-action-subtitle">Download from GitHub</p>
         </div>
         </div>
         </button>
@@ -803,7 +803,7 @@ class InvisicAddonManager {
                     </div>
                     <div class="invisic-modal-title-group">
                         <h3 class="invisic-modal-title">Addon Store</h3>
-                        <p class="invisic-modal-subtitle">Download from Codeberg</p>
+                        <p class="invisic-modal-subtitle">Download from GitHub</p>
                     </div>
                     <button id="store-close-btn" class="invisic-btn-secondary invisic-modal-close-icon-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
                 </div>
@@ -820,7 +820,7 @@ class InvisicAddonManager {
 
     storeModal.style.display = "flex";
     const content = document.getElementById("store-content");
-    content.innerHTML = `<p class="store-loading-msg">Connecting to Codeberg repository...</p>`;
+    content.innerHTML = `<p class="store-loading-msg">Connecting to GitHub repository...</p>`;
 
     try {
       // Use cached store data if fresh (5 min TTL)
