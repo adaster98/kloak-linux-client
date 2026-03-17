@@ -110,24 +110,23 @@
         styleTag = document.createElement("style");
         styleTag.id = styleId;
         styleTag.innerHTML = `
-                /* 1. Hide Left Server/Channel Panel */
-                .bg-layout-sidebar-secondary {
+                /* 1. Hide Left Server Icon Bar (w-[68px] shrink-0) */
+                [class*="w-[68px]"][class*="shrink-0"] {
                     display: none !important;
                 }
 
-                /* 2. Hide Right Members Panel */
-                .bg-layout-members {
+                /* 2. Hide Left Channel/DM Panel (w-[278px] shrink-0) */
+                [class*="w-[278px]"][class*="shrink-0"] {
                     display: none !important;
                 }
 
-                /* 3. Hide Top Server Selector */
-                /* Using attribute selectors safely targets the slashes in Tailwind classes */
-                [class*="h-14"][class*="bg-background/20"][class*="border-b"][class*="border-border/30"] {
+                /* 3. Hide Right Members Panel */
+                [class*="w-[260px]"][class*="shrink-0"] {
                     display: none !important;
                 }
 
                 /* 4. Ensure the center chat expands smoothly */
-                main, .flex-1 {
+                [class*="min-w-0"][class*="flex-1"] {
                     max-width: none !important;
                 }
                 `;

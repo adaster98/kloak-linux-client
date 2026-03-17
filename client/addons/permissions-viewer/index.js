@@ -447,16 +447,23 @@
   };
 
   const injectToMenu = (menuEl) => {
-    if (!menuEl || menuEl.getAttribute("data-state") !== "open") return;
+    if (!menuEl || menuEl.getAttribute("data-state") !== "open") {
+      console.log("[perm-viewer] injectToMenu: skipped — no element or not open", menuEl?.getAttribute("data-state"));
+      return;
+    }
     if (menuEl.querySelector(`[data-addon="${ADDON_ID}"]`)) return;
 
     const menuText = menuEl.textContent;
+    console.log("[perm-viewer] injectToMenu: menuText =", JSON.stringify(menuText.slice(0, 120)));
     const isSidebarContextMenu =
       menuText.includes("Mark as Read") || menuText.includes("Mute Server");
     const isHeaderDropdown =
-      menuText.includes("Invite People") ||
-      menuText.includes("Server Settings");
+      !isSidebarContextMenu &&
+      (menuText.includes("Invite People") ||
+        menuText.includes("Server Settings") ||
+        menuText.includes("Leave Server"));
 
+    console.log("[perm-viewer] isSidebar:", isSidebarContextMenu, "isHeader:", isHeaderDropdown);
     if (!isSidebarContextMenu && !isHeaderDropdown) return;
 
     const leaveBtn = Array.from(
@@ -520,23 +527,45 @@
   };
 
   const startInjection = () => {
+    console.log("[perm-viewer] startInjection called");
     menuObserver = new MutationObserver((muts) => {
+      const menusToCheck = new Set();
+
       for (const m of muts) {
         if (m.type === "childList") {
-          for (const node of m.addedNodes)
-            if (node.nodeType === 1) {
-              const menu =
-                node.querySelector?.('[role="menu"]') ||
-                (node.getAttribute?.("role") === "menu" ? node : null);
-              if (menu) setTimeout(() => injectToMenu(menu), 50);
+          for (const node of m.addedNodes) {
+            if (node.nodeType !== 1) continue;
+            // A menu element (or wrapper containing one) was added to the DOM
+            const directMenu =
+              node.querySelector?.('[role="menu"]') ||
+              (node.getAttribute?.("role") === "menu" ? node : null);
+            if (directMenu) menusToCheck.add(directMenu);
+            // A child was added INTO an existing menu (deferred/async rendering)
+            const parentMenu = m.target.closest?.('[role="menu"]');
+            if (parentMenu) menusToCheck.add(parentMenu);
+          }
+          for (const node of m.removedNodes) {
+            if (node.nodeType !== 1) continue;
+            // Our injected item was removed by React reconciliation — re-inject
+            if (node.getAttribute?.("data-addon") === ADDON_ID) {
+              const parentMenu =
+                m.target.closest?.('[role="menu"]') ||
+                (m.target.getAttribute?.("role") === "menu" ? m.target : null);
+              if (parentMenu) menusToCheck.add(parentMenu);
             }
+          }
         } else if (
           m.type === "attributes" &&
           m.attributeName === "data-state"
         ) {
           if (m.target.getAttribute?.("data-state") === "open")
-            injectToMenu(m.target);
+            menusToCheck.add(m.target);
         }
+      }
+
+      if (menusToCheck.size > 0) {
+        console.log("[perm-viewer] menus to check:", menusToCheck.size);
+        setTimeout(() => menusToCheck.forEach(injectToMenu), 0);
       }
     });
     menuObserver.observe(document.body, {

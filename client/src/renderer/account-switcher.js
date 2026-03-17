@@ -226,8 +226,21 @@
     if (!window.__invisicSwitchLoadingInstalled) {
       window.__invisicSwitchLoadingInstalled = true;
       const sync = () => {
-        const isPending = !!sessionStorage.getItem("invisic-pending-key-hash");
-        if (isPending) {
+        const pendingHash = sessionStorage.getItem("invisic-pending-key-hash");
+        if (pendingHash) {
+          // Kloak's app is rendered and the user is authenticated once the
+          // sidebar footer exists — use this as a fallback finalization signal
+          // when login_user is never called (new Kloak auth flow).
+          if (
+            window.location.pathname.startsWith("/app") &&
+            document.querySelector(".h-14.bg-layout-sidebar")
+          ) {
+            sessionStorage.removeItem("invisic-pending-secret-key");
+            sessionStorage.removeItem("invisic-pending-key-hash");
+            resetSwitchWatchdogFlags();
+            endSwitchLoadingTransition();
+            return;
+          }
           showSwitchLoading(true);
         } else {
           endSwitchLoadingTransition();
@@ -278,7 +291,7 @@
     }
   }
 
-  function buildAuthPayload(existingAuth, secretKey, keyHash) {
+  function buildAuthPayload(existingAuth, keyHash) {
     const safeExisting =
       existingAuth && typeof existingAuth === "object" ? existingAuth : {};
     const existingState =
@@ -288,17 +301,10 @@
 
     return {
       ...safeExisting,
-      secretKey,
-      keyHash,
-      manualStatus:
-        typeof safeExisting.manualStatus !== "undefined"
-          ? safeExisting.manualStatus
-          : null,
       state: {
         ...existingState,
-        secretKey,
         keyHash,
-        isAuthenticated: !!secretKey,
+        manualStatus: existingState.manualStatus ?? null,
         isLoading: false,
         error: null,
       },
@@ -306,16 +312,14 @@
   }
 
   function applyPendingAuthState() {
-    const pendingSecret = sessionStorage.getItem("invisic-pending-secret-key");
     const pendingHash = sessionStorage.getItem("invisic-pending-key-hash");
-    if (!pendingSecret || !pendingHash) return;
+    if (!pendingHash) return;
 
     const existingAuth = parseKloakAuth();
-    const nextAuth = buildAuthPayload(existingAuth, pendingSecret, pendingHash);
+    const nextAuth = buildAuthPayload(existingAuth, pendingHash);
     localStorage.setItem("kloak-auth", JSON.stringify(nextAuth));
-    localStorage.setItem("kloak-secret-key", pendingSecret);
     trace("pending-auth-applied", {
-      info: `secret=${redact(pendingSecret, 6, 4)} hash=${redact(pendingHash, 6, 4)}`,
+      info: `hash=${redact(pendingHash, 6, 4)}`,
     });
     if (window.InvisicAddonAPI && typeof window.InvisicAddonAPI === "object") {
       window.InvisicAddonAPI.xHash = pendingHash;
@@ -412,39 +416,26 @@
 
     const origSetItem = localStorage.setItem.bind(localStorage);
     localStorage.setItem = function (key, value) {
-      const pendingSecret = sessionStorage.getItem("invisic-pending-secret-key");
       const pendingHash = sessionStorage.getItem("invisic-pending-key-hash");
 
       if (key === "kloak-auth") {
         try {
-          if (pendingSecret && pendingHash) {
+          if (pendingHash) {
             const parsed = JSON.parse(value || "{}");
-            const sk = parsed?.secretKey || parsed?.state?.secretKey || null;
-            const kh = parsed?.keyHash || parsed?.state?.keyHash || null;
+            const kh = parsed?.state?.keyHash || parsed?.keyHash || null;
             trace("localStorage.setItem", {
-              info: `kloak-auth secret=${redact(sk, 6, 4)} hash=${redact(kh, 6, 4)}`,
+              info: `kloak-auth hash=${redact(kh, 6, 4)}`,
             });
-            if (sk !== pendingSecret || kh !== pendingHash) {
-              const coerced = buildAuthPayload(parsed, pendingSecret, pendingHash);
+            if (kh !== pendingHash) {
+              const coerced = buildAuthPayload(parsed, pendingHash);
               trace("kloak-auth.coerced", {
-                info: `to secret=${redact(pendingSecret, 6, 4)} hash=${redact(pendingHash, 6, 4)}`,
+                info: `to hash=${redact(pendingHash, 6, 4)}`,
               });
               origSetItem(key, JSON.stringify(coerced));
               return;
             }
           }
         } catch (e) {}
-      } else if (key === "kloak-secret-key") {
-        trace("localStorage.setItem", {
-          info: `kloak-secret-key value=${redact(value, 6, 4)}`,
-        });
-        if (pendingSecret && (value || "").trim() !== pendingSecret) {
-          trace("kloak-secret-key.coerced", {
-            info: `to ${redact(pendingSecret, 6, 4)}`,
-          });
-          origSetItem(key, pendingSecret);
-          return;
-        }
       }
       origSetItem(key, value);
     };
@@ -472,36 +463,14 @@
       if (window.electronAPI?.setActiveUserId && account.id && !account.id.startsWith("pending-")) {
         window.electronAPI.setActiveUserId(account.id);
       }
-      let existingAuth = {};
-      try {
-        existingAuth = JSON.parse(localStorage.getItem("kloak-auth") || "{}");
-      } catch (e) {
-        existingAuth = {};
-      }
-      const clearedAuth = {
-        ...(existingAuth && typeof existingAuth === "object" ? existingAuth : {}),
-        secretKey: null,
-        keyHash: null,
-        manualStatus: null,
-      };
-      if (existingAuth && typeof existingAuth === "object" && existingAuth.state) {
-        clearedAuth.state = {
-          ...existingAuth.state,
-          secretKey: null,
-          keyHash: null,
-          manualStatus: null,
-          user: null,
-          isAuthenticated: false,
-          isLoading: false,
-          error: null,
-        };
-      }
-      localStorage.setItem("kloak-auth", JSON.stringify(clearedAuth));
+      // Write the target account's keyHash so Kloak's auth flow can pick it up
+      const existingAuth = parseKloakAuth();
+      const switchAuth = buildAuthPayload(existingAuth, pendingKeyHash);
+      localStorage.setItem("kloak-auth", JSON.stringify(switchAuth));
       localStorage.removeItem("kloak-secret-key");
       beginSwitchLoadingTransition();
 
-      const target = new URL("/desktop-auth", window.location.origin);
-      target.searchParams.set("mode", "login");
+      const target = new URL("/app", window.location.origin);
       target.searchParams.set("invisicSwitch", String(Date.now()));
       trace("switch.navigate", { info: target.pathname + target.search });
       await new Promise((resolve) => setTimeout(resolve, SWITCH_LOADING_FADE_IN_MS));
@@ -532,7 +501,6 @@
         const profile = api.userProfile;
         const avatarUrl =
           profile?.avatar_url || profile?.avatarUrl || null;
-        const currentSecretKey = getCurrentSecretKey();
         const runtimeXHash = (api?.xHash || "").toLowerCase();
         const pendingKeyHash = (sessionStorage.getItem("invisic-pending-key-hash") || "").toLowerCase();
 
@@ -545,29 +513,34 @@
           endSwitchLoadingTransition();
         }
 
-        if (/^[0-9a-f]{64}$/i.test(currentSecretKey || "") && runtimeXHash) {
-          const expectedXHash = await hashSecretKey(currentSecretKey);
-          if (expectedXHash !== runtimeXHash) {
-            trace("switch.mismatch", {
-              info: `expected=${redact(expectedXHash, 6, 4)} runtime=${redact(runtimeXHash, 6, 4)}`,
-            });
-            console.warn(
-              "[AccountSwitcher] Detected auth hash mismatch after switch; skipping account metadata sync.",
-              { expectedXHash, runtimeXHash },
-            );
-            return;
+        if (!pendingKeyHash && runtimeXHash) {
+          const storedAccount = accountsData.accounts.find((a) => a.id === currentUserId);
+          if (storedAccount?.secretKey) {
+            const expectedXHash = await hashSecretKey(storedAccount.secretKey);
+            if (expectedXHash !== runtimeXHash) {
+              trace("switch.mismatch", {
+                info: `expected=${redact(expectedXHash, 6, 4)} runtime=${redact(runtimeXHash, 6, 4)}`,
+              });
+              console.warn(
+                "[AccountSwitcher] Detected auth hash mismatch after switch; skipping account metadata sync.",
+                { expectedXHash, runtimeXHash },
+              );
+              return;
+            }
+            trace("switch.finalized", { info: "expected hash matched runtime hash" });
+            sessionStorage.removeItem("invisic-pending-secret-key");
+            sessionStorage.removeItem("invisic-pending-key-hash");
+            resetSwitchWatchdogFlags();
+            endSwitchLoadingTransition();
           }
-          trace("switch.finalized", { info: "expected hash matched runtime hash" });
-          sessionStorage.removeItem("invisic-pending-secret-key");
-          sessionStorage.removeItem("invisic-pending-key-hash");
-          resetSwitchWatchdogFlags();
-          endSwitchLoadingTransition();
         }
 
-        // Resolve pending IDs
+        // Resolve pending IDs — pending-{hash16} matched against runtimeXHash prefix
         const pendingIdx = accountsData.accounts.findIndex(
           (a) =>
-            a.id.startsWith("pending-") && a.secretKey === currentSecretKey,
+            a.id.startsWith("pending-") &&
+            runtimeXHash &&
+            runtimeXHash.startsWith(a.id.slice("pending-".length)),
         );
         if (pendingIdx !== -1) {
           accountsData.accounts[pendingIdx].id = currentUserId;
@@ -597,8 +570,8 @@
           return;
         }
 
-        // Current user not in list — offer to save
-        offerToSaveCurrentAccount(api, avatarUrl, currentSecretKey);
+        // Current user not in list — offer to save (only possible if secret key is available)
+        offerToSaveCurrentAccount(api, avatarUrl, getCurrentSecretKey());
       });
     };
     tryRegister();
@@ -692,8 +665,8 @@
     const findAndInject = () => {
       if (document.getElementById("invisic-switch-btn")) return;
 
-      // Find the sidebar footer bar — it's h-14 with bg-layout-sidebar and a border-t
-      const footers = document.querySelectorAll(".h-14.bg-layout-sidebar");
+      // Find the sidebar footer bar — it's h-14 containing the settings gear
+      const footers = document.querySelectorAll(".h-14");
       let footer = null;
       for (const el of footers) {
         // The correct footer has the settings gear button inside it

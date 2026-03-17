@@ -5,7 +5,7 @@
  */
 
 /* Core Variables */
-:root, .dark, [data-theme="dark"], body {
+:root, .dark, .default, [data-theme="dark"], [data-theme="default"], body {
     /* Backgrounds */
     --background: 0 0% 0% !important;
     --layout-chat: 0 0% 0% !important;
@@ -61,7 +61,7 @@ button[role="switch"][data-state="unchecked"] {
     background: linear-gradient(to bottom, hsl(0, 0%, 3%) 0%, hsl(0, 0%, 1%) 100%) !important;
 }
 .bg-layout-chat, .bg-background {
-    background-color: hsl(0, 0%, 0%) !important;
+    background: hsl(0, 0%, 0%) !important;
 }
 .bg-layout-sidebar-secondary {
     background: linear-gradient(to bottom, hsl(0, 0%, 4%) 0%, hsl(0, 0%, 1%) 100%) !important;
@@ -121,4 +121,37 @@ span[role="slider"][data-orientation="horizontal"] {
 }
 ::-webkit-scrollbar-track {
     background-color: transparent !important;
+}
+
+/* Override Kloak's hardcoded gradient on the main content area */
+[class*="radial-gradient"] {
+    background: hsl(var(--background)) !important;
+}
+
+/* Sidebar solid background: bg-[#111111] */
+[class*="#111111"]:not([class*="gradient-to"]) {
+    background: hsl(var(--layout-sidebar)) !important;
+}
+
+/* Channel header: bg-[#1c1c1c] */
+[class*="#1c1c1c"] {
+    background: hsl(var(--card)) !important;
+}
+
+/* Sidebar footer: bg-[rgb(24_24_24_/_55%)] */
+[class*="24_24_24"] {
+    background: hsl(var(--layout-sidebar)) !important;
+}
+
+/* Server banner gradient overlays — fade to theme sidebar color */
+[class*="gradient-to-b"][class*="#111111"] {
+    background: linear-gradient(to bottom, transparent, transparent, hsl(var(--layout-sidebar))) !important;
+}
+[class*="gradient-to-t"][class*="#111111"] {
+    background: linear-gradient(to top, hsl(var(--layout-sidebar)), hsl(var(--layout-sidebar) / 0.82), transparent) !important;
+}
+
+/* Message input box container */
+div:has(textarea.message-input-textarea) {
+    background: hsl(var(--card)) !important;
 }

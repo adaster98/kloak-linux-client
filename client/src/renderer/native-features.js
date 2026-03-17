@@ -37,16 +37,19 @@
     };
 
     const injectStealthButton = () => {
-      const controls = document.querySelector(
-        ".flex.items-center.gap-1.mb-0\\.5.relative"
-      );
-      if (!controls || document.getElementById("invisic-stealth-btn")) return;
+      if (document.getElementById("invisic-stealth-btn")) return;
+      // Find the left button group in the message toolbar via the textarea anchor
+      const textarea = document.querySelector("textarea.message-input-textarea");
+      const controls = textarea
+        ?.closest('[class*="rounded-"]')
+        ?.querySelector(".flex.items-center.gap-0\\.5");
+      if (!controls) return;
 
       const stealthBtn = document.createElement("button");
       stealthBtn.id = "invisic-stealth-btn";
       stealthBtn.type = "button";
       stealthBtn.className =
-        "p-2 rounded-xl text-muted-foreground hover:bg-muted/50 transition-colors";
+        "flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:bg-white/6 hover:text-foreground transition-colors";
       updateButtonIcon(stealthBtn);
 
       stealthBtn.addEventListener("click", (e) => {
